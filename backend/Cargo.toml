@@ -11,3 +11,6 @@ crate-type = ["cdylib"]
 ft-sdk.workspace = true
 bytes.workspace = true
 http.workspace = true
+diesel.workspace = true
+chrono.workspace = true
+serde_json.workspace = true

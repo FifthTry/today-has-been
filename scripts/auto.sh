@@ -23,3 +23,19 @@ function build-wasm() {
     cp ../target/wasm32-unknown-unknown/release/backend.wasm ../frontend/ || return 1
     popd2
 }
+
+
+function create-schema() {
+    pushd2 "${PROJ_ROOT}"
+    if ! command -v diesel &> /dev/null; then
+          cargo install diesel_cli --no-default-features --features postgres
+    fi
+
+    diesel print-schema --database-url="${DATABASE_URL}" > /tmp/schema.rs
+    # if content of ../ft-common/src/schema.rs is different from /tmp/schema.rs, then only copy
+    if ! diff -q backend/src/schema.rs /tmp/schema.rs; then
+      cp /tmp/schema.rs backend/src/schema.rs
+    fi
+
+    popd2
+}
