@@ -1,0 +1,27 @@
+[workspace]
+members = [
+     "backend",
+]
+resolver = "2"
+
+[profile.release]
+lto = true
+opt-level = 's'
+
+[workspace.package]
+authors = [
+    "Amit Upadhyay <upadhyay@gmail.com>",
+    "Arpita Jaiswal <arpita@fifthtry.com>",
+    "Rithik Seth <rithik@fifthtry.com>",
+]
+edition = "2021"
+description = "ft: FifthTry Backend"
+license = "Copyright FifthTry"
+repository = "https://github.com/FifthTry/dotcom"
+homepage = "https://www.fifthtry.com"
+
+
+[workspace.dependencies]
+ft-sdk = "0.1.1"
+bytes = "1.0"
+http = "1.0"

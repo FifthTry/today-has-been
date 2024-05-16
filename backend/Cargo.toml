@@ -1,0 +1,13 @@
+[package]
+name = "backend"
+version = "0.1.0"
+edition.workspace = true
+
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+ft-sdk.workspace = true
+bytes.workspace = true
+http.workspace = true
