@@ -1,0 +1,13 @@
+-- import: fifthtry.github.io/today-has-been-ui/page/homepage
+-- import: fifthtry.github.io/today-has-been-ui/record/user-data as ud
+
+-- homepage.page:
+user-data: $not-logged-in-user
+whatsapp-link: https://wa.me/919910807891?text=Start
+
+
+-- ud.user-data not-logged-in-user:
+notifications: 0
+username: $ftd.empty
+name: $ftd.empty
+is-logged-in: false

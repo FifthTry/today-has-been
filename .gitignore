@@ -1,4 +1,3 @@
-.packages
-.build
-.DS_Store
+frontend/.packages
 .idea
+frontend/.fastn

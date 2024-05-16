@@ -1,0 +1,5 @@
+-- import: fastn
+
+-- fastn.package: todayhasbeen-dotcom.fifthtry.site
+
+-- fastn.dependency: fifthtry.github.io/today-has-been-ui
