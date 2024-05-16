@@ -26,7 +26,7 @@ pub fn route(r: http::Request<bytes::Bytes>) -> http::Response<bytes::Bytes> {
         createdon: in_.now,
     }).execute(&mut conn).unwrap();
 
-    ft_sdk::json_response(serde_json::json!({"reload": true}))
+    ft_sdk::json_response(serde_json::json!({"success": true}))
 }
 
 
