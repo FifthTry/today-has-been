@@ -67,12 +67,10 @@ struct ApiPost {
 fn call_get_posts_api(token: &str) -> ApiResponse {
     let authorization_header = format!("Bearer {}", token);
 
-    let url = ft_sdk::env::var("SITE_URL".to_string()).unwrap();
-
     let client = http::Request::builder();
     let request = client
         .method("GET")
-        .uri(format!("{url}/api/v0.1/get/posts"))
+        .uri("http://ec2-184-72-72-45.compute-1.amazonaws.com/api/v0.1/get/posts")
         .header("Authorization", authorization_header)
         .header("Accept", "application/json; api-version=2.0")
         .header("Content-Type", "application/json")
@@ -110,6 +108,7 @@ struct PostData {
 }
 
 #[derive(serde::Serialize, Debug)]
+#[serde(rename_all = "kebab-case")]
 struct PostDataByDate {
     time: String,
     post: Option<String>,
