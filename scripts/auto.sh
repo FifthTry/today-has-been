@@ -4,7 +4,7 @@ export PROJ_ROOT=$(pwd)
 export LANG=en_US.UTF-8
 export LC_ALL=en_US.UTF-8
 #export DATABASE_URL=${DATABASE_URL:-postgresql://127.0.0.1/fifthtry}
-echo SITE_URL=http://127.0.0.1:8000
+export SITE_URL=${SITE_URL:-http://127.0.0.1:8000}
 
 function pushd2() {
     PUSHED=$(pwd)
@@ -37,6 +37,24 @@ function create-schema() {
     if ! diff -q backend/src/schema.rs /tmp/schema.rs; then
       cp /tmp/schema.rs backend/src/schema.rs
     fi
+
+    popd2
+}
+
+
+function upload-frontend() {
+    pushd2 "${PROJ_ROOT}/frontend" || return 1
+
+    if [ -z "$(git status --porcelain)" ]; then
+      echo "working directory clean"
+    else
+      echo "working directory dirty"
+      return 1
+    fi
+
+    FIFTHTRY_SITE_WRITE_TOKEN=$(cat ../token.txt) \
+      DEBUG_API_FIFTHTRY_COM=https://www.fifthtry.com/ft2 \
+      fastn upload todayhasbeen-dotcom
 
     popd2
 }
