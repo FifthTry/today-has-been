@@ -3,7 +3,8 @@ export PROJ_ROOT=$(pwd)
 
 export LANG=en_US.UTF-8
 export LC_ALL=en_US.UTF-8
-export DATABASE_URL=${DATABASE_URL:-postgresql://127.0.0.1/fifthtry}
+#export DATABASE_URL=${DATABASE_URL:-postgresql://127.0.0.1/fifthtry}
+echo SITE_URL=http://127.0.0.1:8000
 
 function pushd2() {
     PUSHED=$(pwd)

@@ -2,7 +2,10 @@
 
 -- fastn.package: todayhasbeen-dotcom.fifthtry.site
 
--- fastn.dependency: fifthtry.github.io/today-has-been-ui
+-- fastn.dependency: todayhasbeen-ui.fifthtry.site
+-- fastn.dependency: design-system.fifthtry.site
+
+-- fastn.auto-import: todayhasbeen-ui.fifthtry.site/ds
 
 
 

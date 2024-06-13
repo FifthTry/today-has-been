@@ -1,0 +1,36 @@
+-- import: todayhasbeen-ui.fifthtry.site/ds
+
+
+-- component page-wrapper:
+caption title:
+children wrapper:
+
+-- ds.section-column:
+inset: $ds.spaces.inset-square.extra-large
+
+-- ds.column:
+background.solid: $ds.colors.background.step-1
+inset: $ds.spaces.inset-square.medium
+width.fixed.px: 500
+width if { ftd.device == "mobile" }: fill-container
+spacing: $ds.spaces.vertical-gap.small
+
+-- ds.heading-tiny: $page-wrapper.title
+style: bold
+
+-- ds.column:
+border: $ds.borders.top.small
+radius: $ds.radius.zero
+border-color: $ds.colors.custom.one
+content: $page-wrapper.wrapper
+inset: $ds.spaces.inset-square.medium
+spacing: $ds.spaces.vertical-gap.large
+align-content: left
+
+-- end: ds.column
+
+-- end: ds.column
+
+-- end: ds.section-column
+
+-- end: page-wrapper

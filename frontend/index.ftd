@@ -1,13 +1,32 @@
--- import: fifthtry.github.io/today-has-been-ui/page/homepage
--- import: fifthtry.github.io/today-has-been-ui/record/user-data as ud
+-- import: todayhasbeen-ui.fifthtry.site/page/homepage
+-- import: todayhasbeen-ui.fifthtry.site/page/dashboard
+-- import: todayhasbeen-ui.fifthtry.site/record/user-data as ud
+-- import: fastn/processors as pr
+
+
+
+-- optional string access_token:
+$processor$: pr.request-data
+
+-- string order: new
+$processor$: pr.request-data
+
+
+-- ud.user-data user:
+$processor$: pr.http
+url: /backend/user/
+access-token: $access_token
+order: $order
+
+
 
 -- homepage.page:
-user-data: $not-logged-in-user
+user-data: $user
+if: { !user.is-logged-in }
 whatsapp-link: https://wa.me/919910807891?text=Start
 
 
--- ud.user-data not-logged-in-user:
-notifications: 0
-username: $ftd.empty
-name: $ftd.empty
-is-logged-in: false
+-- dashboard.page:
+user-data: $user
+;; order: $order
+if: { user.is-logged-in }

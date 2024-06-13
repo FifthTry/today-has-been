@@ -22,11 +22,13 @@ homepage = "https://www.fifthtry.com"
 
 
 [workspace.dependencies]
-ft-sdk = "0.1.1"
+ft-sdk = { version = "0.1.11", features = ["field-extractors"] }
 bytes = "1.0"
 http = "1.0"
 chrono = { version = "0.4", features = ["serde"], default-features = false }
 serde_json = "1"
+serde = {  version = "1", features = ["derive"] }
+cookie = "0.18"
 
 
 [workspace.dependencies.diesel]

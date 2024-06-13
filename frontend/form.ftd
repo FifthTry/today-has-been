@@ -1,0 +1,112 @@
+-- import: todayhasbeen-ui.fifthtry.site/ds
+-- import: todayhasbeen-dotcom.fifthtry.site/utils
+
+
+
+-- form-page:
+
+
+-- component form-page:
+optional string $user-id:
+optional string $content:
+optional string $media-url:
+
+-- ds.page: Form Page
+
+-- utils.page-wrapper: Post Form
+
+-- form-ui: User ID:
+placeholder: Enter User ID
+$value: $form-page.user-id
+local-storage-key: user
+
+-- form-ui: Content:
+placeholder: Enter Content
+$value: $form-page.content
+
+-- form-ui: Media URL:
+placeholder: Enter Media URL
+$value: $form-page.media-url
+
+-- ds.primary-button: Submit
+if: { form-page.user-id != NULL && (form-page.content != NULL || form-page.media-url != NULL) }
+link: $insert-url(user_id = $form-page.user-id, content = $form-page.content, media_url = $form-page.media-url)
+
+-- end: utils.page-wrapper
+
+-- end: ds.page
+
+-- end: form-page
+
+
+
+-- string insert-url(user_id, content, media_url):
+string user_id:
+optional string content:
+optional string media_url:
+
+"/insert/?user=" + user_id + "&content=" + content + "&media=" + media_url
+
+
+
+
+
+
+
+
+-- component form-ui:
+caption title:
+optional string placeholder:
+optional string $value:
+optional string local-storage-key:
+
+-- ds.column:
+align-content: left
+spacing: $ds.spaces.vertical-gap.small
+
+-- ds.copy-small: $form-ui.title
+
+-- ftd.text-input:
+width: fill-container
+height.fixed.px: 48
+border-radius.px: 4
+placeholder: $form-ui.placeholder
+background.solid: transparent
+border-width.px: 2
+border-color: $inherited.colors.border
+padding.px: 12
+color: $inherited.colors.text-strong
+type: text
+$on-input$: $ftd.set-string($a = $form-ui.value, v = $VALUE)
+$on-change$: $set-local-storage(key = $form-ui.local-storage-key, value = $form-ui.value)
+if: { form-ui.local-storage-key != NULL }
+
+-- ftd.text-input:
+width: fill-container
+height.fixed.px: 48
+border-radius.px: 4
+placeholder: $form-ui.placeholder
+background.solid: transparent
+border-width.px: 2
+border-color: $inherited.colors.border
+padding.px: 12
+color: $inherited.colors.text-strong
+type: text
+$on-input$: $ftd.set-string($a = $form-ui.value, v = $VALUE)
+if: { form-ui.local-storage-key == NULL }
+
+-- end: ds.column
+
+-- end: form-ui
+
+
+
+
+
+
+
+-- void set-local-storage(key, value):
+string key:
+optional string value:
+
+ftd.local_storage.set(key, value)
