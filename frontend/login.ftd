@@ -1,0 +1,17 @@
+-- import: fastn/processors as pr
+
+
+-- optional string access_token:
+$processor$: pr.request-data
+
+-- optional string order:
+$processor$: pr.request-data
+
+
+
+-- integer login:
+$processor$: pr.http
+$always-include$: true
+url: /backend/login/
+access-token: $access_token
+order: $order
