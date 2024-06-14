@@ -2,7 +2,6 @@
 fn user(
     ft_sdk::Query(order): ft_sdk::Query<"order", Option<String>>,
     cookie: ft_sdk::Cookie<{ ft_sdk::auth::SESSION_KEY }>,
-    host: ft_sdk::Host,
 ) -> ft_sdk::data::Result {
     let access_token = cookie.0;
 
@@ -11,14 +10,15 @@ fn user(
     match access_token {
         Some(access_token) => {
             let posts = get_posts_by_order(access_token.as_str(), order.as_str());
-            Ok(ft_sdk::data::json(UserData {
+            ft_sdk::data::json(UserData {
                 is_logged_in: true,
+                auth_url: "/backend/logout/".to_string(),
                 posts,
-            })?
-            .with_cookie(todayhasbeen::session_cookie(access_token.as_str(), host)?))
+            })
         }
         None => ft_sdk::data::json(UserData {
             is_logged_in: false,
+            auth_url: "https://wa.me/919910807891?text=Hi".to_string(),
             posts: vec![],
         }),
     }
@@ -104,6 +104,7 @@ fn call_get_posts_api(token: &str) -> ApiResponse {
 #[serde(rename_all = "kebab-case")]
 struct UserData {
     is_logged_in: bool,
+    auth_url: String,
     posts: Vec<PostData>,
 }
 
