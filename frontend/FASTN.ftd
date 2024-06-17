@@ -15,23 +15,6 @@
 
 
 
--- fastn.migration: create-all-tables
-
-CREATE TABLE IF NOT EXISTS users (
-  userId INTEGER PRIMARY KEY,
-  mobileNumber INTEGER UNIQUE NOT NULL,
-  userName VARCHAR (100) NOT NULL,
-  timezone VARCHAR (100) DEFAULT NULL,
-  language VARCHAR (100) DEFAULT NULL,
-  subscriptionType TEXT DEFAULT NULL,
-  subscriptionEndTime DATE DEFAULT NULL,
-  customerId VARCHAR (255) DEFAULT NULL,
-  createdon INTEGER NOT NULL,
-  updatedon INTEGER NOT NULL
-) STRICT;
-
-
-
 
 
 
