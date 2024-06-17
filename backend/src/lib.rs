@@ -1,7 +1,11 @@
 extern crate self as todayhasbeen;
+
 mod login;
-mod user;
 mod logout;
+mod schema;
+mod user;
+
+const SECRET_KEY: &str = "SECRET_KEY";
 
 pub(crate) fn set_session_cookie(
     sid: &str,
@@ -16,7 +20,6 @@ pub(crate) fn set_session_cookie(
 
     Ok(http::HeaderValue::from_str(cookie.to_string().as_str())?)
 }
-
 
 pub(crate) fn expire_session_cookie(
     host: ft_sdk::Host,
@@ -34,5 +37,8 @@ fn convert_now_to_offsetdatetime() -> cookie::time::OffsetDateTime {
     let now = ft_sdk::env::now();
     let timestamp = now.timestamp();
     let nanoseconds = now.timestamp_subsec_nanos();
-    cookie::time::OffsetDateTime::from_unix_timestamp_nanos((timestamp * 1_000_000_000 + nanoseconds as i64) as i128).unwrap()
+    cookie::time::OffsetDateTime::from_unix_timestamp_nanos(
+        (timestamp * 1_000_000_000 + nanoseconds as i64) as i128,
+    )
+    .unwrap()
 }
