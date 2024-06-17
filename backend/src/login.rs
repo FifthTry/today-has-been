@@ -1,19 +1,17 @@
 #[ft_sdk::processor]
 fn login(
-    ft_sdk::Query(access_token): ft_sdk::Query<"access-token">,
-    ft_sdk::Query(order): ft_sdk::Query<"order", Option<String>>,
-    ft_sdk::Query(next): ft_sdk::Query<"next", Option<String>>,
-    host: ft_sdk::Host,
+    ft_sdk::Form(payload): ft_sdk::Form<Payload>,
 ) -> ft_sdk::processor::Result {
-    let next = next.unwrap_or_else(|| {
-        let order_query = order
-            .filter(|order| !order.is_empty())
-            .map(|order| format!("?order={}", order))
-            .unwrap_or_default();
 
-        format!("/{}", order_query)
-    });
+    ft_sdk::processor::json(serde_json::json!({"user_name": payload.user_name}))
+}
 
-    Ok(ft_sdk::processor::temporary_redirect(next)?
-        .with_cookie(todayhasbeen::set_session_cookie(access_token.as_str(), host)?))
+
+
+#[derive(Debug, serde::Deserialize)]
+struct Payload {
+    #[serde(rename = "userName")]
+    user_name: String,
+    #[serde(rename = "mobileNumber")]
+    mobile_number: String
 }
