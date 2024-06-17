@@ -1,5 +1,6 @@
 #[ft_sdk::data]
 fn user(
+    mut conn: ft_sdk::Connection,
     ft_sdk::Query(order): ft_sdk::Query<"order", Option<String>>,
     cookie: ft_sdk::Cookie<{ ft_sdk::auth::SESSION_KEY }>,
 ) -> ft_sdk::data::Result {
@@ -9,7 +10,7 @@ fn user(
 
     match access_token {
         Some(access_token) => {
-            let posts = get_posts_by_order(access_token.as_str(), order.as_str());
+            let posts = get_posts_by_order(&mut conn, access_token.as_str(), order.as_str())?;
             ft_sdk::data::json(UserData {
                 is_logged_in: true,
                 auth_url: "/backend/logout/".to_string(),
@@ -24,18 +25,20 @@ fn user(
     }
 }
 
-fn get_posts_by_order(access_token: &str, _order: &str) -> Vec<PostData> {
-    let get_posts = call_get_posts_api(access_token);
+fn get_posts_by_order(conn: &mut ft_sdk::Connection, access_token: &str, _order: &str) -> Result<Vec<PostData>, ft_sdk::Error> {
+    let user = todayhasbeen::get_user_from_access_token(conn, access_token)?;
+    let output = todayhasbeen::get_posts::get_posts_by_user_id(conn, user.id)?;
     let mut post_data_hash: std::collections::HashMap<String, Vec<PostDataByDate>> =
         std::collections::HashMap::new();
-    for post in get_posts.data {
-        let naive_date_time = string_to_naive_date_time(post.createdon.as_str());
-        let date = naive_date_time.date().to_string();
+
+    for post in output {
+        let date = post.created_on.date_naive().to_string();
         let post_by_date = PostDataByDate {
-            time: naive_date_time.time().to_string(),
-            post: post.postcontent,
-            media_url: post.mediaurl,
+            time: post.created_on.time().to_string(),
+            post: post.post_content,
+            media_url: post.media_url,
         };
+
         match post_data_hash.get_mut(&date) {
             Some(posts) => posts.push(post_by_date),
             None => {
@@ -43,61 +46,13 @@ fn get_posts_by_order(access_token: &str, _order: &str) -> Vec<PostData> {
             }
         }
     }
-    post_data_hash
+    Ok(post_data_hash
         .into_iter()
         .map(|(date, post_data_by_date)| PostData {
             date,
             data: post_data_by_date,
         })
-        .collect()
-}
-
-#[derive(serde::Deserialize, Debug)]
-struct ApiResponse {
-    status: bool,
-    data: Vec<ApiPost>,
-}
-
-#[derive(serde::Deserialize, Debug)]
-struct ApiPost {
-    postid: i32,
-    userid: i32,
-    postcontent: Option<String>,
-    mediaurl: Option<String>,
-    createdon: String,
-}
-
-fn call_get_posts_api(token: &str) -> ApiResponse {
-    let authorization_header = format!("Bearer {}", token);
-
-    let client = http::Request::builder();
-    let request = client
-        .method("GET")
-        .uri("http://ec2-184-72-72-45.compute-1.amazonaws.com/api/v0.1/get/posts")
-        .header("Authorization", authorization_header)
-        .header("Accept", "application/json; api-version=2.0")
-        .header("Content-Type", "application/json")
-        .header("User-Agent", "FifthTry")
-        .body(bytes::Bytes::new())
-        .unwrap();
-
-    let response = ft_sdk::http::send(request).unwrap(); //todo: remove unwrap()
-
-    if response.status().is_success() {
-        let api_response: ApiResponse = serde_json::from_str(
-            String::from_utf8_lossy(response.body())
-                .to_string()
-                .as_str(),
-        )
-        .unwrap();
-        // Extract the 'value' field from the JSON response
-        ft_sdk::println!("Response: {:?}", api_response);
-
-        api_response
-    } else {
-        ft_sdk::println!("Request failed with status: {}", response.status());
-        todo!()
-    }
+        .collect())
 }
 
 #[derive(serde::Serialize, Debug)]
@@ -120,10 +75,4 @@ struct PostDataByDate {
     time: String,
     post: Option<String>,
     media_url: Option<String>,
-}
-
-fn string_to_naive_date_time(date_time_str: &str) -> chrono::NaiveDateTime {
-    let format = "%Y-%m-%d %H:%M:%S";
-    chrono::NaiveDateTime::parse_from_str(date_time_str, format)
-        .expect("Failed to parse date and time")
 }

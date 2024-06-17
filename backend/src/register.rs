@@ -1,5 +1,3 @@
-use diesel::ExpressionMethods;
-
 #[ft_sdk::data]
 fn register(
     mut conn: ft_sdk::Connection,

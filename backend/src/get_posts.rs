@@ -3,12 +3,12 @@ fn get_posts(
     mut conn: ft_sdk::Connection,
     headers: http::HeaderMap,
 ) -> ft_sdk::data::Result {
-    let user = todayhasbeen::get_user_from_access_token(&mut conn, &headers)?;
-    let output = get_posts_(&mut conn, user.id)?;
+    let user = todayhasbeen::get_user_from_header(&mut conn, &headers)?;
+    let output = get_posts_by_user_id(&mut conn, user.id)?;
     ft_sdk::data::api_ok(output)
 }
 
-fn get_posts_(conn: &mut ft_sdk::Connection, user_id: i64) -> Result<Vec<Post>, ft_sdk::Error> {
+pub(crate) fn get_posts_by_user_id(conn: &mut ft_sdk::Connection, user_id: i64) -> Result<Vec<Post>, ft_sdk::Error> {
     use diesel::prelude::*;
     use todayhasbeen::schema::posts;
 
@@ -25,9 +25,9 @@ fn get_posts_(conn: &mut ft_sdk::Connection, user_id: i64) -> Result<Vec<Post>, 
 #[diesel(table_name = todayhasbeen::schema::posts)]
 pub struct Post {
     #[serde(rename = "post_id")]
-    id: i64,
-    user_id: i64,
-    post_content: Option<String>,
-    media_url: Option<String>,
-    created_on: chrono::DateTime<chrono::Utc>,
+    pub id: i64,
+    pub user_id: i64,
+    pub post_content: Option<String>,
+    pub media_url: Option<String>,
+    pub created_on: chrono::DateTime<chrono::Utc>,
 }

@@ -4,7 +4,7 @@ fn add_post(
     headers: http::HeaderMap,
     ft_sdk::Form(payload): ft_sdk::Form<Payload>,
 ) -> ft_sdk::data::Result {
-    let user = todayhasbeen::get_user_from_access_token(&mut conn, &headers)?;
+    let user = todayhasbeen::get_user_from_header(&mut conn, &headers)?;
     let output = insert_post(&mut conn, user.id, payload)?;
     ft_sdk::data::api_ok(output)
 }

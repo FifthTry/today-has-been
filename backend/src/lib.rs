@@ -50,19 +50,27 @@ fn convert_now_to_offsetdatetime() -> cookie::time::OffsetDateTime {
     .unwrap()
 }
 
-pub(crate) fn get_user_from_access_token(
+pub(crate) fn get_user_from_header(
     conn: &mut ft_sdk::Connection,
     headers: &http::HeaderMap,
+) -> Result<UserData, ft_sdk::Error> {
+    // Extract access token from headers
+    let access_token = get_access_token(headers)?;
+
+    get_user_from_access_token(conn, &access_token)
+}
+
+
+pub(crate) fn get_user_from_access_token(
+    conn: &mut ft_sdk::Connection,
+    access_token: &str,
 ) -> Result<UserData, ft_sdk::Error> {
     use diesel::prelude::*;
     use todayhasbeen::schema::users;
 
-    // Extract access token from headers
-    let access_token = get_access_token(headers)?;
-
     // Query user based on access_token
     let user = users::table
-        .filter(users::access_token.eq(&access_token))
+        .filter(users::access_token.eq(access_token))
         .select(UserData::as_select())
         .first(conn)?;
 
