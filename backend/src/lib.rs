@@ -67,7 +67,9 @@ pub(crate) fn get_user_from_access_token(
 
     // Check if token has expired
     if user.is_access_token_expired() {
-        return Err(ft_sdk::SpecialError::Unauthorised("Access token has expired!".to_string()).into());
+        return Err(
+            ft_sdk::SpecialError::Unauthorised("Access token has expired!".to_string()).into(),
+        );
     }
 
     Ok(user)

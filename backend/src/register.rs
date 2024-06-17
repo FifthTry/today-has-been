@@ -1,3 +1,5 @@
+use diesel::ExpressionMethods;
+
 #[ft_sdk::data]
 fn register(
     mut conn: ft_sdk::Connection,
@@ -46,9 +48,9 @@ impl Payload {
             .select(todayhasbeen::UserData::as_select())
             .first(conn)
         {
-            Ok(v) => {
-                update_token_if_expired(conn, &v)?;
-                Ok(Some(v.into_output()))
+            Ok(mut user_data) => {
+                update_token_if_expired(conn, &mut user_data)?;
+                Ok(Some(user_data.into_output()))
             }
             Err(diesel::result::Error::NotFound) => Ok(None),
             Err(e) => Err(e.into()),
@@ -187,7 +189,7 @@ fn generate_access_token() -> String {
 
 fn update_token_if_expired(
     conn: &mut ft_sdk::Connection,
-    user: &todayhasbeen::UserData,
+    user: &mut todayhasbeen::UserData,
 ) -> Result<(), ft_sdk::Error> {
     use diesel::prelude::*;
     use todayhasbeen::schema::users;
@@ -196,11 +198,17 @@ fn update_token_if_expired(
         return Ok(());
     }
 
+    let new_access_token = generate_access_token();
+
     let now = ft_sdk::env::now();
     diesel::update(users::table)
-        .set(users::updated_on.eq(now))
+        .set((
+            users::updated_on.eq(now),
+            users::access_token.eq(&new_access_token),
+        ))
         .filter(users::id.eq(user.id))
         .execute(conn)?;
 
+    user.access_token = new_access_token;
     Ok(())
 }
