@@ -9,6 +9,7 @@ mod logout;
 mod register;
 mod schema;
 mod user;
+mod get_posts;
 
 const SECRET_KEY: &str = "SECRET_KEY";
 const DURATION_TO_EXPIRE_ACCESS_TOKEN_IN_DAYS: i64 = 60;
