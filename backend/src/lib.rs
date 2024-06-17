@@ -4,6 +4,7 @@ mod register;
 mod logout;
 mod schema;
 mod user;
+mod login;
 
 const SECRET_KEY: &str = "SECRET_KEY";
 
