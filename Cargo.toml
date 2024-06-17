@@ -1,6 +1,6 @@
 [workspace]
 members = [
-     "backend", "stripe",
+     "backend"
 ]
 resolver = "2"
 
