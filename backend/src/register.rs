@@ -23,7 +23,7 @@ struct Payload {
 #[derive(Debug, serde::Serialize)]
 struct Output {
     user_id: i64,
-    mobile_number: i64,
+    mobile_number: String,
     user_name: String,
     time_zone: Option<String>,
     language: Option<String>,
@@ -38,55 +38,66 @@ impl Payload {
         &self,
         conn: &mut ft_sdk::Connection,
     ) -> Result<Option<Output>, ft_sdk::Error> {
-        use diesel::prelude::*;
-        use todayhasbeen::schema::users;
+        let (user_id, mut provider_data) = match ft_sdk::auth::provider::user_data_by_identity(
+            conn,
+            todayhasbeen::PROVIDER_ID,
+            self.mobile_number.as_str(),
+        ) {
+            Ok((user_id, provider_data)) => (user_id, provider_data),
+            Err(ft_sdk::auth::UserDataError::NoDataFound) => return Ok(None),
+            Err(e) => return Err(e.into()),
+        };
 
-        match users::table
-            .filter(users::mobile_number.eq(self.mobile_number.parse::<i64>().unwrap()))
-            .select(todayhasbeen::UserData::as_select())
-            .first(conn)
-        {
-            Ok(mut user_data) => {
-                update_token_if_expired(conn, &mut user_data)?;
-                Ok(Some(user_data.into_output()))
-            }
-            Err(diesel::result::Error::NotFound) => Ok(None),
-            Err(e) => Err(e.into()),
-        }
+        update_token_if_expired(conn, &mut provider_data, &user_id)?;
+
+        let custom = todayhasbeen::Custom::from_provider_data(&provider_data);
+        Ok(Some(self.to_output(user_id.0, &custom.access_token)))
     }
 
     pub(crate) fn create_user(
         &self,
         conn: &mut ft_sdk::Connection,
     ) -> Result<Output, ft_sdk::Error> {
-        use diesel::prelude::*;
-        use todayhasbeen::schema::users;
+        let custom = todayhasbeen::Custom::new();
+        let ft_sdk::auth::UserId(user_id) = ft_sdk::auth::provider::create_user(
+            conn,
+            todayhasbeen::PROVIDER_ID,
+            self.to_provider_data(&custom),
+        )?;
 
-        let now = ft_sdk::env::now();
-        let access_token = generate_access_token();
+        Ok(self.to_output(user_id, custom.access_token.as_str()))
+    }
 
-        let new_user = NewUserData {
-            mobile_number: self.mobile_number.parse::<i64>().unwrap(),
-            user_name: self.user_name.to_string(),
+    fn to_output(&self, user_id: i64, access_token: &str) -> Output {
+        Output {
+            user_id,
+            mobile_number: self.mobile_number.clone(),
+            user_name: self.user_name.clone(),
             time_zone: None,
             language: None,
             subscription_type: None,
             subscription_end_time: None,
             customer_id: None,
-            access_token,
-            created_on: now,
-            updated_on: now,
-        };
-
-        let user_id = diesel::insert_into(users::table)
-            .values(new_user.clone())
-            .returning(users::id)
-            .get_result::<i64>(conn)?;
-
-        Ok(new_user.into_output(user_id))
+            access_token: access_token.to_string(),
+        }
     }
 
-    pub(crate) fn validate(&self) -> Result<(), ft_sdk::Error> {
+    fn to_provider_data(&self, custom: &todayhasbeen::Custom) -> ft_sdk::auth::ProviderData {
+        // This is a hack to use mobile number as value for auth
+        let mobile_to_email = format!("{}@mobile.fifthtry.com", self.mobile_number);
+
+        ft_sdk::auth::ProviderData {
+            identity: self.mobile_number.to_string(),
+            username: Some(self.user_name.to_string()),
+            name: None,
+            emails: vec![mobile_to_email.to_string()],
+            verified_emails: vec![mobile_to_email.to_string()],
+            profile_picture: None,
+            custom: serde_json::to_value(custom).expect("Cannot convert custom to serde_json."),
+        }
+    }
+
+    fn validate(&self) -> Result<(), ft_sdk::Error> {
         let secret_key = todayhasbeen::SECRET_KEY;
         if secret_key.ne(&self.secret_key) {
             return Err(ft_sdk::SpecialError::Single(
@@ -125,88 +136,23 @@ impl Payload {
     }
 }
 
-#[derive(diesel::Insertable, Clone)]
-#[diesel(treat_none_as_default_value = false)]
-#[diesel(table_name = todayhasbeen::schema::users)]
-struct NewUserData {
-    mobile_number: i64,
-    user_name: String,
-    time_zone: Option<String>,
-    language: Option<String>,
-    subscription_type: Option<String>,
-    subscription_end_time: Option<chrono::DateTime<chrono::Utc>>,
-    customer_id: Option<String>,
-    access_token: String,
-    created_on: chrono::DateTime<chrono::Utc>,
-    updated_on: chrono::DateTime<chrono::Utc>,
-}
-
-impl NewUserData {
-    fn into_output(self, user_id: i64) -> Output {
-        Output {
-            user_id,
-            mobile_number: self.mobile_number,
-            user_name: self.user_name,
-            time_zone: self.time_zone,
-            language: self.language,
-            subscription_type: self.subscription_type,
-            subscription_end_time: self
-                .subscription_end_time
-                .map(|datetime| datetime.format("%Y-%m-%d").to_string()),
-            customer_id: self.customer_id,
-            access_token: self.access_token,
-        }
-    }
-}
-
-impl todayhasbeen::UserData {
-    fn into_output(self) -> Output {
-        Output {
-            user_id: self.id,
-            mobile_number: self.mobile_number,
-            user_name: self.user_name,
-            time_zone: self.time_zone,
-            language: self.language,
-            subscription_type: self.subscription_type,
-            subscription_end_time: self
-                .subscription_end_time
-                .map(|datetime| datetime.format("%Y-%m-%d").to_string()),
-            customer_id: self.customer_id,
-            access_token: self.access_token,
-        }
-    }
-}
-
-fn generate_access_token() -> String {
-    use rand_core::RngCore;
-
-    let mut rand_buf: [u8; 16] = Default::default();
-    ft_sdk::Rng::fill_bytes(&mut ft_sdk::Rng {}, &mut rand_buf);
-    uuid::Uuid::new_v8(rand_buf).to_string()
-}
-
 fn update_token_if_expired(
     conn: &mut ft_sdk::Connection,
-    user: &mut todayhasbeen::UserData,
+    provider_data: &mut ft_sdk::auth::ProviderData,
+    user_id: &ft_sdk::auth::UserId,
 ) -> Result<(), ft_sdk::Error> {
-    use diesel::prelude::*;
-    use todayhasbeen::schema::users;
-
-    if !user.is_access_token_expired() {
+    let custom = todayhasbeen::Custom::from_provider_data(provider_data);
+    if !custom.is_access_token_expired() {
         return Ok(());
     }
-
-    let new_access_token = generate_access_token();
-
-    let now = ft_sdk::env::now();
-    diesel::update(users::table)
-        .set((
-            users::updated_on.eq(now),
-            users::access_token.eq(&new_access_token),
-        ))
-        .filter(users::id.eq(user.id))
-        .execute(conn)?;
-
-    user.access_token = new_access_token;
+    let new_custom = todayhasbeen::Custom::new();
+    provider_data.custom = serde_json::to_value(new_custom).unwrap();
+    ft_sdk::auth::provider::update_user(
+        conn,
+        todayhasbeen::PROVIDER_ID,
+        user_id,
+        provider_data.clone(),
+        false,
+    )?;
     Ok(())
 }

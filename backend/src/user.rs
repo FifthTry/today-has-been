@@ -25,9 +25,13 @@ fn user(
     }
 }
 
-fn get_posts_by_order(conn: &mut ft_sdk::Connection, access_token: &str, _order: &str) -> Result<Vec<PostData>, ft_sdk::Error> {
-    let user = todayhasbeen::get_user_from_access_token(conn, access_token)?;
-    let output = todayhasbeen::get_posts::get_posts_by_user_id(conn, user.id)?;
+fn get_posts_by_order(
+    conn: &mut ft_sdk::Connection,
+    access_token: &str,
+    _order: &str,
+) -> Result<Vec<PostData>, ft_sdk::Error> {
+    let user_id = todayhasbeen::get_user_from_access_token(conn, access_token)?.0;
+    let output = todayhasbeen::get_posts::get_posts_by_user_id(conn, user_id.0)?;
     let mut post_data_hash: std::collections::HashMap<String, Vec<PostDataByDate>> =
         std::collections::HashMap::new();
 
@@ -46,6 +50,7 @@ fn get_posts_by_order(conn: &mut ft_sdk::Connection, access_token: &str, _order:
             }
         }
     }
+
     Ok(post_data_hash
         .into_iter()
         .map(|(date, post_data_by_date)| PostData {

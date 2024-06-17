@@ -4,12 +4,16 @@ fn add_post(
     headers: http::HeaderMap,
     ft_sdk::Form(payload): ft_sdk::Form<Payload>,
 ) -> ft_sdk::data::Result {
-    let user = todayhasbeen::get_user_from_header(&mut conn, &headers)?;
-    let output = insert_post(&mut conn, user.id, payload)?;
+    let user_id = todayhasbeen::get_user_from_header(&mut conn, &headers)?.0;
+    let output = insert_post(&mut conn, user_id.0, payload)?;
     ft_sdk::data::api_ok(output)
 }
 
-fn insert_post(conn: &mut ft_sdk::Connection, user_id: i64, payload: Payload) -> Result<Output, ft_sdk::Error> {
+fn insert_post(
+    conn: &mut ft_sdk::Connection,
+    user_id: i64,
+    payload: Payload,
+) -> Result<Output, ft_sdk::Error> {
     use diesel::prelude::*;
     use todayhasbeen::schema::posts;
 
@@ -58,7 +62,6 @@ pub struct Output {
     media_url: Option<String>,
     created_on: chrono::DateTime<chrono::Utc>,
 }
-
 
 #[derive(Debug, serde::Deserialize)]
 struct Payload {
