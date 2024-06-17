@@ -24,3 +24,5 @@ diesel::table! {
     }
 }
 
+
+diesel::joinable!(posts -> users (user_id));

@@ -1,6 +1,3 @@
-use diesel::{ExpressionMethods, QueryDsl};
-use crate::schema::posts::dsl::posts;
-
 #[ft_sdk::data]
 fn get_posts(
     mut conn: ft_sdk::Connection,
