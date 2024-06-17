@@ -1,6 +1,6 @@
 extern crate self as todayhasbeen;
 
-mod login;
+mod register;
 mod logout;
 mod schema;
 mod user;

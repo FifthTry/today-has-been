@@ -8,7 +8,7 @@ diesel::table! {
         subscription_type -> Nullable<Text>,
         subscription_end_time -> Nullable<Timestamptz>,
         customer_id -> Nullable<Text>,
-        access_token -> Nullable<Text>,
+        access_token -> Text,
         created_on -> Timestamptz,
         updated_on -> Timestamptz,
     }

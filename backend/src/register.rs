@@ -1,18 +1,19 @@
 #[ft_sdk::data]
-fn login(
+fn register(
     mut conn: ft_sdk::Connection,
     ft_sdk::Form(payload): ft_sdk::Form<Payload>,
 ) -> ft_sdk::data::Result {
     payload.validate()?;
 
-    if let Some(user) = payload.get_user(&mut conn)? {
-        return ft_sdk::data::api_ok(user);
-    }
+    let output = match  payload.get_user(&mut conn)? {
+        Some(user) => user,
+        None => payload.create_user(&mut conn)?
+    };
 
-
-
-    todo!()
+    ft_sdk::data::api_ok(output)
 }
+
+
 
 #[derive(Debug, serde::Deserialize)]
 struct Payload {
@@ -31,7 +32,7 @@ struct Output {
     subscription_type: Option<String>,
     subscription_end_time: Option<String>,
     customer_id: Option<String>,
-    access_token: Option<String>,
+    access_token: String,
 }
 
 impl Payload {
@@ -52,6 +53,38 @@ impl Payload {
             Err(e) => Err(e.into()),
         }
     }
+
+    pub(crate) fn create_user(
+        &self,
+        conn: &mut ft_sdk::Connection,
+    ) -> Result<Output, ft_sdk::Error> {
+        use diesel::prelude::*;
+        use todayhasbeen::schema::users;
+
+        let now = ft_sdk::env::now();
+        let access_token = generate_access_token();
+
+        let new_user = NewUserData {
+            mobile_number: self.mobile_number.parse::<i64>().unwrap(),
+            user_name: self.user_name.to_string(),
+            time_zone: None,
+            language: None,
+            subscription_type: None,
+            subscription_end_time: None,
+            customer_id: None,
+            access_token,
+            created_on: now,
+            updated_on: now,
+        };
+
+        let user_id = diesel::insert_into(users::table)
+            .values(new_user.clone())
+            .returning(users::id)
+            .get_result::<i64>(conn)?;
+
+        Ok(new_user.into_output(user_id))
+    }
+
     pub(crate) fn validate(&self) -> Result<(), ft_sdk::Error> {
         let secret_key = todayhasbeen::SECRET_KEY;
         if secret_key.ne(&self.secret_key) {
@@ -91,6 +124,41 @@ impl Payload {
     }
 }
 
+
+#[derive(diesel::Insertable, Clone)]
+#[diesel(treat_none_as_default_value = false)]
+#[diesel(table_name = todayhasbeen::schema::users)]
+struct NewUserData {
+    mobile_number: i64,
+    user_name: String,
+    time_zone: Option<String>,
+    language: Option<String>,
+    subscription_type: Option<String>,
+    subscription_end_time: Option<chrono::DateTime<chrono::Utc>>,
+    customer_id: Option<String>,
+    access_token: String,
+    created_on: chrono::DateTime<chrono::Utc>,
+    updated_on: chrono::DateTime<chrono::Utc>,
+}
+
+impl NewUserData {
+    fn into_output(self, user_id: i64) -> Output {
+        Output {
+            user_id,
+            mobile_number: self.mobile_number,
+            user_name: self.user_name,
+            time_zone: self.time_zone,
+            language: self.language,
+            subscription_type: self.subscription_type,
+            subscription_end_time: self
+                .subscription_end_time
+                .map(|datetime| datetime.format("%Y-%m-%d").to_string()),
+            customer_id: self.customer_id,
+            access_token: self.access_token,
+        }
+    }
+}
+
 #[derive(Debug, diesel::Selectable, diesel::Queryable)]
 #[diesel(table_name = todayhasbeen::schema::users)]
 struct UserData {
@@ -102,7 +170,7 @@ struct UserData {
     subscription_type: Option<String>,
     subscription_end_time: Option<chrono::DateTime<chrono::Utc>>,
     customer_id: Option<String>,
-    access_token: Option<String>,
+    access_token: String,
     created_on: chrono::DateTime<chrono::Utc>,
     updated_on: chrono::DateTime<chrono::Utc>,
 }
@@ -123,4 +191,12 @@ impl UserData {
             access_token: self.access_token,
         }
     }
+}
+
+fn generate_access_token() -> String {
+    use rand_core::RngCore;
+
+    let mut rand_buf: [u8; 16] = Default::default();
+    ft_sdk::Rng::fill_bytes(&mut ft_sdk::Rng {}, &mut rand_buf);
+    uuid::Uuid::new_v8(rand_buf).to_string()
 }

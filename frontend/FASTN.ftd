@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS users (
   subscription_type TEXT DEFAULT NULL,
   subscription_end_time INTEGER DEFAULT NULL,
   customer_id TEXT DEFAULT NULL,
-  access_token TEXT DEFAULT NULL,
+  access_token TEXT,
   created_on INTEGER NOT NULL,
   updated_on INTEGER NOT NULL
 ) STRICT;
