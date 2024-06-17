@@ -5,15 +5,13 @@ fn register(
 ) -> ft_sdk::data::Result {
     payload.validate()?;
 
-    let output = match  payload.get_user(&mut conn)? {
+    let output = match payload.get_user(&mut conn)? {
         Some(user) => user,
-        None => payload.create_user(&mut conn)?
+        None => payload.create_user(&mut conn)?,
     };
 
     ft_sdk::data::api_ok(output)
 }
-
-
 
 #[derive(Debug, serde::Deserialize)]
 struct Payload {
@@ -45,10 +43,13 @@ impl Payload {
 
         match users::table
             .filter(users::mobile_number.eq(self.mobile_number.parse::<i64>().unwrap()))
-            .select(UserData::as_select())
+            .select(todayhasbeen::UserData::as_select())
             .first(conn)
         {
-            Ok(v) => Ok(Some(v.into_output())),
+            Ok(v) => {
+                update_token_if_expired(conn, &v)?;
+                Ok(Some(v.into_output()))
+            }
             Err(diesel::result::Error::NotFound) => Ok(None),
             Err(e) => Err(e.into()),
         }
@@ -124,7 +125,6 @@ impl Payload {
     }
 }
 
-
 #[derive(diesel::Insertable, Clone)]
 #[diesel(treat_none_as_default_value = false)]
 #[diesel(table_name = todayhasbeen::schema::users)]
@@ -159,23 +159,7 @@ impl NewUserData {
     }
 }
 
-#[derive(Debug, diesel::Selectable, diesel::Queryable)]
-#[diesel(table_name = todayhasbeen::schema::users)]
-struct UserData {
-    id: i64,
-    mobile_number: i64,
-    user_name: String,
-    time_zone: Option<String>,
-    language: Option<String>,
-    subscription_type: Option<String>,
-    subscription_end_time: Option<chrono::DateTime<chrono::Utc>>,
-    customer_id: Option<String>,
-    access_token: String,
-    created_on: chrono::DateTime<chrono::Utc>,
-    updated_on: chrono::DateTime<chrono::Utc>,
-}
-
-impl UserData {
+impl todayhasbeen::UserData {
     fn into_output(self) -> Output {
         Output {
             user_id: self.id,
@@ -199,4 +183,24 @@ fn generate_access_token() -> String {
     let mut rand_buf: [u8; 16] = Default::default();
     ft_sdk::Rng::fill_bytes(&mut ft_sdk::Rng {}, &mut rand_buf);
     uuid::Uuid::new_v8(rand_buf).to_string()
+}
+
+fn update_token_if_expired(
+    conn: &mut ft_sdk::Connection,
+    user: &todayhasbeen::UserData,
+) -> Result<(), ft_sdk::Error> {
+    use diesel::prelude::*;
+    use todayhasbeen::schema::users;
+
+    if !user.is_access_token_expired() {
+        return Ok(());
+    }
+
+    let now = ft_sdk::env::now();
+    diesel::update(users::table)
+        .set(users::updated_on.eq(now))
+        .filter(users::id.eq(user.id))
+        .execute(conn)?;
+
+    Ok(())
 }
