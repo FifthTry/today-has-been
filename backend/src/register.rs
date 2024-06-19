@@ -82,7 +82,7 @@ impl Payload {
 
     fn to_provider_data(&self) -> ft_sdk::auth::ProviderData {
         // This is a hack to use mobile number as value for auth
-        let mobile_to_email = ft_sdk::auth::mobile_to_email(self.mobile_number.as_str());
+        let mobile_to_email = mobile_to_email(self.mobile_number.as_str());
 
         ft_sdk::auth::ProviderData {
             identity: self.mobile_number.to_string(),
@@ -162,4 +162,9 @@ fn create_new_session(
         session_id,
         session_expiration_duration,
     )?)
+}
+
+// This is hack to keep mobile number as email. Checkout ft_stripe::mobile_from_email
+fn mobile_to_email(mobile_number: &str) -> String {
+    format!("{mobile_number}@mobile.fifthtry.com")
 }

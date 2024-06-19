@@ -30,8 +30,8 @@ fn get_posts_by_order(
     cookie: ft_sdk::Cookie<{ ft_sdk::auth::SESSION_KEY }>,
     _order: &str,
 ) -> Result<Vec<PostData>, ft_sdk::Error> {
-    let user_id = todayhasbeen::get_user_from_cookie(conn, cookie)?;
-    let output = todayhasbeen::get_posts::get_posts_by_user_id(conn, user_id.0)?;
+    let user_id = todayhasbeen::get_user_from_cookie(conn, cookie)?.id;
+    let output = todayhasbeen::get_posts::get_posts_by_user_id(conn, user_id)?;
     let mut post_data_hash: std::collections::HashMap<String, Vec<PostDataByDate>> =
         std::collections::HashMap::new();
 

@@ -38,6 +38,7 @@ dependencies = [
  "cookie",
  "diesel",
  "ft-sdk",
+ "ft-stripe",
  "http",
  "rand_core",
  "serde",
@@ -172,7 +173,7 @@ dependencies = [
 [[package]]
 name = "ft-derive"
 version = "0.1.1"
-source = "git+https://github.com/FifthTry/ft-sdk.git?branch=add_expires_at_session#8d8e6cfbda486be49150ab2db973dcb472158e1f"
+source = "git+https://github.com/FifthTry/ft-sdk.git?branch=add_expires_at_session#144fb21dd2e9ec1c8e4043621ce521b9f6555800"
 dependencies = [
  "quote",
  "syn 1.0.109",
@@ -181,7 +182,7 @@ dependencies = [
 [[package]]
 name = "ft-sdk"
 version = "0.1.12"
-source = "git+https://github.com/FifthTry/ft-sdk.git?branch=add_expires_at_session#8d8e6cfbda486be49150ab2db973dcb472158e1f"
+source = "git+https://github.com/FifthTry/ft-sdk.git?branch=add_expires_at_session#144fb21dd2e9ec1c8e4043621ce521b9f6555800"
 dependencies = [
  "anyhow",
  "bytes",
@@ -202,9 +203,24 @@ dependencies = [
 ]
 
 [[package]]
+name = "ft-stripe"
+version = "0.1.0"
+source = "git+https://github.com/FifthTry/ft-sdk.git?branch=add_expires_at_session#144fb21dd2e9ec1c8e4043621ce521b9f6555800"
+dependencies = [
+ "bytes",
+ "ft-sdk",
+ "ft-sys",
+ "http",
+ "serde",
+ "serde_json",
+ "serde_urlencoded",
+ "thiserror",
+]
+
+[[package]]
 name = "ft-sys"
 version = "0.1.3"
-source = "git+https://github.com/FifthTry/ft-sdk.git?branch=add_expires_at_session#8d8e6cfbda486be49150ab2db973dcb472158e1f"
+source = "git+https://github.com/FifthTry/ft-sdk.git?branch=add_expires_at_session#144fb21dd2e9ec1c8e4043621ce521b9f6555800"
 dependencies = [
  "bytes",
  "chrono",
@@ -220,7 +236,7 @@ dependencies = [
 [[package]]
 name = "ft-sys-shared"
 version = "0.1.2"
-source = "git+https://github.com/FifthTry/ft-sdk.git?branch=add_expires_at_session#8d8e6cfbda486be49150ab2db973dcb472158e1f"
+source = "git+https://github.com/FifthTry/ft-sdk.git?branch=add_expires_at_session#144fb21dd2e9ec1c8e4043621ce521b9f6555800"
 dependencies = [
  "bytes",
  "chrono",

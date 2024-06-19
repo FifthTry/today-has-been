@@ -18,3 +18,4 @@ serde.workspace = true
 cookie.workspace = true
 rand_core.workspace = true
 uuid.workspace = true
+ft-stripe.workspace = true
