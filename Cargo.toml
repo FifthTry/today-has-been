@@ -22,7 +22,8 @@ homepage = "https://www.fifthtry.com"
 
 
 [workspace.dependencies]
-ft-sdk = { version = "0.1.11", features = ["field-extractors", "auth-provider"] }
+ft-sdk = { features = ["field-extractors", "auth-provider"], git = "https://github.com/FifthTry/ft-sdk.git", branch = "add_expires_at_session" }
+#ft-sdk = { version = "0.1.11", features = ["field-extractors", "auth-provider"] }
 bytes = "1.0"
 http = "1.0"
 chrono = { version = "0.4", features = ["serde"], default-features = false }
@@ -35,7 +36,7 @@ uuid = { version = "1.8", features = ["v8"], default-features = false }
 
 [workspace.dependencies.diesel]
 version = "2"
-no_default_features = true
+#no_default_features = true
 features = [
     "chrono", # diesel::sql_types::Timestamptz -> chrono::DateTime<chrono::Utc>
 ]

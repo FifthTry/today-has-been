@@ -4,13 +4,13 @@ fn user(
     ft_sdk::Query(order): ft_sdk::Query<"order", Option<String>>,
     cookie: ft_sdk::Cookie<{ ft_sdk::auth::SESSION_KEY }>,
 ) -> ft_sdk::data::Result {
-    let access_token = cookie.0;
+    let session_id = cookie.0.clone();
 
     let order = order.unwrap_or("new".to_string());
 
-    match access_token {
-        Some(access_token) => {
-            let posts = get_posts_by_order(&mut conn, access_token.as_str(), order.as_str())?;
+    match session_id {
+        Some(_) => {
+            let posts = get_posts_by_order(&mut conn, cookie, order.as_str())?;
             ft_sdk::data::json(UserData {
                 is_logged_in: true,
                 auth_url: "/backend/logout/".to_string(),
@@ -27,10 +27,10 @@ fn user(
 
 fn get_posts_by_order(
     conn: &mut ft_sdk::Connection,
-    access_token: &str,
+    cookie: ft_sdk::Cookie<{ ft_sdk::auth::SESSION_KEY }>,
     _order: &str,
 ) -> Result<Vec<PostData>, ft_sdk::Error> {
-    let user_id = todayhasbeen::get_user_from_access_token(conn, access_token)?.0;
+    let user_id = todayhasbeen::get_user_from_cookie(conn, cookie)?;
     let output = todayhasbeen::get_posts::get_posts_by_user_id(conn, user_id.0)?;
     let mut post_data_hash: std::collections::HashMap<String, Vec<PostDataByDate>> =
         std::collections::HashMap::new();

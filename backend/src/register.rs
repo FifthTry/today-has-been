@@ -38,34 +38,32 @@ impl Payload {
         &self,
         conn: &mut ft_sdk::Connection,
     ) -> Result<Option<Output>, ft_sdk::Error> {
-        let (user_id, mut provider_data) = match ft_sdk::auth::provider::user_data_by_identity(
+        let user_id = match ft_sdk::auth::provider::user_data_by_identity(
             conn,
             todayhasbeen::PROVIDER_ID,
             self.mobile_number.as_str(),
         ) {
-            Ok((user_id, provider_data)) => (user_id, provider_data),
+            Ok((user_id, _)) => user_id,
             Err(ft_sdk::auth::UserDataError::NoDataFound) => return Ok(None),
             Err(e) => return Err(e.into()),
         };
 
-        update_token_if_expired(conn, &mut provider_data, &user_id)?;
-
-        let custom = todayhasbeen::Custom::from_provider_data(&provider_data);
-        Ok(Some(self.to_output(user_id.0, &custom.access_token)))
+        let session_id = update_session_if_expired(conn, &user_id)?;
+        Ok(Some(self.to_output(user_id.0, &session_id.0)))
     }
 
     pub(crate) fn create_user(
         &self,
         conn: &mut ft_sdk::Connection,
     ) -> Result<Output, ft_sdk::Error> {
-        let custom = todayhasbeen::Custom::new();
-        let ft_sdk::auth::UserId(user_id) = ft_sdk::auth::provider::create_user(
+        let user_id = ft_sdk::auth::provider::create_user(
             conn,
             todayhasbeen::PROVIDER_ID,
-            self.to_provider_data(&custom),
+            self.to_provider_data(),
         )?;
 
-        Ok(self.to_output(user_id, custom.access_token.as_str()))
+        let session_id = create_new_session(conn, &user_id, None)?;
+        Ok(self.to_output(user_id.0, session_id.0.as_str()))
     }
 
     fn to_output(&self, user_id: i64, access_token: &str) -> Output {
@@ -82,7 +80,7 @@ impl Payload {
         }
     }
 
-    fn to_provider_data(&self, custom: &todayhasbeen::Custom) -> ft_sdk::auth::ProviderData {
+    fn to_provider_data(&self) -> ft_sdk::auth::ProviderData {
         // This is a hack to use mobile number as value for auth
         let mobile_to_email = format!("{}@mobile.fifthtry.com", self.mobile_number);
 
@@ -93,7 +91,7 @@ impl Payload {
             emails: vec![mobile_to_email.to_string()],
             verified_emails: vec![mobile_to_email.to_string()],
             profile_picture: None,
-            custom: serde_json::to_value(custom).expect("Cannot convert custom to serde_json."),
+            custom: serde_json::Value::Null,
         }
     }
 
@@ -136,23 +134,32 @@ impl Payload {
     }
 }
 
-fn update_token_if_expired(
+/// This function checks if the session associated with the given user ID is expired.
+/// If it is expired, it creates a new session with a specified expiration duration.
+/// If it is not expired, it returns the existing session ID.
+fn update_session_if_expired(
     conn: &mut ft_sdk::Connection,
-    provider_data: &mut ft_sdk::auth::ProviderData,
     user_id: &ft_sdk::auth::UserId,
-) -> Result<(), ft_sdk::Error> {
-    let custom = todayhasbeen::Custom::from_provider_data(provider_data);
-    if !custom.is_access_token_expired() {
-        return Ok(());
-    }
-    let new_custom = todayhasbeen::Custom::new();
-    provider_data.custom = serde_json::to_value(new_custom).unwrap();
-    ft_sdk::auth::provider::update_user(
+) -> Result<ft_sdk::auth::SessionID, ft_sdk::Error> {
+    // Attempt to retrieve the current session ID for the given user ID.
+    let existing_session_id = ft_sdk::auth::SessionID::from_user_id(conn, user_id).ok();
+    create_new_session(conn, user_id, existing_session_id)
+}
+
+/// Creates a new session with a specified expiration duration.
+fn create_new_session(
+    conn: &mut ft_sdk::Connection,
+    user_id: &ft_sdk::auth::UserId,
+    session_id: Option<ft_sdk::auth::SessionID>,
+) -> Result<ft_sdk::auth::SessionID, ft_sdk::Error> {
+    // Define the duration for which the session should be valid.
+    let session_expiration_duration = Some(chrono::Duration::days(todayhasbeen::DURATION_TO_EXPIRE_ACCESS_TOKEN_IN_DAYS));
+
+    // Creating a new session if needed.
+    Ok(ft_sdk::auth::provider::login_with_custom_session_expiration(
         conn,
-        todayhasbeen::PROVIDER_ID,
         user_id,
-        provider_data.clone(),
-        false,
-    )?;
-    Ok(())
+        session_id,
+        session_expiration_duration,
+    )?)
 }

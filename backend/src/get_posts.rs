@@ -1,6 +1,6 @@
 #[ft_sdk::data]
 fn get_posts(mut conn: ft_sdk::Connection, headers: http::HeaderMap) -> ft_sdk::data::Result {
-    let user_id = todayhasbeen::get_user_from_header(&mut conn, &headers)?.0;
+    let user_id = todayhasbeen::get_user_from_header(&mut conn, &headers)?;
     let output = get_posts_by_user_id(&mut conn, user_id.0)?;
     ft_sdk::data::api_ok(output)
 }
