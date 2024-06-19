@@ -38,9 +38,12 @@ dependencies = [
  "cookie",
  "diesel",
  "ft-sdk",
+ "ft-stripe",
  "http",
+ "rand_core",
  "serde",
  "serde_json",
+ "uuid",
 ]
 
 [[package]]
@@ -170,8 +173,7 @@ dependencies = [
 [[package]]
 name = "ft-derive"
 version = "0.1.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bfc24346b72c3679550da38039e01517e5ada5c96ce12b1af9fb2e37934d4fdb"
+source = "git+https://github.com/FifthTry/ft-sdk.git?branch=add_expires_at_session#144fb21dd2e9ec1c8e4043621ce521b9f6555800"
 dependencies = [
  "quote",
  "syn 1.0.109",
@@ -179,13 +181,13 @@ dependencies = [
 
 [[package]]
 name = "ft-sdk"
-version = "0.1.11"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ef789a86acbb7a565bc9ce9e7aac504cbb9425133b263497698049e042801cc2"
+version = "0.1.12"
+source = "git+https://github.com/FifthTry/ft-sdk.git?branch=add_expires_at_session#144fb21dd2e9ec1c8e4043621ce521b9f6555800"
 dependencies = [
  "anyhow",
  "bytes",
  "chrono",
+ "cookie",
  "diesel",
  "ft-derive",
  "ft-sys",
@@ -201,10 +203,24 @@ dependencies = [
 ]
 
 [[package]]
+name = "ft-stripe"
+version = "0.1.0"
+source = "git+https://github.com/FifthTry/ft-sdk.git?branch=add_expires_at_session#144fb21dd2e9ec1c8e4043621ce521b9f6555800"
+dependencies = [
+ "bytes",
+ "ft-sdk",
+ "ft-sys",
+ "http",
+ "serde",
+ "serde_json",
+ "serde_urlencoded",
+ "thiserror",
+]
+
+[[package]]
 name = "ft-sys"
 version = "0.1.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5ead1d7ecd7cef261e45beae1852f541e435911f1bd79b471a836dd387cdb755"
+source = "git+https://github.com/FifthTry/ft-sdk.git?branch=add_expires_at_session#144fb21dd2e9ec1c8e4043621ce521b9f6555800"
 dependencies = [
  "bytes",
  "chrono",
@@ -220,8 +236,7 @@ dependencies = [
 [[package]]
 name = "ft-sys-shared"
 version = "0.1.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "17b6e98f0cddfaef0a84ea01d30089744a25e73fad0428a0d7dfdf3f8b17a05d"
+source = "git+https://github.com/FifthTry/ft-sdk.git?branch=add_expires_at_session#144fb21dd2e9ec1c8e4043621ce521b9f6555800"
 dependencies = [
  "bytes",
  "chrono",
