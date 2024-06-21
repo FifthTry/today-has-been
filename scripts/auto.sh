@@ -53,7 +53,7 @@ function upload-frontend() {
     fi
 
     FIFTHTRY_SITE_WRITE_TOKEN=$(cat ../token.txt) \
-      DEBUG_API_FIFTHTRY_COM=https://www.fifthtry.com/ft2 \
+      DEBUG_API_FIFTHTRY_COM=https://www.fifthtry.com \
       fastn upload todayhasbeen-dotcom
 
     popd2
