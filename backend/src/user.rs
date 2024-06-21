@@ -1,22 +1,29 @@
-#[ft_sdk::data]
+#[ft_sdk::processor]
 fn user(
     ft_sdk::Query(order): ft_sdk::Query<"order", Option<String>>,
     cookie: ft_sdk::Cookie<{ ft_sdk::auth::SESSION_KEY }>,
-) -> ft_sdk::data::Result {
+    host: ft_sdk::Host,
+) -> ft_sdk::processor::Result {
+
     let access_token = cookie.0;
 
     let order = order.unwrap_or("new".to_string());
 
+
     match access_token {
         Some(access_token) => {
             let posts = get_posts_by_order(access_token.as_str(), order.as_str());
-            ft_sdk::data::json(UserData {
-                is_logged_in: true,
-                auth_url: "/backend/logout/".to_string(),
-                posts,
-            })
+            match posts {
+                Ok(posts) => ft_sdk::processor::json(UserData {
+                    is_logged_in: true,
+                    auth_url: "/backend/logout/".to_string(),
+                    posts,
+                }),
+                Err(_) => Ok(ft_sdk::processor::temporary_redirect("/")?
+                    .with_cookie(todayhasbeen::expire_session_cookie(host)?))
+            }
         }
-        None => ft_sdk::data::json(UserData {
+        None => ft_sdk::processor::json(UserData {
             is_logged_in: false,
             auth_url: "https://wa.me/919910807891?text=Hi".to_string(),
             posts: vec![],
@@ -24,11 +31,13 @@ fn user(
     }
 }
 
-fn get_posts_by_order(access_token: &str, _order: &str) -> Vec<PostData> {
-    let get_posts = call_get_posts_api(access_token);
+fn get_posts_by_order(access_token: &str, _order: &str) -> Result<Vec<PostData>, ft_sdk::Error> {
+
+    let get_posts = call_get_posts_api(access_token)?;
+
     let mut post_data_hash: std::collections::HashMap<String, Vec<PostDataByDate>> =
         std::collections::HashMap::new();
-    for post in get_posts.data {
+    for post in get_posts {
         let naive_date_time = string_to_naive_date_time(post.createdon.as_str());
         let date = naive_date_time.date().to_string();
         let post_by_date = PostDataByDate {
@@ -43,19 +52,20 @@ fn get_posts_by_order(access_token: &str, _order: &str) -> Vec<PostData> {
             }
         }
     }
-    post_data_hash
+    Ok(post_data_hash
         .into_iter()
         .map(|(date, post_data_by_date)| PostData {
             date,
             data: post_data_by_date,
         })
-        .collect()
+        .collect())
 }
 
 #[derive(serde::Deserialize, Debug)]
-struct ApiResponse {
-    status: bool,
-    data: Vec<ApiPost>,
+#[serde(untagged)]
+enum ApiResponse {
+    Error { status: bool, message: String },
+    Success { status: bool, data: Vec<ApiPost> },
 }
 
 #[derive(serde::Deserialize, Debug)]
@@ -67,8 +77,9 @@ struct ApiPost {
     createdon: String,
 }
 
-fn call_get_posts_api(token: &str) -> ApiResponse {
+fn call_get_posts_api(token: &str) -> Result<Vec<ApiPost>, ft_sdk::Error> {
     let authorization_header = format!("Bearer {}", token);
+
 
     let client = http::Request::builder();
     let request = client
@@ -81,21 +92,33 @@ fn call_get_posts_api(token: &str) -> ApiResponse {
         .body(bytes::Bytes::new())
         .unwrap();
 
+
+
     let response = ft_sdk::http::send(request).unwrap(); //todo: remove unwrap()
 
-    if response.status().is_success() {
+
+
+    let status = response.status();
+    let body_str = String::from_utf8_lossy(response.body())
+        .to_string();
+
+
+
+    if status.is_success() {
         let api_response: ApiResponse = serde_json::from_str(
-            String::from_utf8_lossy(response.body())
-                .to_string()
+            body_str
                 .as_str(),
         )
         .unwrap();
         // Extract the 'value' field from the JSON response
         ft_sdk::println!("Response: {:?}", api_response);
 
-        api_response
+        match api_response {
+            ApiResponse::Error { message,.. } => Err(ft_sdk::SpecialError::Unauthorised(message).into()),
+            ApiResponse::Success { data, .. } => Ok(data)
+        }
     } else {
-        ft_sdk::println!("Request failed with status: {}", response.status());
+        ft_sdk::println!("Request failed with status: {} {}", status.as_str(), body_str);
         todo!()
     }
 }
