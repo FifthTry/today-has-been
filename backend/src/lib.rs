@@ -11,6 +11,7 @@ mod logout;
 mod register;
 mod schema;
 mod user;
+mod payment_link;
 
 const SECRET_KEY: &str = "SECRET_KEY";
 const STRIPE_SECRET_KEY: &str = "STRIPE_SECRET_KEY";
@@ -85,7 +86,7 @@ pub(crate) fn get_user_from_access_token(
     Ok(user)
 }
 
-#[derive(Debug, diesel::Selectable, diesel::Queryable)]
+#[derive(Debug, serde::Serialize, diesel::Selectable, diesel::Queryable)]
 #[diesel(table_name = todayhasbeen::schema::users)]
 struct UserData {
     id: i64,
