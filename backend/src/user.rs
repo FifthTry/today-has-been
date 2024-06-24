@@ -5,14 +5,13 @@ fn user(
     cookie: ft_sdk::Cookie<{ ft_sdk::auth::SESSION_KEY }>,
     host: ft_sdk::Host,
 ) -> ft_sdk::processor::Result {
-
     let access_token = cookie.0;
 
     let order = order.unwrap_or("new".to_string());
 
     match access_token {
         Some(access_token) => {
-            let posts =  get_posts_by_order(&mut conn, access_token.as_str(), order.as_str());
+            let posts = get_posts_by_order(&mut conn, access_token.as_str(), order.as_str());
             match posts {
                 Ok(posts) => ft_sdk::processor::json(UserData {
                     is_logged_in: true,
@@ -20,7 +19,7 @@ fn user(
                     posts,
                 }),
                 Err(_) => Ok(ft_sdk::processor::temporary_redirect("/")?
-                    .with_cookie(todayhasbeen::expire_session_cookie(host)?))
+                    .with_cookie(todayhasbeen::expire_session_cookie(host)?)),
             }
         }
         None => ft_sdk::processor::json(UserData {
@@ -31,7 +30,11 @@ fn user(
     }
 }
 
-fn get_posts_by_order(conn: &mut ft_sdk::Connection, access_token: &str, _order: &str) -> Result<Vec<PostData>, ft_sdk::Error> {
+fn get_posts_by_order(
+    conn: &mut ft_sdk::Connection,
+    access_token: &str,
+    _order: &str,
+) -> Result<Vec<PostData>, ft_sdk::Error> {
     let user = todayhasbeen::get_user_from_access_token(conn, access_token)?;
     let output = todayhasbeen::get_posts::get_posts_by_user_id(conn, user.id)?;
     let mut post_data_hash: std::collections::HashMap<String, Vec<PostDataByDate>> =
