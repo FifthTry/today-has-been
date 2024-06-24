@@ -110,7 +110,7 @@ impl Payload {
         errors: &mut std::collections::HashMap<String, String>,
     ) -> Result<(), ft_sdk::Error> {
         let is_digit = self.mobile_number.chars().all(|c| c.is_digit(10));
-        if is_digit {
+        if !is_digit {
             errors.insert(
                 "mobile_number".to_string(),
                 "Mobile number can only contain digits.".to_string(),
