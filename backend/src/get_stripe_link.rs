@@ -36,7 +36,7 @@ fn get_customer_stripe_link(
         return Ok(Output {
             status: true,
             link: format!(
-                "https://{}/api/payment/link/?customer_id={customer_id}",
+                "https://{}/backend/payment/link/?customer_id={customer_id}",
                 host.without_port()
             ),
             message: None,
@@ -68,7 +68,7 @@ fn get_customer_stripe_link(
     Ok(Output {
         status: true,
         link: format!(
-            "{}/api/payment/link/?customer_id={}",
+            "https://{}/backend/payment/link/?customer_id={}",
             host.without_port(),
             customer.id
         ),

@@ -19,7 +19,7 @@ fn payment_link(
 
     ft_sdk::processor::json(Output {
         return_url: format!(
-            "{}/api/charge/subscription/?customer_id={customer_id}",
+            "{}/backend/charge/subscription/?customer_id={customer_id}",
             host.without_port()
         ),
         customer_id,
