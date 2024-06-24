@@ -16,7 +16,7 @@ mod stripe_webhooks;
 mod user;
 
 const SECRET_KEY: &str = "SECRET_KEY";
-const STRIPE_SECRET_KEY: &str = "STRIPE_SECRET_KEY";
+const STRIPE_SECRET_KEY: &str = "c2tfdGVzdF90UjNQWWJjVk5aWjc5NnRIODhTNFZRMnU6";
 const DURATION_TO_EXPIRE_ACCESS_TOKEN_IN_DAYS: i64 = 60;
 const GUPSHUP_CALLBACK_SERVICE_URL: &str = "https://notifications.gupshup.io/notifications/callback/service/ipass/project/730/integration/19770066040f26502c05494f2";
 const GUPSHUP_AUTHORIZATION: &str = "1fe499df-e424-46a0-af05-802d97353d42";

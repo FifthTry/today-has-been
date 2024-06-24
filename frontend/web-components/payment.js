@@ -1,0 +1,70 @@
+
+
+class PaymentForm extends HTMLElement {
+    constructor() {
+        super();
+        this.attachShadow({ mode: 'open' });
+        this.shadowRoot.innerHTML = `
+            <style>
+                /* Add your styles here */
+            </style>
+            <form id="payment-form">
+                <div id="payment-element"></div>
+                <button type="submit" id="submit">Submit</button>
+                <div id="error-message"></div>
+            </form>
+        `;
+    }
+
+    connectedCallback() {
+        this.loadStripe().then(() => this.initializeStripe());
+    }
+
+    async initializeStripe() {
+        let data = window.ftd.component_data(this);
+        let client_secret = data.payment.get().get("client_secret").get();
+        let stripe_key = data.payment.get().get("stripe_key").get();
+        let return_url = data.payment.get().get("return_url").get();
+
+        const stripe = Stripe(stripe_key);
+        const options = {
+            clientSecret: client_secret,
+            appearance: {/*...*/},
+        };
+        const elements = stripe.elements(options);
+        const paymentElement = elements.create('payment');
+        paymentElement.mount(this.shadowRoot.querySelector('#payment-element'));
+
+        const form = this.shadowRoot.querySelector('#payment-form');
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            this.shadowRoot.querySelector("#submit").style.display = 'none';
+            const priceId = this.shadowRoot.querySelector('input[name="price_id"]:checked').value;
+
+            const { error } = await stripe.confirmSetup({
+                elements,
+                confirmParams: {
+                    return_url: `${return_url}&price_id=${priceId}`,
+                }
+            });
+
+            if (error) {
+                const messageContainer = this.shadowRoot.querySelector('#error-message');
+                messageContainer.textContent = error.message;
+            }
+        });
+    }
+
+    loadStripe() {
+        return new Promise((resolve, reject) => {
+            const script = document.createElement('script');
+            script.src = 'https://js.stripe.com/v3/';
+            script.onload = resolve;
+            script.onerror = reject;
+            document.head.appendChild(script);
+        });
+    }
+
+}
+
+customElements.define('show-payment', PaymentForm);
