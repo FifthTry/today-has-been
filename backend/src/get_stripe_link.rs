@@ -7,11 +7,15 @@ fn get_stripe_link(
     let user = todayhasbeen::get_user_from_header(&mut conn, &headers)?;
     let customer_stripe_link = match get_customer_stripe_link(&mut conn, host, &user) {
         Ok(customer_stripe_link) => customer_stripe_link,
-        Err(_) => Output {
-            status: false,
-            link: "".to_string(),
-            message: Some("customerId not generated".to_string()),
-        },
+        Err(e) => {
+            ft_sdk::println!("get_stripe_link e: {e:?}");
+
+            Output {
+                status: false,
+                link: "".to_string(),
+                message: Some("customerId not generated".to_string()),
+            }
+        }
     };
     ft_sdk::data::api_ok(customer_stripe_link)
 }
@@ -32,7 +36,7 @@ fn get_customer_stripe_link(
         return Ok(Output {
             status: true,
             link: format!(
-                "{}/api/payment/link/?customer_id={customer_id}",
+                "https://{}/api/payment/link/?customer_id={customer_id}",
                 host.without_port()
             ),
             message: None,
