@@ -13,12 +13,14 @@ mod schema;
 mod user;
 mod payment_link;
 mod charge_subscription;
+mod stripe_webhooks;
 
 const SECRET_KEY: &str = "SECRET_KEY";
 const STRIPE_SECRET_KEY: &str = "STRIPE_SECRET_KEY";
 const DURATION_TO_EXPIRE_ACCESS_TOKEN_IN_DAYS: i64 = 60;
 const GUPSHUP_CALLBACK_SERVICE_URL: &str = "https://notifications.gupshup.io/notifications/callback/service/ipass/project/730/integration/19770066040f26502c05494f2";
 const GUPSHUP_AUTHORIZATION: &str = "1fe499df-e424-46a0-af05-802d97353d42";
+const STRIPE_WEBHOOK_SECRET_KEY: &str = "STRIPE_WEBHOOK_SECRET_KEY";
 
 pub(crate) fn set_session_cookie(
     sid: &str,
