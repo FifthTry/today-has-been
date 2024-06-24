@@ -54,6 +54,9 @@ dependencies = [
  "rand_core 0.6.4",
  "serde",
  "serde_json",
+ "serde_path_to_error",
+ "serde_qs 0.10.1",
+ "thiserror",
  "uuid",
 ]
 

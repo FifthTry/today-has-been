@@ -6,7 +6,7 @@ diesel::table! {
         time_zone -> Nullable<Text>,
         language -> Nullable<Text>,
         subscription_type -> Nullable<Text>,
-        subscription_end_time -> Nullable<Timestamptz>,
+        subscription_end_time -> Nullable<Text>,
         customer_id -> Nullable<Text>,
         access_token -> Text,
         created_on -> Timestamptz,
@@ -30,9 +30,26 @@ diesel::table! {
         plan -> Text,
         price_id -> Text,
         amount -> Double,
-        createdon -> Timestamptz,
+        created_on -> Timestamptz,
+    }
+}
+
+
+diesel::table! {
+    subscriptions (id) {
+        id -> BigInt,
+        user_id -> BigInt,
+        subscription_id -> Text,
+        start_date -> Text,
+        end_date -> Text,
+        status -> Nullable<Text>,
+        is_active -> Nullable<Text>,
+        plan_type -> Nullable<Text>,
+        created_on -> Timestamptz,
+        updated_on -> Timestamptz,
     }
 }
 
 
 diesel::joinable!(posts -> users (user_id));
+diesel::joinable!(subscriptions -> users (user_id));

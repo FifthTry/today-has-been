@@ -134,7 +134,7 @@ struct NewUserData {
     time_zone: Option<String>,
     language: Option<String>,
     subscription_type: Option<String>,
-    subscription_end_time: Option<chrono::DateTime<chrono::Utc>>,
+    subscription_end_time: Option<String>,
     customer_id: Option<String>,
     access_token: String,
     created_on: chrono::DateTime<chrono::Utc>,
@@ -151,8 +151,7 @@ impl NewUserData {
             language: self.language,
             subscription_type: self.subscription_type,
             subscription_end_time: self
-                .subscription_end_time
-                .map(|datetime| datetime.format("%Y-%m-%d").to_string()),
+                .subscription_end_time,
             customer_id: self.customer_id,
             access_token: self.access_token,
         }
@@ -169,8 +168,7 @@ impl todayhasbeen::UserData {
             language: self.language,
             subscription_type: self.subscription_type,
             subscription_end_time: self
-                .subscription_end_time
-                .map(|datetime| datetime.format("%Y-%m-%d").to_string()),
+                .subscription_end_time,
             customer_id: self.customer_id,
             access_token: self.access_token,
         }
