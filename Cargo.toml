@@ -22,6 +22,7 @@ homepage = "https://www.fifthtry.com"
 
 
 [workspace.dependencies]
+ft-stripe = { path = "../../fifthtry/ft-sdk/ft-stripe" }
 ft-sdk = { version = "0.1.11", features = ["field-extractors"] }
 bytes = "1.0"
 http = "1.0"

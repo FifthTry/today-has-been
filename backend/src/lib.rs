@@ -4,16 +4,16 @@ extern crate self as todayhasbeen;
 use std::ops::Add;
 
 mod add_post;
+mod get_posts;
+mod get_stripe_link;
 mod login;
 mod logout;
 mod register;
 mod schema;
 mod user;
-mod get_posts;
-mod add_post;
-mod get_posts;
 
 const SECRET_KEY: &str = "SECRET_KEY";
+const STRIPE_SECRET_KEY: &str = "STRIPE_SECRET_KEY";
 const DURATION_TO_EXPIRE_ACCESS_TOKEN_IN_DAYS: i64 = 60;
 
 pub(crate) fn set_session_cookie(
@@ -49,7 +49,7 @@ fn convert_now_to_offsetdatetime() -> cookie::time::OffsetDateTime {
     cookie::time::OffsetDateTime::from_unix_timestamp_nanos(
         (timestamp * 1_000_000_000 + nanoseconds as i64) as i128,
     )
-        .unwrap()
+    .unwrap()
 }
 
 pub(crate) fn get_user_from_header(
@@ -61,7 +61,6 @@ pub(crate) fn get_user_from_header(
 
     get_user_from_access_token(conn, &access_token)
 }
-
 
 pub(crate) fn get_user_from_access_token(
     conn: &mut ft_sdk::Connection,

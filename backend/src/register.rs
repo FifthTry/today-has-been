@@ -93,7 +93,7 @@ impl Payload {
                 "secret_key".to_string(),
                 "Invalid secret key.".to_string(),
             )
-                .into());
+            .into());
         }
 
         let mut errors = std::collections::HashMap::new();

@@ -9,7 +9,11 @@ fn add_post(
     ft_sdk::data::api_ok(output)
 }
 
-fn insert_post(conn: &mut ft_sdk::Connection, user_id: i64, payload: Payload) -> Result<Output, ft_sdk::Error> {
+fn insert_post(
+    conn: &mut ft_sdk::Connection,
+    user_id: i64,
+    payload: Payload,
+) -> Result<Output, ft_sdk::Error> {
     use diesel::prelude::*;
     use todayhasbeen::schema::posts;
 
@@ -58,7 +62,6 @@ pub struct Output {
     media_url: Option<String>,
     created_on: chrono::DateTime<chrono::Utc>,
 }
-
 
 #[derive(Debug, serde::Deserialize)]
 struct Payload {
