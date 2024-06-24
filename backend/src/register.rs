@@ -150,8 +150,7 @@ impl NewUserData {
             time_zone: self.time_zone,
             language: self.language,
             subscription_type: self.subscription_type,
-            subscription_end_time: self
-                .subscription_end_time,
+            subscription_end_time: self.subscription_end_time,
             customer_id: self.customer_id,
             access_token: self.access_token,
         }
@@ -167,8 +166,7 @@ impl todayhasbeen::UserData {
             time_zone: self.time_zone,
             language: self.language,
             subscription_type: self.subscription_type,
-            subscription_end_time: self
-                .subscription_end_time,
+            subscription_end_time: self.subscription_end_time,
             customer_id: self.customer_id,
             access_token: self.access_token,
         }
