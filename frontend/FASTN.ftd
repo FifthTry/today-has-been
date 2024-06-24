@@ -38,3 +38,13 @@ CREATE TABLE IF NOT EXISTS posts (
   media_url TEXT DEFAULT NULL,
   created_on INTEGER NOT NULL
 ) STRICT;
+
+
+CREATE TABLE subscription_plans (
+  id INTEGER PRIMARY KEY,
+  plan TEXT NOT NULL,
+  price_id TEXT NOT NULL,
+  amount REAL NOT NULL,
+  createdon INTEGER NOT NULL
+);
+

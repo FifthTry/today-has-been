@@ -24,4 +24,15 @@ diesel::table! {
     }
 }
 
+diesel::table! {
+    subscription_plans (id) {
+        id -> BigInt,
+        plan -> Text,
+        price_id -> Text,
+        amount -> Double,
+        createdon -> Timestamptz,
+    }
+}
+
+
 diesel::joinable!(posts -> users (user_id));

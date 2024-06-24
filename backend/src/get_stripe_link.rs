@@ -8,7 +8,7 @@ fn get_stripe_link(
     let customer_stripe_link =
     match get_customer_stripe_link(&mut conn, host, &user) {
         Ok(customer_stripe_link) => customer_stripe_link,
-        Err(_) => Response {
+        Err(_) => Output {
             status: false,
             link: "".to_string(),
             message: Some("customerId not generated".to_string()),
@@ -18,7 +18,7 @@ fn get_stripe_link(
 }
 
 #[derive(serde::Serialize)]
-struct Response {
+struct Output {
     status: bool,
     link: String,
     message: Option<String>,
@@ -28,12 +28,12 @@ fn get_customer_stripe_link(
     conn: &mut ft_sdk::Connection,
     host: ft_sdk::Host,
     user: &todayhasbeen::UserData,
-) -> Result<Response, ft_sdk::Error> {
+) -> Result<Output, ft_sdk::Error> {
     if let Some(ref customer_id) = user.customer_id {
-        return Ok(Response {
+        return Ok(Output {
             status: true,
             link: format!(
-                "{}/api/payment/link/?customerId={customer_id}",
+                "{}/api/payment/link/?customer_id={customer_id}",
                 host.without_port()
             ),
             message: None,
@@ -41,7 +41,7 @@ fn get_customer_stripe_link(
     }
 
     if let Some(ref subscription_type) = user.subscription_type {
-        return Ok(Response {
+        return Ok(Output {
             status: false,
             link: "".to_string(),
             message: Some(format!(
@@ -62,10 +62,10 @@ fn get_customer_stripe_link(
 
     update_user_customer_id(conn, user.id, customer.id.as_str())?;
 
-    Ok(Response {
+    Ok(Output {
         status: true,
         link: format!(
-            "{}/api/payment/link/?customerId={}",
+            "{}/api/payment/link/?customer_id={}",
             host.without_port(),
             customer.id
         ),
