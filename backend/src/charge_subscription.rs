@@ -5,8 +5,7 @@ fn charge_subscription(
     ft_sdk::Query(price_id): ft_sdk::Query<"price_id">,
     ft_sdk::Query(setup_intent): ft_sdk::Query<"setup_intent", Option<String>>,
     ft_sdk::Query(redirect_status): ft_sdk::Query<"redirect_status">,
-    host: ft_sdk::Host,
-    ft_sdk::Mountpoint(mountpoint): ft_sdk::Mountpoint,
+    host: ft_sdk::Host
 ) -> ft_sdk::processor::Result {
 
     let user_data = todayhasbeen::get_user_from_customer_id(&mut conn, customer_id.as_str())?;
@@ -25,7 +24,7 @@ fn charge_subscription(
     call_gupshup_callback_service(&user_data, &plan_info, &subscription)?;
 
     let url = format!(
-        "https://{host}{mountpoint}/api/subscription/payment/?status=",
+        "https://{host}/subscription/payment/?status=",
     );
 
     if subscription.status {
