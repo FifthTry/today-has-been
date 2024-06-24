@@ -26,18 +26,19 @@ fn payment_link(
         client_secret: setup_intent.client_secret,
         stripe_key: todayhasbeen::STRIPE_SECRET_KEY.to_string(),
         plans,
-        user_data,
+        subscription_type: user_data.subscription_type,
     })
 }
 
 #[derive(serde::Serialize)]
+#[serde(rename_all = "kebab-case")]
 struct Output {
     customer_id: String,
     client_secret: Option<String>,
     stripe_key: String,
     plans: Vec<todayhasbeen::SubscriptionPlan>,
     return_url: String,
-    user_data: todayhasbeen::UserData,
+    subscription_type: Option<String>,
 }
 
 fn get_subscription_plans(

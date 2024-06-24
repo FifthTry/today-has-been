@@ -1,0 +1,31 @@
+-- import: fastn/processors as pr
+
+-- string customer_id:
+$processor$: pr.request-data
+
+
+-- payment-detail payment:
+$processor$: pr.http
+url: /backend/payment/link/
+customer_id: $customer_id
+
+
+-- ftd.text: $payment.customer-id
+
+
+
+-- record payment-detail:
+string client-secret:
+string customer-id:
+plan-detail list plans:
+string return-url:
+string stripe-key:
+optional string subscription-type:
+
+
+-- record plan-detail:
+decimal amount:
+string created-on:
+integer id:
+string plan:
+string price-id:

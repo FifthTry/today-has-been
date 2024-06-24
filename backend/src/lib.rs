@@ -159,6 +159,7 @@ fn get_access_token(headers: &http::HeaderMap) -> Result<String, ft_sdk::Error> 
 #[derive(Debug, serde::Serialize, diesel::Selectable, diesel::Queryable)]
 #[diesel(treat_none_as_default_value = false)]
 #[diesel(table_name = todayhasbeen::schema::subscription_plans)]
+#[serde(rename_all = "kebab-case")]
 pub struct SubscriptionPlan {
     pub id: i64,
     pub plan: String,
