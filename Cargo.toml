@@ -32,6 +32,10 @@ serde = {  version = "1", features = ["derive"] }
 cookie = "0.18"
 rand_core = "0.6"
 uuid = { version = "1.8", features = ["v8"], default-features = false }
+thiserror = "1"
+serde_qs = "0.10.1"
+serde_path_to_error = "0.1.8"
+
 
 [workspace.dependencies.diesel]
 version = "2"

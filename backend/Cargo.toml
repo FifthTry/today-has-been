@@ -19,3 +19,6 @@ cookie.workspace = true
 rand_core.workspace = true
 uuid.workspace = true
 ft-stripe.workspace = true
+thiserror.workspace = true
+serde_qs.workspace = true
+serde_path_to_error.workspace = true

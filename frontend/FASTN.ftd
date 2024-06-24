@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS users (
   time_zone TEXT DEFAULT NULL,
   language TEXT DEFAULT NULL,
   subscription_type TEXT DEFAULT NULL,
-  subscription_end_time INTEGER DEFAULT NULL,
+  subscription_end_time TEXT DEFAULT NULL,
   customer_id TEXT DEFAULT NULL,
   access_token TEXT,
   created_on INTEGER NOT NULL,
@@ -45,6 +45,21 @@ CREATE TABLE subscription_plans (
   plan TEXT NOT NULL,
   price_id TEXT NOT NULL,
   amount REAL NOT NULL,
-  createdon INTEGER NOT NULL
+  created_on INTEGER NOT NULL
 );
+
+
+CREATE TABLE subscriptions (
+  id INTEGER PRIMARY KEY,
+  user_id INTEGER NOT NULL,
+  subscription_id TEXT NOT NULL,
+  start_date TEXT NOT NULL,
+  end_date TEXT NOT NULL,
+  status TEXT DEFAULT NULL,
+  is_active TEXT DEFAULT NULL,
+  plan_type TEXT DEFAULT NULL,
+  created_on INTEGER NOT NULL,
+  updated_on INTEGER NOT NULL
+);
+
 
