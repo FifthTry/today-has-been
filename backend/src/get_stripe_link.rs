@@ -5,14 +5,13 @@ fn get_stripe_link(
     host: ft_sdk::Host,
 ) -> ft_sdk::data::Result {
     let user = todayhasbeen::get_user_from_header(&mut conn, &headers)?;
-    let customer_stripe_link =
-    match get_customer_stripe_link(&mut conn, host, &user) {
+    let customer_stripe_link = match get_customer_stripe_link(&mut conn, host, &user) {
         Ok(customer_stripe_link) => customer_stripe_link,
         Err(_) => Output {
             status: false,
             link: "".to_string(),
             message: Some("customerId not generated".to_string()),
-        }
+        },
     };
     ft_sdk::data::api_ok(customer_stripe_link)
 }

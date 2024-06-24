@@ -4,16 +4,16 @@ extern crate self as todayhasbeen;
 use std::ops::Add;
 
 mod add_post;
+mod charge_subscription;
 mod get_posts;
 mod get_stripe_link;
 mod login;
 mod logout;
+mod payment_link;
 mod register;
 mod schema;
-mod user;
-mod payment_link;
-mod charge_subscription;
 mod stripe_webhooks;
+mod user;
 
 const SECRET_KEY: &str = "SECRET_KEY";
 const STRIPE_SECRET_KEY: &str = "STRIPE_SECRET_KEY";
@@ -91,7 +91,6 @@ pub(crate) fn get_user_from_access_token(
     Ok(user)
 }
 
-
 pub(crate) fn get_user_from_customer_id(
     conn: &mut ft_sdk::Connection,
     customer_id: &str,
@@ -157,7 +156,6 @@ fn get_access_token(headers: &http::HeaderMap) -> Result<String, ft_sdk::Error> 
     })
 }
 
-
 #[derive(Debug, serde::Serialize, diesel::Selectable, diesel::Queryable)]
 #[diesel(treat_none_as_default_value = false)]
 #[diesel(table_name = todayhasbeen::schema::subscription_plans)]
@@ -169,11 +167,10 @@ pub struct SubscriptionPlan {
     pub created_on: chrono::DateTime<chrono::Utc>,
 }
 
-
-#[derive(Debug, serde::Serialize, diesel::Selectable, diesel::Queryable, diesel::Insertable)]
+#[derive(Debug, serde::Serialize, diesel::Insertable, diesel::AsChangeset)]
 #[diesel(treat_none_as_default_value = false)]
 #[diesel(table_name = todayhasbeen::schema::subscriptions)]
-pub struct Subscription {
+pub struct NewSubscription {
     pub user_id: i64,
     pub subscription_id: String,
     pub start_date: String,
@@ -185,3 +182,66 @@ pub struct Subscription {
     pub updated_on: chrono::DateTime<chrono::Utc>,
 }
 
+#[derive(Debug, serde::Serialize, diesel::Selectable, diesel::Queryable)]
+#[diesel(treat_none_as_default_value = false)]
+#[diesel(table_name = todayhasbeen::schema::subscriptions)]
+pub struct Subscription {
+    pub id: i64,
+    pub user_id: i64,
+    pub subscription_id: String,
+    pub start_date: String,
+    pub end_date: String,
+    pub status: Option<String>,
+    pub is_active: Option<String>,
+    pub plan_type: Option<String>,
+    pub created_on: chrono::DateTime<chrono::Utc>,
+    pub updated_on: chrono::DateTime<chrono::Utc>,
+}
+
+impl Subscription {
+    pub(crate) fn to_new_subscription(self) -> NewSubscription {
+        NewSubscription {
+            user_id: self.user_id,
+            subscription_id: self.subscription_id,
+            start_date: self.start_date,
+            end_date: self.end_date,
+            status: self.status,
+            is_active: self.is_active,
+            plan_type: self.plan_type,
+            created_on: self.created_on,
+            updated_on: self.updated_on,
+        }
+    }
+}
+
+pub(crate) fn update_user(
+    conn: &mut ft_sdk::Connection,
+    user_id: i64,
+    subscription_type: Option<String>,
+    subscription_end_time: Option<String>,
+) -> Result<(), ft_sdk::Error> {
+    use diesel::prelude::*;
+    use todayhasbeen::schema::users;
+
+    diesel::update(users::table)
+        .filter(users::id.eq(user_id))
+        .set((
+            users::subscription_type.eq(subscription_type),
+            users::subscription_end_time.eq(subscription_end_time),
+        ))
+        .execute(conn)?;
+
+    Ok(())
+}
+
+pub(crate) fn timestamp_to_date_string(timestamp: i64) -> String {
+    use chrono::{TimeZone, Utc};
+
+    // Convert Unix timestamp to chrono DateTime<Utc>
+    let datetime_utc = Utc.timestamp_opt(timestamp, 0).unwrap();
+
+    // Format DateTime<Utc> to 'Y-m-d' format
+    let formatted_date = datetime_utc.format("%Y-%m-%d").to_string();
+
+    formatted_date
+}

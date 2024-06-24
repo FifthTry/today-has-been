@@ -63,3 +63,11 @@ CREATE TABLE subscriptions (
 );
 
 
+CREATE TABLE stripe_logs (
+  id INTEGER PRIMARY KEY,
+  event TEXT DEFAULT NULL,
+  response TEXT DEFAULT NULL,
+  created_on INTEGER NOT NULL
+);
+
+

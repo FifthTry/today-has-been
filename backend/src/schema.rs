@@ -34,7 +34,6 @@ diesel::table! {
     }
 }
 
-
 diesel::table! {
     subscriptions (id) {
         id -> BigInt,
@@ -47,6 +46,15 @@ diesel::table! {
         plan_type -> Nullable<Text>,
         created_on -> Timestamptz,
         updated_on -> Timestamptz,
+    }
+}
+
+diesel::table! {
+    stripe_logs (id) {
+        id -> BigInt,
+        event -> Nullable<Text>,
+        response -> Nullable<Text>,
+        created_on -> Timestamptz,
     }
 }
 
