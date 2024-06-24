@@ -12,3 +12,29 @@
 -- fastn.url-mappings:
 
 /backend/* -> wasm+proxy://backend.wasm/*
+
+
+-- fastn.migration: create-all-tables
+
+CREATE TABLE IF NOT EXISTS users (
+  id INTEGER PRIMARY KEY,
+  mobile_number INTEGER UNIQUE NOT NULL,
+  user_name TEXT NOT NULL,
+  time_zone TEXT DEFAULT NULL,
+  language TEXT DEFAULT NULL,
+  subscription_type TEXT DEFAULT NULL,
+  subscription_end_time INTEGER DEFAULT NULL,
+  customer_id TEXT DEFAULT NULL,
+  access_token TEXT,
+  created_on INTEGER NOT NULL,
+  updated_on INTEGER NOT NULL
+) STRICT;
+
+
+CREATE TABLE IF NOT EXISTS posts (
+  id INTEGER PRIMARY KEY,
+  user_id BIGINT NOT NULL REFERENCES "users" ("userId") DEFERRABLE INITIALLY DEFERRED,
+  post_content TEXT DEFAULT NULL,
+  media_url TEXT DEFAULT NULL,
+  created_on INTEGER NOT NULL
+) STRICT;
