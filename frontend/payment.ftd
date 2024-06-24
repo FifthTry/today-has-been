@@ -50,6 +50,9 @@ spacing: $ds.spaces.vertical-gap.large
 -- show-plans:
 plans: $payment-page.payment.plans
 
+-- ftd.column:
+id: payment-form
+
 -- show-payment: $payment-page.payment
 
 -- end: ds.row
