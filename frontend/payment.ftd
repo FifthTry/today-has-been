@@ -1,4 +1,5 @@
 -- import: fastn/processors as pr
+-- import: todayhasbeen-dotcom.fifthtry.site/assets
 
 -- string customer_id:
 $processor$: pr.request-data
@@ -10,7 +11,138 @@ url: /backend/payment/link/
 customer_id: $customer_id
 
 
--- ftd.text: $payment.customer-id
+
+-- payment-page: $payment
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-- component payment-page:
+caption payment-detail payment:
+
+-- ds.page: Payment
+background.solid: #fdf4eb
+
+-- ftd.column:
+js: //js.stripe.com/v3/
+
+-- ds.heading-large: Gupshup
+
+-- ds.heading-medium: Payment Setup
+
+
+
+-- ftd.desktop:
+
+-- ds.row:
+spacing: $ds.spaces.vertical-gap.large
+
+-- show-plans:
+plans: $payment-page.payment.plans
+
+-- show-payment: $payment-page.payment
+
+-- end: ds.row
+
+-- end: ftd.desktop
+
+
+
+
+-- ftd.mobile:
+
+-- ds.column:
+
+-- show-plans:
+plans: $payment-page.payment.plans
+
+-- show-payment: $payment-page.payment
+
+-- end: ds.column
+
+-- end: ftd.mobile
+
+-- end: ds.page
+
+-- end: payment-page
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-- component show-plans:
+plan-detail list plans:
+
+-- ds.column:
+width.fixed.percent: 50
+
+-- ds.heading-small: Select Plan
+
+-- show-plan: $plan
+for: $plan in $show-plans.plans
+
+-- end: ds.column
+
+-- end: show-plans
+
+
+
+
+
+
+
+
+-- component show-plan:
+caption plan-detail plan:
+
+
+-- ds.row:
+
+-- ds.checkbox: $show-plan.plan.plan
+size: small
+
+-- ftd.decimal: $show-plan.plan.amount
+
+-- end: ds.row
+
+
+-- end: show-plan
+
+
+
+
+
+
+-- web-component show-payment:
+js: $assets.files.web-components.payment.js
+caption payment-detail payment:
+
+
+
+
+
+
 
 
 
