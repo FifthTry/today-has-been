@@ -48,7 +48,7 @@ dependencies = [
  "chrono",
  "cookie",
  "diesel",
- "ft-sdk 0.1.11",
+ "ft-sdk",
  "ft-stripe",
  "http",
  "rand_core 0.6.4",
@@ -268,39 +268,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "ft-derive"
-version = "0.1.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bfc24346b72c3679550da38039e01517e5ada5c96ce12b1af9fb2e37934d4fdb"
-dependencies = [
- "quote",
- "syn 1.0.109",
-]
-
-[[package]]
-name = "ft-sdk"
-version = "0.1.11"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ef789a86acbb7a565bc9ce9e7aac504cbb9425133b263497698049e042801cc2"
-dependencies = [
- "anyhow",
- "bytes",
- "chrono",
- "diesel",
- "ft-derive 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
- "ft-sys 0.1.3 (registry+https://github.com/rust-lang/crates.io-index)",
- "ft-sys-shared 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
- "http",
- "include_dir",
- "rand_core 0.6.4",
- "serde",
- "serde_json",
- "serde_urlencoded",
- "thiserror",
- "uuid",
-]
-
-[[package]]
 name = "ft-sdk"
 version = "0.1.12"
 dependencies = [
@@ -308,9 +275,9 @@ dependencies = [
  "bytes",
  "chrono",
  "diesel",
- "ft-derive 0.1.1",
- "ft-sys 0.1.3",
- "ft-sys-shared 0.1.2",
+ "ft-derive",
+ "ft-sys",
+ "ft-sys-shared",
  "http",
  "include_dir",
  "rand_core 0.6.4",
@@ -327,7 +294,7 @@ version = "0.1.0"
 dependencies = [
  "bytes",
  "chrono",
- "ft-sdk 0.1.12",
+ "ft-sdk",
  "hex",
  "hmac",
  "http",
@@ -351,24 +318,7 @@ dependencies = [
  "chrono",
  "diesel",
  "diesel_derives",
- "ft-sys-shared 0.1.2",
- "http",
- "serde",
- "serde_json",
- "thiserror",
-]
-
-[[package]]
-name = "ft-sys"
-version = "0.1.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5ead1d7ecd7cef261e45beae1852f541e435911f1bd79b471a836dd387cdb755"
-dependencies = [
- "bytes",
- "chrono",
- "diesel",
- "diesel_derives",
- "ft-sys-shared 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "ft-sys-shared",
  "http",
  "serde",
  "serde_json",
@@ -378,19 +328,6 @@ dependencies = [
 [[package]]
 name = "ft-sys-shared"
 version = "0.1.2"
-dependencies = [
- "bytes",
- "chrono",
- "http",
- "serde",
- "thiserror",
-]
-
-[[package]]
-name = "ft-sys-shared"
-version = "0.1.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "17b6e98f0cddfaef0a84ea01d30089744a25e73fad0428a0d7dfdf3f8b17a05d"
 dependencies = [
  "bytes",
  "chrono",

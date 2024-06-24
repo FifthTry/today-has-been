@@ -20,7 +20,7 @@ function popd2() {
 function build-wasm() {
     pushd2 "${PROJ_ROOT}/backend" || return 1
     # cargo clean
-    cargo build --target wasm32-unknown-unknown --release || return 1
+    WASMTIME_BACKTRACE_DETAILS=1 cargo build --target wasm32-unknown-unknown --release || return 1
     cp ../target/wasm32-unknown-unknown/release/backend.wasm ../frontend/ || return 1
     popd2
 }
