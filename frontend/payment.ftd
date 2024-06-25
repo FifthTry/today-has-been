@@ -45,7 +45,7 @@ js: //js.stripe.com/v3/
 -- ftd.desktop:
 
 -- ds.row:
-spacing: $ds.spaces.vertical-gap.large
+spacing: $ds.spaces.vertical-gap.space-between
 
 -- show-plans:
 plans: $payment-page.payment.plans
@@ -98,7 +98,7 @@ plans: $payment-page.payment.plans
 plan-detail list plans:
 
 -- ds.column:
-width.fixed.percent: 50
+width.fixed.percent: 30
 
 -- ds.heading-small: Select Plan
 
