@@ -24,7 +24,7 @@ fn payment_link(
         ),
         customer_id,
         client_secret: setup_intent.client_secret,
-        stripe_key: todayhasbeen::STRIPE_SECRET_KEY.to_string(),
+        stripe_key: todayhasbeen::STRIPE_PUBLIC_KEY.to_string(),
         plans,
         subscription_type: user_data.subscription_type,
     })
