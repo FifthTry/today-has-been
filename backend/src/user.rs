@@ -21,9 +21,9 @@ fn user(
             is_logged_in: false,
             auth_url: "https://wa.me/919910807891?text=Hi".to_string(),
             posts: vec![],
-            older_date: None,
-            newer_date: None,
-            random_date: None,
+            older_date_url: None,
+            newer_date_url: None,
+            random_date_url: None,
         }),
     }
 }
@@ -73,9 +73,9 @@ fn get_user_data(
                 data: post_data_by_date,
             })
             .collect(),
-        older_date: older_date.map(|dt| todayhasbeen::datetime_to_date_string(&dt)),
-        newer_date: newer_date.map(|dt| todayhasbeen::datetime_to_date_string(&dt)),
-        random_date: random_date.map(|dt| todayhasbeen::datetime_to_date_string(&dt)),
+        older_date_url: older_date.map(|dt| format!("/?date={}",todayhasbeen::datetime_to_date_string(&dt))),
+        newer_date_url: newer_date.map(|dt| format!("/?date={}",todayhasbeen::datetime_to_date_string(&dt))),
+        random_date_url: random_date.map(|dt| format!("/?date={}",todayhasbeen::datetime_to_date_string(&dt))),
     })
 }
 
@@ -218,9 +218,9 @@ struct UserData {
     is_logged_in: bool,
     auth_url: String,
     posts: Vec<PostData>,
-    older_date: Option<String>,
-    newer_date: Option<String>,
-    random_date: Option<String>,
+    older_date_url: Option<String>,
+    newer_date_url: Option<String>,
+    random_date_url: Option<String>,
 }
 
 #[derive(serde::Serialize, Debug)]
