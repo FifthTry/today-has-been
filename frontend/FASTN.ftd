@@ -13,6 +13,18 @@
 
 /api/v0.1/* -> wasm+proxy://backend.wasm/*
 
+-- fastn.migration: fix-post-table
+
+DROP TABLE posts;
+
+CREATE TABLE posts (
+  id INTEGER PRIMARY KEY,
+  user_id INTEGER NOT NULL,
+  post_content TEXT DEFAULT NULL,
+  media_url TEXT DEFAULT NULL,
+  created_on INTEGER NOT NULL
+) STRICT;
+
 
 -- fastn.migration: create-all-tables
 
@@ -70,4 +82,23 @@ CREATE TABLE stripe_logs (
   created_on INTEGER NOT NULL
 ) STRICT;
 
+
+
+
+
+-- fastn.migration: initial
+
+CREATE TABLE IF NOT EXISTS users (
+  id INTEGER PRIMARY KEY,
+  mobile_number INTEGER UNIQUE NOT NULL,
+  user_name TEXT NOT NULL,
+  time_zone TEXT DEFAULT NULL,
+  language TEXT DEFAULT NULL,
+  subscription_type TEXT DEFAULT NULL,
+  subscription_end_time TEXT DEFAULT NULL,
+  customer_id TEXT DEFAULT NULL,
+  access_token TEXT,
+  created_on INTEGER NOT NULL,
+  updated_on INTEGER NOT NULL
+) STRICT;
 
