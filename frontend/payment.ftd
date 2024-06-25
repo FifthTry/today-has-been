@@ -46,12 +46,10 @@ js: //js.stripe.com/v3/
 
 -- ds.row:
 spacing: $ds.spaces.vertical-gap.space-between
+inset: $ds.spaces.inset-square.large
 
 -- show-plans:
 plans: $payment-page.payment.plans
-
--- ftd.column:
-id: payment-form
 
 -- show-payment: $payment-page.payment
 
@@ -137,7 +135,29 @@ size: small
 
 
 
--- web-component show-payment:
+
+-- component show-payment:
+caption payment-detail payment:
+
+-- ftd.column:
+
+-- ftd.row:
+id: payment-form
+
+-- stripe-payment: $show-payment.payment
+
+-- end: ftd.column
+
+-- end: show-payment
+
+
+
+
+
+
+
+
+-- web-component stripe-payment:
 js: $assets.files.web-components.payment.js
 caption payment-detail payment:
 

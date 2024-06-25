@@ -93,4 +93,4 @@ class PaymentForm extends HTMLElement {
 
 }
 
-customElements.define('show-payment', PaymentForm);
+customElements.define('stripe-payment', PaymentForm);
