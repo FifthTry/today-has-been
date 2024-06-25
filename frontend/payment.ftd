@@ -38,7 +38,7 @@ background.solid: #fdf4eb
 -- ftd.column:
 js: //js.stripe.com/v3/
 
--- ds.heading-large: Gupshup
+-- ds.heading-large: Today has been
 
 -- ds.heading-medium: Payment Setup
 
@@ -181,7 +181,7 @@ string client-secret:
 string customer-id:
 plan-detail list plans:
 string return-url:
-string stripe-key:
+string stripe-public-key:
 optional string subscription-type:
 
 
