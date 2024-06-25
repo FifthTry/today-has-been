@@ -68,7 +68,14 @@ fn call_gupshup_callback_service(
         .header("Accept", "application/json")
         .body(bytes::Bytes::from(body))?;
 
-    let _ = ft_sdk::http::send(request);
+    match ft_sdk::http::send(request) {
+        Ok(response) =>  {
+            ft_sdk::println!("call_gupshup_callback_service response: {} {}", response.status(), String::from_utf8_lossy(response.body()));
+        }
+        Err(e) => {
+            ft_sdk::println!("call_gupshup_callback_service error: {e:?}");
+        }
+    };
 
     Ok(())
 }
