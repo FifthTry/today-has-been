@@ -5,11 +5,13 @@
 $processor$: pr.request-data
 
 
+-- optional string $price-id:
+
+
 -- payment-detail payment:
 $processor$: pr.http
 url: /api/v0.1/payment/link/
 customer_id: $customer_id
-
 
 
 -- payment-page: $payment
@@ -122,6 +124,9 @@ caption plan-detail plan:
 
 -- ds.checkbox: $show-plan.plan.plan
 size: small
+$is-checked if {price-id == show-plan.plan.price-id}: true
+$is-checked if {price-id != show-plan.plan.price-id}: false
+$on-click$: $ftd.set-string($a = $price-id, v = $show-plan.plan.price-id)
 
 -- ftd.decimal: $show-plan.plan.amount
 
@@ -145,6 +150,7 @@ caption payment-detail payment:
 id: payment-form
 
 -- stripe-payment: $show-payment.payment
+price-id: $price-id
 
 -- end: ftd.column
 
@@ -160,6 +166,7 @@ id: payment-form
 -- web-component stripe-payment:
 js: $assets.files.web-components.payment.js
 caption payment-detail payment:
+optional string price-id:
 
 
 
