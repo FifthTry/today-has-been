@@ -24,7 +24,7 @@ fn payment_link(
         ),
         customer_id,
         client_secret: setup_intent.client_secret,
-        stripe_key: todayhasbeen::STRIPE_PUBLIC_KEY.to_string(),
+        stripe_public_key: todayhasbeen::STRIPE_PUBLIC_KEY.to_string(),
         plans,
         subscription_type: user_data.subscription_type,
     })
@@ -35,7 +35,7 @@ fn payment_link(
 struct Output {
     customer_id: String,
     client_secret: Option<String>,
-    stripe_key: String,
+    stripe_public_key: String,
     plans: Vec<todayhasbeen::SubscriptionPlan>,
     return_url: String,
     subscription_type: Option<String>,
