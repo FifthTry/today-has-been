@@ -35,9 +35,7 @@ fn get_customer_stripe_link(
     if let Some(ref customer_id) = user.customer_id {
         return Ok(Output {
             status: true,
-            link: format!(
-                "https://{host}/payment/?customer_id={customer_id}",
-            ),
+            link: format!("https://{host}/payment/?customer_id={customer_id}",),
             message: None,
         });
     }
@@ -66,10 +64,7 @@ fn get_customer_stripe_link(
 
     Ok(Output {
         status: true,
-        link: format!(
-            "https://{host}/payment/?customer_id={}",
-            customer.id
-        ),
+        link: format!("https://{host}/payment/?customer_id={}", customer.id),
         message: None,
     })
 }

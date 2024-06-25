@@ -1,24 +1,18 @@
 #[ft_sdk::processor]
 fn user(
     mut conn: ft_sdk::Connection,
-    ft_sdk::Query(order): ft_sdk::Query<"order", Option<String>>,
+    ft_sdk::Query(date): ft_sdk::Query<"date", Option<String>>,
     cookie: ft_sdk::Cookie<{ ft_sdk::auth::SESSION_KEY }>,
     host: ft_sdk::Host,
-    ft_sdk::Mountpoint(mountpoint): ft_sdk::Mountpoint
+    mountpoint: ft_sdk::Mountpoint,
 ) -> ft_sdk::processor::Result {
     let access_token = cookie.0;
 
-    let order = order.unwrap_or("new".to_string());
-
     match access_token {
         Some(access_token) => {
-            let posts = get_posts_by_order(&mut conn, access_token.as_str(), order.as_str());
-            match posts {
-                Ok(posts) => ft_sdk::processor::json(UserData {
-                    is_logged_in: true,
-                    auth_url: format!("/{mountpoint}/logout/"),
-                    posts,
-                }),
+            let user_data = get_user_data(&mut conn, mountpoint, access_token.as_str(), date);
+            match user_data {
+                Ok(user_data) => ft_sdk::processor::json(user_data),
                 Err(_) => Ok(ft_sdk::processor::temporary_redirect("/")?
                     .with_cookie(todayhasbeen::expire_session_cookie(host)?)),
             }
@@ -27,22 +21,33 @@ fn user(
             is_logged_in: false,
             auth_url: "https://wa.me/919910807891?text=Hi".to_string(),
             posts: vec![],
+            previous_date: None,
+            next_date: None,
+            random_date: None,
         }),
     }
 }
 
-fn get_posts_by_order(
+fn get_user_data(
     conn: &mut ft_sdk::Connection,
+    ft_sdk::Mountpoint(mountpoint): ft_sdk::Mountpoint,
     access_token: &str,
-    _order: &str,
-) -> Result<Vec<PostData>, ft_sdk::Error> {
+    date: Option<String>,
+) -> Result<UserData, ft_sdk::Error> {
     let user = todayhasbeen::get_user_from_access_token(conn, access_token)?;
-    let output = todayhasbeen::get_posts::get_posts_by_user_id(conn, user.id)?;
+
+    let date = match date {
+        Some(date) => Some(todayhasbeen::date_string_to_datetime(date.as_str())?),
+        None => None,
+    };
+
+    let (posts, previous_date, next_date) =
+        get_posts_for_latest_or_given_date(conn, user.id, date)?;
     let mut post_data_hash: std::collections::HashMap<String, Vec<PostDataByDate>> =
         std::collections::HashMap::new();
 
-    for post in output {
-        let date = post.created_on.date_naive().to_string();
+    for post in posts {
+        let date = todayhasbeen::datetime_to_date_string(&post.created_on);
         let post_by_date = PostDataByDate {
             time: post.created_on.time().to_string(),
             post: post.post_content,
@@ -56,13 +61,155 @@ fn get_posts_by_order(
             }
         }
     }
-    Ok(post_data_hash
-        .into_iter()
-        .map(|(date, post_data_by_date)| PostData {
-            date,
-            data: post_data_by_date,
-        })
-        .collect())
+    let random_date = get_random_post_date(conn, user.id)?;
+
+    Ok(UserData {
+        is_logged_in: true,
+        auth_url: format!("{mountpoint}logout/"),
+        posts: post_data_hash
+            .into_iter()
+            .map(|(date, post_data_by_date)| PostData {
+                date,
+                data: post_data_by_date,
+            })
+            .collect(),
+        previous_date: previous_date.map(|dt| todayhasbeen::datetime_to_date_string(&dt)),
+        next_date: next_date.map(|dt| todayhasbeen::datetime_to_date_string(&dt)),
+        random_date: random_date.map(|dt| todayhasbeen::datetime_to_date_string(&dt)),
+    })
+}
+
+pub fn get_posts_for_latest_or_given_date(
+    conn: &mut ft_sdk::Connection,
+    user_id: i64,
+    date: Option<chrono::DateTime<chrono::Utc>>,
+) -> Result<
+    (
+        Vec<todayhasbeen::Post>,
+        Option<chrono::DateTime<chrono::Utc>>,
+        Option<chrono::DateTime<chrono::Utc>>,
+    ),
+    ft_sdk::Error,
+> {
+    // Determine the date to use
+    let date_to_use = match date {
+        Some(d) => d,
+        None => match get_latest_post_date(conn, user_id)? {
+            Some(d) => d,
+            None => return Ok((vec![], None, None)), // No posts found
+        },
+    };
+
+    // Get the posts for the determined date
+    let posts_for_date = get_posts_for_date(conn, user_id, date_to_use)?;
+
+    // Get the adjacent dates
+    let (previous_date, next_date) = get_adjacent_dates(conn, user_id, date_to_use)?;
+
+    Ok((posts_for_date, previous_date, next_date))
+}
+
+// Helper function to get the latest post date
+fn get_latest_post_date(
+    conn: &mut ft_sdk::Connection,
+    user_id: i64,
+) -> Result<Option<chrono::DateTime<chrono::Utc>>, ft_sdk::Error> {
+    use diesel::dsl::max;
+    use diesel::prelude::*;
+    use todayhasbeen::schema::posts;
+
+    let latest_date = posts::table
+        .select(max(posts::created_on))
+        .filter(posts::user_id.eq(user_id))
+        .first::<Option<chrono::DateTime<chrono::Utc>>>(conn)
+        .optional()?
+        .flatten();
+
+    Ok(latest_date)
+}
+
+// Helper function to get all posts for a specific date
+fn get_posts_for_date(
+    conn: &mut ft_sdk::Connection,
+    user_id: i64,
+    date: chrono::DateTime<chrono::Utc>,
+) -> Result<Vec<todayhasbeen::Post>, ft_sdk::Error> {
+    use diesel::prelude::*;
+    use todayhasbeen::schema::posts;
+
+    let start_of_day = date.date_naive().and_hms_opt(0, 0, 0).unwrap().and_utc();
+    let end_of_day = date.date_naive().and_hms_opt(23, 59, 59).unwrap().and_utc();
+
+    let posts = posts::table
+        .select(todayhasbeen::Post::as_select())
+        .filter(posts::user_id.eq(user_id))
+        .filter(posts::created_on.ge(start_of_day))
+        .filter(posts::created_on.le(end_of_day))
+        .load::<todayhasbeen::Post>(conn)?;
+
+    Ok(posts)
+}
+
+// Helper function to find the next and previous post dates
+fn get_adjacent_dates(
+    conn: &mut ft_sdk::Connection,
+    user_id: i64,
+    date: chrono::DateTime<chrono::Utc>,
+) -> Result<
+    (
+        Option<chrono::DateTime<chrono::Utc>>,
+        Option<chrono::DateTime<chrono::Utc>>,
+    ),
+    ft_sdk::Error,
+> {
+    use diesel::prelude::*;
+    use todayhasbeen::schema::posts;
+
+    let start_of_day = date.date_naive().and_hms_opt(0, 0, 0).unwrap().and_utc();
+
+    let previous_date = posts::table
+        .select(posts::created_on)
+        .filter(posts::user_id.eq(user_id))
+        .filter(posts::created_on.lt(start_of_day))
+        .order_by(posts::created_on.desc())
+        .first::<chrono::DateTime<chrono::Utc>>(conn)
+        .optional()?;
+
+    let end_of_day = date.date_naive().and_hms_opt(23, 59, 59).unwrap().and_utc();
+
+    let next_date = posts::table
+        .select(posts::created_on)
+        .filter(posts::user_id.eq(user_id))
+        .filter(posts::created_on.gt(end_of_day))
+        .order_by(posts::created_on.asc())
+        .first::<chrono::DateTime<chrono::Utc>>(conn)
+        .optional()?;
+
+    Ok((previous_date, next_date))
+}
+
+// Helper function to get a random post date
+fn get_random_post_date(
+    conn: &mut ft_sdk::Connection,
+    user_id: i64,
+) -> Result<Option<chrono::DateTime<chrono::Utc>>, ft_sdk::Error> {
+    use diesel::prelude::*;
+    use todayhasbeen::schema::posts;
+
+    let dates: Vec<chrono::DateTime<chrono::Utc>> = posts::table
+        .select(posts::created_on)
+        .filter(posts::user_id.eq(user_id))
+        .load::<chrono::DateTime<chrono::Utc>>(conn)?;
+
+    if dates.is_empty() {
+        return Ok(None);
+    }
+
+    let random_number = ft_sdk::env::random();
+    let scaled_number = (random_number * dates.len() as f64).floor() as usize;
+    let random_date: chrono::DateTime<chrono::Utc> = dates[scaled_number];
+
+    Ok(Some(random_date))
 }
 
 #[derive(serde::Serialize, Debug)]
@@ -71,6 +218,9 @@ struct UserData {
     is_logged_in: bool,
     auth_url: String,
     posts: Vec<PostData>,
+    previous_date: Option<String>,
+    next_date: Option<String>,
+    random_date: Option<String>,
 }
 
 #[derive(serde::Serialize, Debug)]

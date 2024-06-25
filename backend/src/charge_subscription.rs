@@ -69,8 +69,12 @@ fn call_gupshup_callback_service(
         .body(bytes::Bytes::from(body))?;
 
     match ft_sdk::http::send(request) {
-        Ok(response) =>  {
-            ft_sdk::println!("call_gupshup_callback_service response: {} {}", response.status(), String::from_utf8_lossy(response.body()));
+        Ok(response) => {
+            ft_sdk::println!(
+                "call_gupshup_callback_service response: {} {}",
+                response.status(),
+                String::from_utf8_lossy(response.body())
+            );
         }
         Err(e) => {
             ft_sdk::println!("call_gupshup_callback_service error: {e:?}");
@@ -199,7 +203,8 @@ fn apply_customer_subscription_(
         ft_stripe::Subscription::create(&client, create_subscription)?
     };
 
-    let start_date = todayhasbeen::timestamp_to_date_string(stripe_subscription.current_period_start);
+    let start_date =
+        todayhasbeen::timestamp_to_date_string(stripe_subscription.current_period_start);
     let end_date = todayhasbeen::timestamp_to_date_string(stripe_subscription.current_period_end);
 
     let now = ft_sdk::env::now();

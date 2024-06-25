@@ -18,11 +18,14 @@ fn stripe_webhooks(
         | ft_stripe::EventType::CustomerSubscriptionPendingUpdateApplied
         | ft_stripe::EventType::CustomerSubscriptionPendingUpdateExpired
         | ft_stripe::EventType::CustomerSubscriptionResumed
-        | ft_stripe::EventType::CustomerSubscriptionTrialWillEnd => get_subscription_from_event_obj(event.data.object),
+        | ft_stripe::EventType::CustomerSubscriptionTrialWillEnd => {
+            get_subscription_from_event_obj(event.data.object)
+        }
         ft_stripe::EventType::CustomerSubscriptionDeleted => {
             let subscription = get_subscription_from_event_obj(event.data.object);
 
-            if let Some(subscription) = is_subscription_exists(&mut conn, subscription.id.as_str())? {
+            if let Some(subscription) = is_subscription_exists(&mut conn, subscription.id.as_str())?
+            {
                 let subscription_id = subscription.id;
                 let mut new_subscription = subscription.to_new_subscription();
 
@@ -39,21 +42,30 @@ fn stripe_webhooks(
         ft_stripe::EventType::CustomerSubscriptionUpdated => {
             let subscription = get_subscription_from_event_obj(event.data.object);
 
-            if let Some(subscription_from_table) = is_subscription_exists(&mut conn, subscription.id.as_str())? {
+            if let Some(subscription_from_table) =
+                is_subscription_exists(&mut conn, subscription.id.as_str())?
+            {
                 let subscription_id = subscription_from_table.id;
 
                 // todo: check the database to know whether we have start_timestamp field
-                let start_timestamp = date_string_to_timestamp(subscription_from_table.start_date.as_str())?;
+                let start_timestamp =
+                    date_string_to_timestamp(subscription_from_table.start_date.as_str())?;
                 if start_timestamp < subscription.current_period_start {
-                    let start_date = todayhasbeen::timestamp_to_date_string(subscription.current_period_start);
-                    let end_date = todayhasbeen::timestamp_to_date_string(subscription.current_period_end);
+                    let start_date =
+                        todayhasbeen::timestamp_to_date_string(subscription.current_period_start);
+                    let end_date =
+                        todayhasbeen::timestamp_to_date_string(subscription.current_period_end);
                     let mut new_subscription = subscription_from_table.to_new_subscription();
                     new_subscription.start_date = start_date;
                     new_subscription.end_date = end_date.clone();
                     new_subscription.status = Some(subscription.status.to_string());
                     new_subscription.updated_on = ft_sdk::env::now();
 
-                    update_user_subscription_end_time(&mut conn, new_subscription.user_id, end_date)?;
+                    update_user_subscription_end_time(
+                        &mut conn,
+                        new_subscription.user_id,
+                        end_date,
+                    )?;
                     update_subscription(&mut conn, subscription_id, new_subscription)?;
                 }
             }
@@ -67,11 +79,14 @@ fn stripe_webhooks(
         }
     };
 
-    insert_into_stripe_logs(&mut conn, StripeLog {
-        event: Some(event.type_.to_string()),
-        response: Some(serde_json::to_value(subscription).unwrap().to_string()),
-        created_on: ft_sdk::env::now(),
-    })?;
+    insert_into_stripe_logs(
+        &mut conn,
+        StripeLog {
+            event: Some(event.type_.to_string()),
+            response: Some(serde_json::to_value(subscription).unwrap().to_string()),
+            created_on: ft_sdk::env::now(),
+        },
+    )?;
 
     ft_sdk::processor::json("")
 }
@@ -86,19 +101,18 @@ pub(crate) fn update_user_subscription_end_time(
 
     diesel::update(users::table)
         .filter(users::id.eq(user_id))
-        .set(
-            users::subscription_end_time.eq(subscription_end_time),
-        )
+        .set(users::subscription_end_time.eq(subscription_end_time))
         .execute(conn)?;
 
     Ok(())
 }
 
-
-fn get_subscription_from_event_obj(event_object: ft_stripe::EventObject) -> ft_stripe::Subscription {
+fn get_subscription_from_event_obj(
+    event_object: ft_stripe::EventObject,
+) -> ft_stripe::Subscription {
     match event_object {
         ft_stripe::EventObject::Subscription(s) => s,
-        t => unreachable!("Unknown event: {:?}", t)
+        t => unreachable!("Unknown event: {:?}", t),
     }
 }
 
@@ -143,15 +157,8 @@ fn get_stripe_signature(headers: &http::HeaderMap) -> Result<String, ft_sdk::Err
 }
 
 fn date_string_to_timestamp(date_str: &str) -> Result<i64, chrono::ParseError> {
-    use chrono::TimeZone;
-    let naive_date = chrono::NaiveDate::parse_from_str(date_str, "%Y-%m-%d")?;
-
-    let datetime_utc = chrono::Utc.from_utc_date(&naive_date).and_hms(0, 0, 0);
-
-    Ok(datetime_utc.timestamp())
+    Ok(todayhasbeen::date_string_to_datetime(date_str)?.timestamp())
 }
-
-
 
 #[derive(diesel::Insertable)]
 #[diesel(treat_none_as_default_value = false)]
@@ -161,7 +168,6 @@ pub struct StripeLog {
     pub response: Option<String>,
     pub created_on: chrono::DateTime<chrono::Utc>,
 }
-
 
 fn insert_into_stripe_logs(
     conn: &mut ft_sdk::Connection,
