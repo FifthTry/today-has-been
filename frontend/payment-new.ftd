@@ -1,0 +1,248 @@
+-- import: fastn/processors as pr
+-- import: todayhasbeen-dotcom.fifthtry.site/assets
+
+/-- string customer_id:
+$processor$: pr.request-data
+
+
+-- optional string $price-id:
+
+
+/-- payment-detail payment:
+$processor$: pr.http
+url: /api/v0.1/payment/link/
+customer_id: $customer_id
+
+-- payment-detail payment:
+client-secret: hduahdkf
+customer-id: dhdhsjksibfb
+return-url: /
+stripe-key: skhdihwdjwb
+url: /
+customer_id: cd_123hdgfysbb
+plans: $plan
+
+-- plan-detail list plan:
+
+-- plan-detail:
+amount: 0
+created-on: 24/12/24
+id: 0
+plan: Basic
+price-id: 0
+
+-- plan-detail:
+amount: 250
+created-on: 24/12/24
+id: 1
+plan: Premium
+price-id: 1
+
+-- plan-detail:
+amount: 540
+created-on: 24/12/24
+id: 2
+plan: Enterprise
+price-id: 2
+
+-- end: plan
+
+-- payment-page: $payment
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-- component payment-page:
+caption payment-detail payment:
+
+-- ds.page: Payment
+background.solid: #fdf4eb
+theme-switcher: true
+
+-- ftd.column:
+js: //js.stripe.com/v3/
+
+-- ds.column:
+inset: $ds.spaces.inset-tall.small
+
+-- ds.column:
+border: $ds.borders.bottom.small
+align-content if { ftd.device != "mobile"}: left
+align-content: center
+inset: $ds.spaces.inset-wide.large-zero
+radius: $ds.radius.zero
+
+-- ds.heading-large: Gupshup
+color: #00aec4
+
+-- end: ds.column
+
+-- ds.heading-medium: Payment Setup
+
+-- end: ds.column
+
+-- ftd.desktop:
+
+-- ds.row:
+spacing: $ds.spaces.vertical-gap.space-between
+inset: $ds.spaces.inset-square.large
+
+-- show-plans:
+plans: $payment-page.payment.plans
+
+-- show-payment: $payment-page.payment
+
+-- end: ds.row
+
+-- end: ftd.desktop
+
+-- ftd.mobile:
+
+-- ds.column:
+
+-- show-plans:
+plans: $payment-page.payment.plans
+
+-- show-payment: $payment-page.payment
+
+-- end: ds.column
+
+-- end: ftd.mobile
+
+-- end: ds.page
+
+-- end: payment-page
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-- component show-plans:
+plan-detail list plans:
+
+-- ds.column:
+width.fixed.percent if { ftd.device != "mobile" }: 30
+inset: $ds.spaces.inset-square.medium
+background.solid: #f9eee3
+radius: $ds.radius.large
+
+-- ds.heading-small: Select Plan
+style: bold
+
+-- ds.column:
+inset: $ds.spaces.inset-tall.small
+spacing: $ds.spaces.vertical-gap.large
+
+-- show-plan: $plan
+for: $plan in $show-plans.plans
+
+-- end: ds.column
+
+-- end: ds.column
+
+-- end: show-plans
+
+
+
+
+
+
+
+
+-- component show-plan:
+caption plan-detail plan:
+
+-- ds.row:
+background.solid: #ffffff
+inset: $ds.spaces.inset-square.medium
+radius: $ds.radius.large
+
+-- ds.checkbox: $show-plan.plan.plan
+size: small
+$is-checked if {price-id == show-plan.plan.price-id}: true
+$is-checked if {price-id != show-plan.plan.price-id}: false
+$on-click$: $ftd.set-string($a = $price-id, v = $show-plan.plan.price-id)
+
+-- ftd.decimal: $show-plan.plan.amount
+
+-- end: ds.row
+
+-- end: show-plan
+
+
+
+
+
+
+
+-- component show-payment:
+caption payment-detail payment:
+
+-- ftd.column:
+
+-- ftd.row:
+id: payment-form
+
+-- stripe-payment: $show-payment.payment
+price-id: $price-id
+
+-- end: ftd.column
+
+-- end: show-payment
+
+
+
+
+
+
+
+
+-- web-component stripe-payment:
+js: $assets.files.web-components.payment.js
+caption payment-detail payment:
+optional string price-id:
+
+
+
+
+
+
+
+
+
+-- record payment-detail:
+string client-secret:
+string customer-id:
+plan-detail list plans:
+string return-url:
+string stripe-key:
+optional string subscription-type:
+
+
+-- record plan-detail:
+decimal amount:
+string created-on:
+integer id:
+string plan:
+string price-id:
