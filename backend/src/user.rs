@@ -21,8 +21,8 @@ fn user(
             is_logged_in: false,
             auth_url: "https://wa.me/919910807891?text=Hi".to_string(),
             posts: vec![],
-            previous_date: None,
-            next_date: None,
+            older_date: None,
+            newer_date: None,
             random_date: None,
         }),
     }
@@ -41,7 +41,7 @@ fn get_user_data(
         None => None,
     };
 
-    let (posts, previous_date, next_date) =
+    let (posts, older_date, newer_date) =
         get_posts_for_latest_or_given_date(conn, user.id, date)?;
     let mut post_data_hash: std::collections::HashMap<String, Vec<PostDataByDate>> =
         std::collections::HashMap::new();
@@ -73,8 +73,8 @@ fn get_user_data(
                 data: post_data_by_date,
             })
             .collect(),
-        previous_date: previous_date.map(|dt| todayhasbeen::datetime_to_date_string(&dt)),
-        next_date: next_date.map(|dt| todayhasbeen::datetime_to_date_string(&dt)),
+        older_date: older_date.map(|dt| todayhasbeen::datetime_to_date_string(&dt)),
+        newer_date: newer_date.map(|dt| todayhasbeen::datetime_to_date_string(&dt)),
         random_date: random_date.map(|dt| todayhasbeen::datetime_to_date_string(&dt)),
     })
 }
@@ -104,9 +104,9 @@ pub fn get_posts_for_latest_or_given_date(
     let posts_for_date = get_posts_for_date(conn, user_id, date_to_use)?;
 
     // Get the adjacent dates
-    let (previous_date, next_date) = get_adjacent_dates(conn, user_id, date_to_use)?;
+    let (older_date, newer_date) = get_adjacent_dates(conn, user_id, date_to_use)?;
 
-    Ok((posts_for_date, previous_date, next_date))
+    Ok((posts_for_date, older_date, newer_date))
 }
 
 // Helper function to get the latest post date
@@ -167,7 +167,7 @@ fn get_adjacent_dates(
 
     let start_of_day = date.date_naive().and_hms_opt(0, 0, 0).unwrap().and_utc();
 
-    let previous_date = posts::table
+    let older_date = posts::table
         .select(posts::created_on)
         .filter(posts::user_id.eq(user_id))
         .filter(posts::created_on.lt(start_of_day))
@@ -177,7 +177,7 @@ fn get_adjacent_dates(
 
     let end_of_day = date.date_naive().and_hms_opt(23, 59, 59).unwrap().and_utc();
 
-    let next_date = posts::table
+    let newer_date = posts::table
         .select(posts::created_on)
         .filter(posts::user_id.eq(user_id))
         .filter(posts::created_on.gt(end_of_day))
@@ -185,7 +185,7 @@ fn get_adjacent_dates(
         .first::<chrono::DateTime<chrono::Utc>>(conn)
         .optional()?;
 
-    Ok((previous_date, next_date))
+    Ok((older_date, newer_date))
 }
 
 // Helper function to get a random post date
@@ -218,8 +218,8 @@ struct UserData {
     is_logged_in: bool,
     auth_url: String,
     posts: Vec<PostData>,
-    previous_date: Option<String>,
-    next_date: Option<String>,
+    older_date: Option<String>,
+    newer_date: Option<String>,
     random_date: Option<String>,
 }
 
