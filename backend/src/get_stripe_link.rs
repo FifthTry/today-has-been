@@ -29,15 +29,14 @@ struct Output {
 
 fn get_customer_stripe_link(
     conn: &mut ft_sdk::Connection,
-    host: ft_sdk::Host,
+    ft_sdk::Host(host): ft_sdk::Host,
     user: &todayhasbeen::UserData,
 ) -> Result<Output, ft_sdk::Error> {
     if let Some(ref customer_id) = user.customer_id {
         return Ok(Output {
             status: true,
             link: format!(
-                "https://{}/backend/payment/link/?customer_id={customer_id}",
-                host.without_port()
+                "https://{host}/payment/?customer_id={customer_id}",
             ),
             message: None,
         });
@@ -68,8 +67,7 @@ fn get_customer_stripe_link(
     Ok(Output {
         status: true,
         link: format!(
-            "https://{}/backend/payment/link/?customer_id={}",
-            host.without_port(),
+            "https://{host}/payment/?customer_id={}",
             customer.id
         ),
         message: None,

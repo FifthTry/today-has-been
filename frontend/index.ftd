@@ -14,7 +14,7 @@ $processor$: pr.request-data
 
 -- ud.user-data user:
 $processor$: pr.http
-url: /backend/user/
+url: /api/v0.1/user/
 access-token: $access_token
 order: $order
 

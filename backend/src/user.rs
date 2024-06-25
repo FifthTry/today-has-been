@@ -4,6 +4,7 @@ fn user(
     ft_sdk::Query(order): ft_sdk::Query<"order", Option<String>>,
     cookie: ft_sdk::Cookie<{ ft_sdk::auth::SESSION_KEY }>,
     host: ft_sdk::Host,
+    ft_sdk::Mountpoint(mountpoint): ft_sdk::Mountpoint
 ) -> ft_sdk::processor::Result {
     let access_token = cookie.0;
 
@@ -15,7 +16,7 @@ fn user(
             match posts {
                 Ok(posts) => ft_sdk::processor::json(UserData {
                     is_logged_in: true,
-                    auth_url: "/backend/logout/".to_string(),
+                    auth_url: format!("/{mountpoint}/logout/"),
                     posts,
                 }),
                 Err(_) => Ok(ft_sdk::processor::temporary_redirect("/")?

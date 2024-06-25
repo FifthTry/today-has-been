@@ -11,7 +11,7 @@
 
 -- fastn.url-mappings:
 
-/backend/* -> wasm+proxy://backend.wasm/*
+/api/v0.1/* -> wasm+proxy://backend.wasm/*
 
 
 -- fastn.migration: create-all-tables
