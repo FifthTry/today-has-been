@@ -23,10 +23,16 @@ class PaymentForm extends HTMLElement {
     async initializeStripe() {
         let data = window.ftd.component_data(this);
         let client_secret = data.payment.get().get("client_secret").get();
-        let stripe_key = data.payment.get().get("stripe_key").get();
+        let stripe_public_key = data.payment.get().get("stripe_public_key").get();
         let return_url = data.payment.get().get("return_url").get();
+        let price_id = data.price_id.get();
 
-        const stripe = Stripe(stripe_key);
+        data.price_id.on_change(() => {
+            price_id = data.price_id.get();
+            console.log("price_id: ", price_id);
+        });
+
+        const stripe = Stripe(stripe_public_key);
         const options = {
             clientSecret: client_secret,
             appearance: {/*...*/},
@@ -38,23 +44,31 @@ class PaymentForm extends HTMLElement {
         paymentElement.mount('#payment-element');
         const form = document.getElementById('payment-form');
         form.addEventListener('submit', async (event) => {
+            console.log("price_id: ", price_id);
+            if (price_id == null) {
+                const messageContainer = document.getElementById('error-message');
+                messageContainer.textContent = "Choose a plan";
+                return;
+            }
             event.preventDefault();
-            this.shadowRoot.querySelector("#submit").style.display = 'none';
-            const priceId = this.shadowRoot.querySelector('input[name="price_id"]:checked').value;
+            document.getElementById('submit').style.display = 'none';
 
             const { error } = await stripe.confirmSetup({
                 elements,
                 confirmParams: {
-                    return_url: `${return_url}&price_id=${priceId}`,
+                    return_url: `${return_url}&price_id=${price_id}`,
                 }
             });
 
             if (error) {
-                const messageContainer = this.shadowRoot.querySelector('#error-message');
+                const messageContainer = document.getElementById('error-message');
                 messageContainer.textContent = error.message;
+                document.getElementById('submit').style.display = 'block';
             }
         });
     }
+
+
 
     loadStripe() {
         return new Promise((resolve, reject) => {
@@ -79,7 +93,14 @@ class PaymentForm extends HTMLElement {
         const submitButton = document.createElement('button');
         submitButton.type = 'submit';
         submitButton.id = 'submit';
-        submitButton.textContent = 'Submit';
+        submitButton.textContent = 'Subscribe';
+        submitButton.style.backgroundColor = "#00AEC4";
+        submitButton.style.color = "white"
+        submitButton.style.marginTop = "1rem";
+        submitButton.style.width = "50%";
+        submitButton.style.padding = ".375rem .75rem";
+        submitButton.style.borderRadius = ".25rem";
+        submitButton.style.cursor = "pointer";
 
         const errorMessageDiv = document.createElement('div');
         errorMessageDiv.id = 'error-message';
