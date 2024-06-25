@@ -18,10 +18,11 @@ mod user;
 const SECRET_KEY: &str = "SECRET_KEY";
 const STRIPE_SECRET_KEY: &str = "STRIPE_SECRET_KEY";
 const STRIPE_PUBLIC_KEY: &str = "STRIPE_PUBLIC_KEY";
+const STRIPE_WEBHOOK_SECRET_KEY: &str = "STRIPE_WEBHOOK_SECRET_KEY";
 const GUPSHUP_AUTHORIZATION: &str = "GUPSHUP_AUTHORIZATION";
 const DURATION_TO_EXPIRE_ACCESS_TOKEN_IN_DAYS: i64 = 60;
 const GUPSHUP_CALLBACK_SERVICE_URL: &str = "https://notifications.gupshup.io/notifications/callback/service/ipass/project/730/integration/19770066040f26502c05494f2";
-const STRIPE_WEBHOOK_SECRET_KEY: &str = "STRIPE_WEBHOOK_SECRET_KEY";
+
 
 pub(crate) fn set_session_cookie(
     sid: &str,
@@ -238,12 +239,39 @@ pub(crate) fn update_user(
 
 pub(crate) fn timestamp_to_date_string(timestamp: i64) -> String {
     use chrono::{TimeZone, Utc};
-
     // Convert Unix timestamp to chrono DateTime<Utc>
     let datetime_utc = Utc.timestamp_opt(timestamp, 0).unwrap();
+    datetime_to_date_string(&datetime_utc)
+}
+
+pub(crate) fn datetime_to_date_string(datetime: &chrono::DateTime<chrono::Utc>) -> String {
+    use chrono::TimeZone;
 
     // Format DateTime<Utc> to 'Y-m-d' format
-    let formatted_date = datetime_utc.format("%Y-%m-%d").to_string();
+    let formatted_date = datetime.format("%Y-%m-%d").to_string();
 
     formatted_date
+}
+
+pub(crate) fn date_string_to_datetime(
+    date_str: &str,
+) -> Result<chrono::DateTime<chrono::Utc>, chrono::ParseError> {
+    use chrono::TimeZone;
+
+    let naive_date = chrono::NaiveDate::parse_from_str(date_str, "%Y-%m-%d")?;
+    let datetime_utc = chrono::Utc.from_utc_date(&naive_date).and_hms(0, 0, 0);
+
+    Ok(datetime_utc)
+}
+
+#[derive(Debug, diesel::Selectable, diesel::Queryable, serde::Serialize)]
+#[diesel(treat_none_as_default_value = false)]
+#[diesel(table_name = todayhasbeen::schema::posts)]
+pub struct Post {
+    #[serde(rename = "post_id")]
+    pub id: i64,
+    pub user_id: i64,
+    pub post_content: Option<String>,
+    pub media_url: Option<String>,
+    pub created_on: chrono::DateTime<chrono::Utc>,
 }

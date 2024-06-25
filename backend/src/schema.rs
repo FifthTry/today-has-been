@@ -58,6 +58,5 @@ diesel::table! {
     }
 }
 
-
 diesel::joinable!(posts -> users (user_id));
 diesel::joinable!(subscriptions -> users (user_id));

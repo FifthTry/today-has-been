@@ -3,7 +3,7 @@ fn payment_link(
     mut conn: ft_sdk::Connection,
     ft_sdk::Query(customer_id): ft_sdk::Query<"customer_id">,
     ft_sdk::Host(host): ft_sdk::Host,
-    ft_sdk::Mountpoint(mountpoint): ft_sdk::Mountpoint
+    ft_sdk::Mountpoint(mountpoint): ft_sdk::Mountpoint,
 ) -> ft_sdk::processor::Result {
     use std::str::FromStr;
     let setup_intent = {
