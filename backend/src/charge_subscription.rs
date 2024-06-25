@@ -63,7 +63,7 @@ fn call_gupshup_callback_service(
     let request = http::Request::builder()
         .method("POST")
         .uri(url)
-        .header("Authorization", todayhasbeen::GUPSHUP_AUTHORIZATION) // Replace with actual Authorization header value
+        .header("Authorization", todayhasbeen::GUPSHUP_AUTHORIZATION)
         .header("Content-Type", "application/json")
         .header("Accept", "application/json")
         .body(bytes::Bytes::from(body))?;
