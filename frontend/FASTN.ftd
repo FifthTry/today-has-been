@@ -13,6 +13,15 @@
 
 /api/v0.1/* -> wasm+proxy://backend.wasm/*
 
+-- fastn.migration: insert-plans
+
+INSERT INTO subscription_plans (plan, price_id, amount, created_on)
+VALUES ('Annual Sub', 'price_1OZVafE432GCeRPXuzc0DOnm', 50, 1719389577725201000);
+
+INSERT INTO subscription_plans (plan, price_id, amount, created_on)
+VALUES ('Monthly Subscription', 'price_1OZVafE432GCeRPX6Ly6yzjJ', 50, 1719389577725201000);
+
+
 -- fastn.migration: fix-post-table
 
 DROP TABLE posts;
