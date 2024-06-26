@@ -14,10 +14,10 @@ fn login(
         format!("/{}", order_query)
     });
 
-    Ok(
-        ft_sdk::processor::temporary_redirect(next)?.with_cookie(todayhasbeen::set_session_cookie(
+    Ok(ft_sdk::processor::temporary_redirect(next)?
+        .with_cookie(todayhasbeen::set_session_cookie(
             access_token.as_str(),
-            host,
-        )?),
-    )
+            &host,
+        )?)
+        .with_cookie(todayhasbeen::set_light_mode(&host)?))
 }

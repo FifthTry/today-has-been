@@ -1,3 +1,5 @@
+use crate::Post;
+
 #[ft_sdk::data]
 fn add_post(
     mut conn: ft_sdk::Connection,
@@ -6,10 +8,12 @@ fn add_post(
 ) -> ft_sdk::data::Result {
     let user = match todayhasbeen::get_user_from_header(&mut conn, &headers) {
         Ok(user) => user,
-        Err(_)=> return ft_sdk::data::json(serde_json::json!({
-            "success": false,
-            "message": "Token expired"
-        }))
+        Err(_) => {
+            return ft_sdk::data::json(serde_json::json!({
+                "success": false,
+                "message": "Token expired"
+            }))
+        }
     };
 
     if !payload.is_valid() {
@@ -37,8 +41,8 @@ fn insert_post(
     // Create a new Post object
     let new_post = NewPost {
         user_id,
-        post_content: payload.post_content,
-        media_url: payload.media_url,
+        post_content: payload.get_post_content(),
+        media_url: payload.get_post_image_url(),
         created_on: ft_sdk::env::now(),
     };
 
@@ -107,4 +111,22 @@ impl Payload {
         }
         true
     }
+
+    fn get_post_image_url(&self) -> Option<String> {
+        match self.post_content {
+            Some(ref content) if content.starts_with(GUPSHUP_WA_IMAGE_START_PATTERN) => {
+                Some(content.to_string())
+            }
+            _ => self.media_url.clone(),
+        }
+    }
+
+    fn get_post_content(&self) -> Option<String> {
+        match self.post_content {
+            Some(ref content) if content.starts_with(GUPSHUP_WA_IMAGE_START_PATTERN) => None,
+            _ => self.post_content.clone(),
+        }
+    }
 }
+
+const GUPSHUP_WA_IMAGE_START_PATTERN: &str = "https://filemanager.gupshup.io/wa/";

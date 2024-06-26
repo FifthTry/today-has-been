@@ -13,6 +13,12 @@
 
 /api/v0.1/* -> wasm+proxy://backend.wasm/*
 
+
+
+
+
+
+
 -- fastn.migration: update-plans
 
 UPDATE subscription_plans
