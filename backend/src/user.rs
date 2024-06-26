@@ -44,8 +44,7 @@ fn get_user_data(
         None => None,
     };
 
-    let (posts, older_date, newer_date) =
-        get_posts_for_latest_or_given_date(conn, user.id, date)?;
+    let (posts, older_date, newer_date) = get_posts_for_latest_or_given_date(conn, user.id, date)?;
 
     ft_sdk::println!("Get posts:: {posts:?}");
     let mut post_data_hash: std::collections::HashMap<String, Vec<PostDataByDate>> =
@@ -83,9 +82,12 @@ fn get_user_data(
                 data: post_data_by_date,
             })
             .collect(),
-        older_date_url: older_date.map(|dt| format!("/?date={}",todayhasbeen::datetime_to_date_string(&dt))),
-        newer_date_url: newer_date.map(|dt| format!("/?date={}",todayhasbeen::datetime_to_date_string(&dt))),
-        random_date_url: random_date.map(|dt| format!("/?date={}",todayhasbeen::datetime_to_date_string(&dt))),
+        older_date_url: older_date
+            .map(|dt| format!("/?date={}", todayhasbeen::datetime_to_date_string(&dt))),
+        newer_date_url: newer_date
+            .map(|dt| format!("/?date={}", todayhasbeen::datetime_to_date_string(&dt))),
+        random_date_url: random_date
+            .map(|dt| format!("/?date={}", todayhasbeen::datetime_to_date_string(&dt))),
     })
 }
 
