@@ -6,11 +6,13 @@ fn user(
     host: ft_sdk::Host,
     mountpoint: ft_sdk::Mountpoint,
 ) -> ft_sdk::processor::Result {
+    ft_sdk::println!("Get user details:: {date:?}");
     let access_token = cookie.0;
 
     match access_token {
         Some(access_token) => {
             let user_data = get_user_data(&mut conn, mountpoint, access_token.as_str(), date);
+            ft_sdk::println!("Get user_data:: {user_data:?}");
             match user_data {
                 Ok(user_data) => ft_sdk::processor::json(user_data),
                 Err(_) => Ok(ft_sdk::processor::temporary_redirect("/")?
@@ -36,6 +38,7 @@ fn get_user_data(
 ) -> Result<UserData, ft_sdk::Error> {
     let user = todayhasbeen::get_user_from_access_token(conn, access_token)?;
 
+    ft_sdk::println!("Get user:: {user:?}");
     let date = match date {
         Some(date) => Some(todayhasbeen::date_string_to_datetime(date.as_str())?),
         None => None,
@@ -43,6 +46,8 @@ fn get_user_data(
 
     let (posts, older_date, newer_date) =
         get_posts_for_latest_or_given_date(conn, user.id, date)?;
+
+    ft_sdk::println!("Get posts:: {posts:?}");
     let mut post_data_hash: std::collections::HashMap<String, Vec<PostDataByDate>> =
         std::collections::HashMap::new();
 
@@ -61,7 +66,12 @@ fn get_user_data(
             }
         }
     }
+
+    ft_sdk::println!("Reorganise posts::");
+
     let random_date = get_random_post_date(conn, user.id)?;
+
+    ft_sdk::println!("random_date:: {random_date:?}");
 
     Ok(UserData {
         is_logged_in: true,
@@ -103,8 +113,12 @@ pub fn get_posts_for_latest_or_given_date(
     // Get the posts for the determined date
     let posts_for_date = get_posts_for_date(conn, user_id, date_to_use)?;
 
+    ft_sdk::println!("Get posts_for_date:: {posts_for_date:?}");
+
     // Get the adjacent dates
     let (older_date, newer_date) = get_adjacent_dates(conn, user_id, date_to_use)?;
+
+    ft_sdk::println!("Get adjacent_dates:: {older_date:?} {newer_date:?}");
 
     Ok((posts_for_date, older_date, newer_date))
 }

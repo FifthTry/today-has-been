@@ -6,7 +6,7 @@ resolver = "2"
 
 [profile.release]
 lto = true
-opt-level = 's'
+opt-level = 'z'
 
 [workspace.package]
 authors = [
@@ -22,7 +22,8 @@ homepage = "https://www.fifthtry.com"
 
 
 [workspace.dependencies]
-ft-stripe = { path = "../../fifthtry/ft-sdk/ft-stripe", features = ["webhook-events"] }
+#ft-stripe = { path = "../../fifthtry/ft-sdk/ft-stripe", default-features = false, features = ["webhook-events", "connect", "billing", "checkout"] }
+ft-stripe = { path = "../../fifthtry/ft-sdk/ft-stripe", default-features = false, features = ["billing", "checkout"] }
 ft-sdk = { path = "../../fifthtry/ft-sdk/ft-sdk", version = "0.1.11", features = ["field-extractors"] }
 bytes = "1.0"
 http = "1.0"
