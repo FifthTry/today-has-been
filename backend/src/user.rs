@@ -71,9 +71,9 @@ fn get_user_data(
 
     ft_sdk::println!("Reorganise posts::");
 
-    let random_date = get_random_post_date(conn, user.id)?;
+    let random_date_data = todayhasbeen::get_random_post_date_data(conn, user.id, None)?;
 
-    ft_sdk::println!("random_date:: {random_date:?}");
+    ft_sdk::println!("random_date_data:: {random_date_data:?}");
 
     Ok(UserData {
         is_logged_in: true,
@@ -89,8 +89,8 @@ fn get_user_data(
             .map(|dt| format!("/?date={}", todayhasbeen::datetime_to_date_string(&dt))),
         newer_date_url: newer_date
             .map(|dt| format!("/?date={}", todayhasbeen::datetime_to_date_string(&dt))),
-        random_date_url: random_date
-            .map(|dt| format!("/?date={}", todayhasbeen::datetime_to_date_string(&dt))),
+        random_date_url: random_date_data
+            .map(|(_, dt, _, _)| format!("/?date={}", todayhasbeen::datetime_to_date_string(&dt))),
     })
 }
 
@@ -205,30 +205,6 @@ fn get_adjacent_dates(
         .optional()?;
 
     Ok((older_date, newer_date))
-}
-
-// Helper function to get a random post date
-fn get_random_post_date(
-    conn: &mut ft_sdk::Connection,
-    user_id: i64,
-) -> Result<Option<chrono::DateTime<chrono::Utc>>, ft_sdk::Error> {
-    use diesel::prelude::*;
-    use todayhasbeen::schema::posts;
-
-    let dates: Vec<chrono::DateTime<chrono::Utc>> = posts::table
-        .select(posts::created_on)
-        .filter(posts::user_id.eq(user_id))
-        .load::<chrono::DateTime<chrono::Utc>>(conn)?;
-
-    if dates.is_empty() {
-        return Ok(None);
-    }
-
-    let random_number = ft_sdk::env::random();
-    let scaled_number = (random_number * dates.len() as f64).floor() as usize;
-    let random_date: chrono::DateTime<chrono::Utc> = dates[scaled_number];
-
-    Ok(Some(random_date))
 }
 
 #[derive(serde::Serialize, Debug)]

@@ -52,7 +52,7 @@ fn insert_post(
         .returning(posts::id)
         .get_result::<i64>(conn)?;
 
-    Ok(new_post.into_output(post_id))
+    new_post.into_output(conn, user_id, post_id)
 }
 
 #[derive(diesel::Insertable, Clone)]
@@ -66,13 +66,27 @@ pub struct NewPost {
 }
 
 impl NewPost {
-    pub fn into_output(self, post_id: i64) -> Output {
-        Output {
+    pub fn into_output(self, conn: &mut ft_sdk::Connection, user_id: i64, post_id: i64) -> Result<Output, ft_sdk::Error> {
+        let random_post = match todayhasbeen::get_random_post_date_data(conn, user_id, Some(post_id))? {
+            Some((_, created_on, media_url, content)) => {
+                Some(PostWithTime {
+                    content: content.or(media_url).unwrap_or_default().to_string(),
+                    time_ago: time_ago(created_on),
+                })
+            }
+            None => Some(PostWithTime {
+                content: self.post_content.clone().or(self.media_url.clone()).unwrap_or_default(),
+                time_ago: "Just Now".to_string(),
+            })
+        };
+
+        Ok(Output {
             post_id,
             post_content: self.post_content,
             media_url: self.media_url,
             created_on: self.created_on.format("%Y-%m-%d %H:%M:%S").to_string(),
-        }
+            random_post,
+        })
     }
 }
 
@@ -88,6 +102,15 @@ pub struct Output {
     media_url: Option<String>,
     #[serde(rename = "createdon")]
     created_on: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(rename = "randompost")]
+    random_post: Option<PostWithTime>
+}
+
+#[derive(serde::Serialize)]
+struct PostWithTime {
+    content: String,
+    time_ago: String
 }
 
 #[derive(Debug, serde::Deserialize)]
@@ -130,3 +153,22 @@ impl Payload {
 }
 
 const GUPSHUP_WA_IMAGE_START_PATTERN: &str = "https://filemanager.gupshup.io/wa/";
+
+fn time_ago(past: chrono::DateTime<chrono::Utc>) -> String {
+    let now = ft_sdk::env::now();
+    let duration = now - past;
+
+    if duration.num_days() >= 365 {
+        format!("{} years ago", duration.num_days() / 365)
+    } else if duration.num_days() > 0 {
+        format!("{} days ago", duration.num_days())
+    } else if duration.num_hours() > 0 {
+        format!("{} hours ago", duration.num_hours())
+    } else if duration.num_minutes() > 0 {
+        format!("{} minutes ago", duration.num_minutes())
+    } else if duration.num_seconds() == 0 {
+        "Just now".to_string()
+    } else {
+        format!("{} seconds ago", duration.num_seconds())
+    }
+}
