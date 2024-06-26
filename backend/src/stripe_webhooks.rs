@@ -1,4 +1,4 @@
-#[ft_sdk::processor]
+/*#[ft_sdk::processor]
 fn stripe_webhooks(
     mut conn: ft_sdk::Connection,
     ft_sdk::Form(payload): ft_sdk::Form<String>,
@@ -182,3 +182,4 @@ fn insert_into_stripe_logs(
 
     Ok(())
 }
+*/
