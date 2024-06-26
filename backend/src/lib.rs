@@ -146,7 +146,7 @@ impl UserData {
 fn get_access_token(headers: &http::HeaderMap) -> Result<String, ft_sdk::Error> {
     let auth_value = headers.get("Authorization").and_then(|header_value| {
         header_value.to_str().ok().and_then(|auth_value| {
-            if let Some(auth_value) = auth_value.strip_prefix("Bearer ") {
+            if let Some(auth_value) = auth_value.strip_prefix("Bearer ").or(auth_value.strip_prefix("bearer ")) {
                 Some(auth_value.to_string())
             } else {
                 None
