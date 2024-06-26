@@ -288,3 +288,37 @@ pub struct Post {
     pub media_url: Option<String>,
     pub created_on: chrono::DateTime<chrono::Utc>,
 }
+
+// Helper function to get a random post date
+fn get_random_post_date_data(
+    conn: &mut ft_sdk::Connection,
+    user_id: i64,
+    ignore_post_id: Option<i64>
+) -> Result<Option<(i64, chrono::DateTime<chrono::Utc>, Option<String>, Option<String>)>, ft_sdk::Error> {
+    use diesel::prelude::*;
+    use todayhasbeen::schema::posts;
+
+    let dates: Vec<(i64, chrono::DateTime<chrono::Utc>, Option<String>, Option<String>)> = posts::table
+        .select((posts::id, posts::created_on, posts::media_url, posts::post_content))
+        .filter(posts::user_id.eq(user_id))
+        .load::<(i64, chrono::DateTime<chrono::Utc>, Option<String>, Option<String>)>(conn)?;
+
+    if dates.len() <= 1 {
+        return Ok(None);
+    }
+
+
+    let mut current_post_id = ignore_post_id.unwrap_or(-1);
+    let ignore_post_id = current_post_id;
+    let mut random_date_data: (i64, chrono::DateTime<chrono::Utc>, Option<String>, Option<String>) = dates[0].clone();
+
+    while ignore_post_id == current_post_id {
+        let random_number = ft_sdk::env::random();
+        let scaled_number = (random_number * dates.len() as f64).floor() as usize;
+        random_date_data = dates[scaled_number].clone();
+        (current_post_id, _, _, _) = random_date_data;
+    }
+
+
+    Ok(Some(random_date_data))
+}
