@@ -12,6 +12,5 @@ fn logout(
     };
 
     Ok(ft_sdk::processor::temporary_redirect(next)?
-        .with_cookie(todayhasbeen::expire_session_cookie(&host)?)
-        .with_cookie(todayhasbeen::set_light_mode(&host)?))
+        .with_cookie(todayhasbeen::expire_session_cookie(&host)?))
 }

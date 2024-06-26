@@ -18,6 +18,5 @@ fn login(
         .with_cookie(todayhasbeen::set_session_cookie(
             access_token.as_str(),
             &host,
-        )?)
-        .with_cookie(todayhasbeen::set_light_mode(&host)?))
+        )?))
 }
