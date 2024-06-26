@@ -4,7 +4,14 @@ fn get_stripe_link(
     headers: http::HeaderMap,
     host: ft_sdk::Host,
 ) -> ft_sdk::data::Result {
-    let user = todayhasbeen::get_user_from_header(&mut conn, &headers)?;
+    let user = match todayhasbeen::get_user_from_header(&mut conn, &headers) {
+        Ok(user) => user,
+        Err(_) => return ft_sdk::data::json(Output {
+            status: false,
+            link: "".to_string(),
+            message: Some("Token expired".to_string()),
+        })
+    };
     let customer_stripe_link = match get_customer_stripe_link(&mut conn, host, &user) {
         Ok(customer_stripe_link) => customer_stripe_link,
         Err(e) => {
@@ -17,13 +24,15 @@ fn get_stripe_link(
             }
         }
     };
-    ft_sdk::data::api_ok(customer_stripe_link)
+    ft_sdk::data::json(customer_stripe_link)
 }
 
 #[derive(serde::Serialize)]
 struct Output {
     status: bool,
+    #[serde(skip_serializing_if = "String::is_empty")]
     link: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
     message: Option<String>,
 }
 

@@ -22,13 +22,19 @@ struct Payload {
 
 #[derive(Debug, serde::Serialize)]
 struct Output {
+    #[serde(rename = "userid")]
     user_id: i64,
-    mobile_number: i64,
+    #[serde(rename = "mobilenumber")]
+    mobile_number: String,
+    #[serde(rename = "username")]
     user_name: String,
-    time_zone: Option<String>,
+    timezone: Option<String>,
     language: Option<String>,
+    #[serde(rename = "subscriptiontype")]
     subscription_type: Option<String>,
+    #[serde(rename = "subscriptionendtime")]
     subscription_end_time: Option<String>,
+    #[serde(rename = "customerid")]
     customer_id: Option<String>,
     access_token: String,
 }
@@ -145,9 +151,9 @@ impl NewUserData {
     fn into_output(self, user_id: i64) -> Output {
         Output {
             user_id,
-            mobile_number: self.mobile_number,
+            mobile_number: self.mobile_number.to_string(),
             user_name: self.user_name,
-            time_zone: self.time_zone,
+            timezone: self.time_zone,
             language: self.language,
             subscription_type: self.subscription_type,
             subscription_end_time: self.subscription_end_time,
@@ -161,9 +167,9 @@ impl todayhasbeen::UserData {
     fn into_output(self) -> Output {
         Output {
             user_id: self.id,
-            mobile_number: self.mobile_number,
+            mobile_number: self.mobile_number.to_string(),
             user_name: self.user_name,
-            time_zone: self.time_zone,
+            timezone: self.time_zone,
             language: self.language,
             subscription_type: self.subscription_type,
             subscription_end_time: self.subscription_end_time,
