@@ -4,7 +4,14 @@ fn add_post(
     headers: http::HeaderMap,
     ft_sdk::Form(payload): ft_sdk::Form<Payload>,
 ) -> ft_sdk::data::Result {
-    let user = todayhasbeen::get_user_from_header(&mut conn, &headers)?;
+    let user = match todayhasbeen::get_user_from_header(&mut conn, &headers) {
+        Ok(user) => user,
+        Err(_)=> return ft_sdk::data::json(serde_json::json!({
+            "success": false,
+            "message": "Token expired"
+        }))
+    };
+
     if !payload.is_valid() {
         return ft_sdk::data::json(serde_json::json!({
             "success": false,
@@ -87,6 +94,17 @@ struct Payload {
 
 impl Payload {
     fn is_valid(&self) -> bool {
-        self.post_content.is_some() || self.media_url.is_some()
+        if self.post_content.is_none() && self.media_url.is_none() {
+            return false;
+        }
+        match self.post_content {
+            Some(ref post_content) if post_content.is_empty() => return false,
+            _ => {}
+        }
+        match self.media_url {
+            Some(ref media_url) if media_url.is_empty() => return false,
+            _ => {}
+        }
+        true
     }
 }
