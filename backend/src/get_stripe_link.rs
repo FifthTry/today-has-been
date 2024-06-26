@@ -6,11 +6,13 @@ fn get_stripe_link(
 ) -> ft_sdk::data::Result {
     let user = match todayhasbeen::get_user_from_header(&mut conn, &headers) {
         Ok(user) => user,
-        Err(_) => return ft_sdk::data::json(Output {
-            status: false,
-            link: "".to_string(),
-            message: Some("Token expired".to_string()),
-        })
+        Err(_) => {
+            return ft_sdk::data::json(Output {
+                status: false,
+                link: "".to_string(),
+                message: Some("Token expired".to_string()),
+            })
+        }
     };
     let customer_stripe_link = match get_customer_stripe_link(&mut conn, host, &user) {
         Ok(customer_stripe_link) => customer_stripe_link,

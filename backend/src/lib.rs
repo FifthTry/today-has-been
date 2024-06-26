@@ -23,7 +23,6 @@ const GUPSHUP_AUTHORIZATION: &str = "GUPSHUP_AUTHORIZATION";
 const DURATION_TO_EXPIRE_ACCESS_TOKEN_IN_DAYS: i64 = 60;
 const GUPSHUP_CALLBACK_SERVICE_URL: &str = "https://notifications.gupshup.io/notifications/callback/service/ipass/project/730/integration/19770066040f26502c05494f2";
 
-
 pub(crate) fn set_session_cookie(
     sid: &str,
     host: ft_sdk::Host,
@@ -146,7 +145,10 @@ impl UserData {
 fn get_access_token(headers: &http::HeaderMap) -> Result<String, ft_sdk::Error> {
     let auth_value = headers.get("Authorization").and_then(|header_value| {
         header_value.to_str().ok().and_then(|auth_value| {
-            if let Some(auth_value) = auth_value.strip_prefix("Bearer ").or(auth_value.strip_prefix("bearer ")) {
+            if let Some(auth_value) = auth_value
+                .strip_prefix("Bearer ")
+                .or(auth_value.strip_prefix("bearer "))
+            {
                 Some(auth_value.to_string())
             } else {
                 None
