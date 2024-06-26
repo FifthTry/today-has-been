@@ -25,7 +25,7 @@ const GUPSHUP_CALLBACK_SERVICE_URL: &str = "https://notifications.gupshup.io/not
 
 pub(crate) fn set_session_cookie(
     sid: &str,
-    host: ft_sdk::Host,
+    host: &ft_sdk::Host,
 ) -> Result<http::HeaderValue, ft_sdk::Error> {
     let cookie = cookie::Cookie::build((ft_sdk::auth::SESSION_KEY, sid))
         .domain(host.without_port())
@@ -37,8 +37,19 @@ pub(crate) fn set_session_cookie(
     Ok(http::HeaderValue::from_str(cookie.to_string().as_str())?)
 }
 
+pub(crate) fn set_light_mode(host: &ft_sdk::Host) -> Result<http::HeaderValue, ft_sdk::Error> {
+    let cookie = cookie::Cookie::build(("fastn-dark-mode", "light"))
+        .domain(host.without_port())
+        .path("/")
+        .max_age(cookie::time::Duration::seconds(34560000))
+        .same_site(cookie::SameSite::Strict)
+        .build();
+
+    Ok(http::HeaderValue::from_str(cookie.to_string().as_str())?)
+}
+
 pub(crate) fn expire_session_cookie(
-    host: ft_sdk::Host,
+    host: &ft_sdk::Host,
 ) -> Result<http::HeaderValue, ft_sdk::Error> {
     let cookie = cookie::Cookie::build((ft_sdk::auth::SESSION_KEY, ""))
         .domain(host.without_port())
