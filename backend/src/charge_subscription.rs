@@ -51,14 +51,7 @@ fn call_gupshup_callback_service(
         subscription_type: plan_info.plan.to_string(),
     };
 
-    let body = {
-        let mut params_buffer = Vec::new();
-        let qs_ser = &mut serde_qs::Serializer::new(&mut params_buffer);
-        serde_path_to_error::serialize(&fields, qs_ser)?;
-        std::str::from_utf8(params_buffer.as_slice())
-            .expect("Unable to extract string from params_buffer")
-            .to_string()
-    };
+    let body = serde_json::to_string(&fields)?;
 
     let request = http::Request::builder()
         .method("POST")
