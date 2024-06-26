@@ -104,6 +104,7 @@ impl Payload {
 
         let mut errors = std::collections::HashMap::new();
         self.validate_mobile_number(&mut errors)?;
+        self.validate_user_name(&mut errors)?;
 
         if !errors.is_empty() {
             return Err(ft_sdk::SpecialError::Multi(errors).into());
@@ -115,6 +116,12 @@ impl Payload {
         &self,
         errors: &mut std::collections::HashMap<String, String>,
     ) -> Result<(), ft_sdk::Error> {
+        if self.mobile_number.is_empty() {
+            errors.insert(
+                "mobile_number".to_string(),
+                "Mobile number cannot be empty.".to_string(),
+            );
+        }
         let is_digit = self.mobile_number.chars().all(|c| c.is_digit(10));
         if !is_digit {
             errors.insert(
@@ -125,6 +132,19 @@ impl Payload {
             errors.insert(
                 "mobile_number".to_string(),
                 "Mobile number must be between 10 and 12 digits long.".to_string(),
+            );
+        }
+        Ok(())
+    }
+
+    fn validate_user_name(
+        &self,
+        errors: &mut std::collections::HashMap<String, String>,
+    ) -> Result<(), ft_sdk::Error> {
+        if self.user_name.is_empty() {
+            errors.insert(
+                "user_name".to_string(),
+                "Username cannot be empty.".to_string(),
             );
         }
         Ok(())
