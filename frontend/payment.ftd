@@ -5,7 +5,7 @@
 $processor$: pr.request-data
 
 
--- optional string $price-id:
+-- string $price-id: $get-first-plan-price(plans = *$payment.plans)
 
 
 -- payment-detail payment:
@@ -191,3 +191,13 @@ string created-on:
 integer id:
 string plan:
 string price-id:
+
+
+
+
+
+-- string get-first-plan-price(plans):
+plan-detail list plans:
+js: $assets.files.function.js
+
+first_plan_price(plans)
