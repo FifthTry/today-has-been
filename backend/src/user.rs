@@ -16,9 +16,16 @@ fn user(
             match user_data {
                 Ok(user_data) => Ok(ft_sdk::processor::json(user_data)?
                     .with_cookie(todayhasbeen::set_light_mode(&host)?)),
-                Err(_) => Ok(ft_sdk::processor::temporary_redirect("/")?
-                    .with_cookie(todayhasbeen::expire_session_cookie(&host)?)
-                    .with_cookie(todayhasbeen::set_light_mode(&host)?)),
+                Err(_) => Ok(ft_sdk::processor::json(UserData {
+                    is_logged_in: false,
+                    auth_url: "https://wa.me/919910807891?text=Hi".to_string(),
+                    posts: vec![],
+                    older_date_url: None,
+                    newer_date_url: None,
+                    random_date_url: None,
+                })?
+                .with_cookie(todayhasbeen::expire_session_cookie(&host)?)
+                .with_cookie(todayhasbeen::set_light_mode(&host)?)),
             }
         }
         None => Ok(ft_sdk::processor::json(UserData {

@@ -66,19 +66,27 @@ pub struct NewPost {
 }
 
 impl NewPost {
-    pub fn into_output(self, conn: &mut ft_sdk::Connection, user_id: i64, post_id: i64) -> Result<Output, ft_sdk::Error> {
-        let random_post = match todayhasbeen::get_random_post_date_data(conn, user_id, Some(post_id))? {
-            Some((_, created_on, media_url, content)) => {
-                Some(PostWithTime {
+    pub fn into_output(
+        self,
+        conn: &mut ft_sdk::Connection,
+        user_id: i64,
+        post_id: i64,
+    ) -> Result<Output, ft_sdk::Error> {
+        let random_post =
+            match todayhasbeen::get_random_post_date_data(conn, user_id, Some(post_id))? {
+                Some((_, created_on, media_url, content)) => Some(PostWithTime {
                     content: content.or(media_url).unwrap_or_default().to_string(),
                     time_ago: time_ago(created_on),
-                })
-            }
-            None => Some(PostWithTime {
-                content: self.post_content.clone().or(self.media_url.clone()).unwrap_or_default(),
-                time_ago: "Just Now".to_string(),
-            })
-        };
+                }),
+                None => Some(PostWithTime {
+                    content: self
+                        .post_content
+                        .clone()
+                        .or(self.media_url.clone())
+                        .unwrap_or_default(),
+                    time_ago: "Just Now".to_string(),
+                }),
+            };
 
         Ok(Output {
             post_id,
@@ -104,13 +112,13 @@ pub struct Output {
     created_on: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     #[serde(rename = "randompost")]
-    random_post: Option<PostWithTime>
+    random_post: Option<PostWithTime>,
 }
 
 #[derive(serde::Serialize)]
 struct PostWithTime {
     content: String,
-    time_ago: String
+    time_ago: String,
 }
 
 #[derive(Debug, serde::Deserialize)]
