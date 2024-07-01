@@ -16,6 +16,14 @@
 
 
 
+-- fastn.sitemap:
+
+# Subscription Status: /subscription/payment/
+document: payment-status.ftd
+
+
+
+
 
 
 

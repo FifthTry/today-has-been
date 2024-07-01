@@ -1,0 +1,39 @@
+-- import: todayhasbeen-ui.fifthtry.site/components/status-page
+-- import: todayhasbeen-ui.fifthtry.site/record/user-data as ud
+-- import: fastn/processors as pr
+
+
+-- string status:
+$processor$: pr.request-data
+
+
+-- status-page.status: Congratulations!
+user-data: $anon
+whatsapp-link: https://wa.me/919910807891?text=Hi
+if: { status == "success" }
+
+You’re now a subscriber of Today has been. We’ll notify you on WhatsApp in just a moment.
+
+For any questions or feedback, please email me at rahulg@bakbak.me.
+
+
+
+-- status-page.status: Sorry!
+user-data: $anon
+whatsapp-link: https://wa.me/919910807891?text=Hi
+if: { status == "failed" }
+
+
+We were not able to subscribe you. There should not be any payment made on your card.
+
+For any questions or feedback, please email me at rahulg@bakbak.me.
+
+To retry, send Hi again and select Pricing.
+
+
+
+
+
+-- ud.user-data anon:
+is-logged-in: false
+auth-url: /
