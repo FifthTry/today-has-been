@@ -14,8 +14,8 @@ fn login(
         format!("/{}", order_query)
     });
 
-    ft_sdk::data::browser_redirect_with_cookie(next, todayhasbeen::set_session_cookie(
-        access_token.as_str(),
-        &host,
-    )?)
+    ft_sdk::data::browser_redirect_with_cookie(
+        next,
+        todayhasbeen::set_session_cookie(access_token.as_str(), &host)?,
+    )
 }

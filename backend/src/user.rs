@@ -78,7 +78,7 @@ fn get_user_data(
 
     ft_sdk::println!("Reorganise posts::");
 
-    let random_date_data = todayhasbeen::get_random_post_date_data(conn, user.id, None)?;
+    let random_date_data = todayhasbeen::get_random_post_date_data(conn, user.id, None, 1)?;
 
     ft_sdk::println!("random_date_data:: {random_date_data:?}");
 

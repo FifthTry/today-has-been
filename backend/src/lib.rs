@@ -294,6 +294,7 @@ fn get_random_post_date_data(
     conn: &mut ft_sdk::Connection,
     user_id: i64,
     ignore_post_id: Option<i64>,
+    min_length: usize,
 ) -> Result<
     Option<(
         i64,
@@ -326,7 +327,7 @@ fn get_random_post_date_data(
             Option<String>,
         )>(conn)?;
 
-    if dates.len() <= 1 {
+    if dates.len() <= min_length {
         return Ok(None);
     }
 
