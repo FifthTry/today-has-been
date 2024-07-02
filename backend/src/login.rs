@@ -1,6 +1,6 @@
 #[ft_sdk::data]
 fn login(
-    ft_sdk::Query(access_token): ft_sdk::Query<"access-token">,
+    ft_sdk::Query(access_token): ft_sdk::Query<"access_token">,
     ft_sdk::Query(order): ft_sdk::Query<"order", Option<String>>,
     ft_sdk::Query(next): ft_sdk::Query<"next", Option<String>>,
     host: ft_sdk::Host,
