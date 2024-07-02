@@ -12,6 +12,7 @@
 -- fastn.url-mappings:
 
 /api/v0.1/* -> wasm+proxy://backend.wasm/*
+/login/* -> wasm+proxy://backend.wasm/login/*
 
 
 
