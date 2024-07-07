@@ -2,8 +2,14 @@
 fn add_post(
     mut conn: ft_sdk::Connection,
     headers: http::HeaderMap,
-    ft_sdk::Form(payload): ft_sdk::Form<Payload>,
+    ft_sdk::Query(post_content): ft_sdk::Query<"post_content", Option<String>>,
+    ft_sdk::Query(media_url): ft_sdk::Query<"media_url", Option<String>>,
 ) -> ft_sdk::data::Result {
+    let payload = Payload {
+        post_content,
+        media_url,
+    };
+    ft_sdk::println!("payload: {:?}", payload);
     let user = match todayhasbeen::get_user_from_header(&mut conn, &headers) {
         Ok(user) => user,
         Err(_) => {
