@@ -1,6 +1,6 @@
 [workspace]
 members = [
-     "backend",
+     "backend", "common", "thb_stripe",
 ]
 resolver = "2"
 
@@ -25,6 +25,7 @@ homepage = "https://www.fifthtry.com"
 #ft-stripe = { path = "../../fifthtry/ft-sdk/ft-stripe", default-features = false, features = ["webhook-events", "connect", "billing", "checkout"] }
 ft-stripe = { path = "../../fifthtry/ft-sdk/ft-stripe", default-features = false, features = ["billing", "checkout"] }
 ft-sdk = { path = "../../fifthtry/ft-sdk/ft-sdk", version = "0.1.11", features = ["field-extractors"] }
+common = { path = "common" }
 bytes = "1.0"
 http = "1.0"
 chrono = { version = "0.4", features = ["serde"], default-features = false }

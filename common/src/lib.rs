@@ -1,0 +1,102 @@
+extern crate self as common;
+pub mod schema;
+
+pub const SECRET_KEY: &str = "SECRET_KEY";
+pub const STRIPE_SECRET_KEY: &str = "STRIPE_SECRET_KEY";
+pub const STRIPE_PUBLIC_KEY: &str = "STRIPE_PUBLIC_KEY";
+pub const STRIPE_WEBHOOK_SECRET_KEY: &str = "STRIPE_WEBHOOK_SECRET_KEY";
+pub const GUPSHUP_AUTHORIZATION: &str = "GUPSHUP_AUTHORIZATION";
+pub const DURATION_TO_EXPIRE_ACCESS_TOKEN_IN_DAYS: i64 = 60;
+pub const GUPSHUP_CALLBACK_SERVICE_URL: &str = "https://notifications.gupshup.io/notifications/callback/service/ipass/project/730/integration/19770066040f26502c05494f2";
+
+
+#[derive(Debug, serde::Serialize, diesel::Selectable, diesel::Queryable)]
+#[diesel(table_name = common::schema::users)]
+pub struct UserData {
+    pub id: i64,
+    pub mobile_number: i64,
+    pub user_name: String,
+    pub time_zone: Option<String>,
+    pub language: Option<String>,
+    pub subscription_type: Option<String>,
+    pub subscription_end_time: Option<String>,
+    pub customer_id: Option<String>,
+    pub access_token: String,
+    pub created_on: chrono::DateTime<chrono::Utc>,
+    pub updated_on: chrono::DateTime<chrono::Utc>,
+}
+
+impl UserData {
+    pub fn is_access_token_expired(&self) -> bool {
+        use std::ops::Add;
+
+        let now = ft_sdk::env::now();
+        self.updated_on
+            .add(chrono::Duration::days(
+                DURATION_TO_EXPIRE_ACCESS_TOKEN_IN_DAYS,
+            ))
+            .lt(&now)
+    }
+}
+
+
+pub fn get_user_from_header(
+    conn: &mut ft_sdk::Connection,
+    headers: &http::HeaderMap,
+) -> Result<UserData, ft_sdk::Error> {
+    // Extract access token from headers
+    let access_token = get_access_token(headers)?;
+
+    get_user_from_access_token(conn, &access_token)
+}
+
+
+pub fn get_user_from_access_token(
+    conn: &mut ft_sdk::Connection,
+    access_token: &str,
+) -> Result<UserData, ft_sdk::Error> {
+    use diesel::prelude::*;
+    use crate::schema::users;
+
+    // Query user based on access_token
+    let user = users::table
+        .filter(users::access_token.eq(access_token))
+        .select(UserData::as_select())
+        .first(conn)?;
+
+    // Check if token has expired
+    if user.is_access_token_expired() {
+        return Err(
+            ft_sdk::SpecialError::Unauthorised("Access token has expired!".to_string()).into(),
+        );
+    }
+
+    Ok(user)
+}
+
+
+fn get_access_token(headers: &http::HeaderMap) -> Result<String, ft_sdk::Error> {
+    let auth_value = headers.get("Authorization").and_then(|header_value| {
+        header_value.to_str().ok().and_then(|auth_value| {
+            if let Some(auth_value) = auth_value
+                .strip_prefix("Bearer ")
+                .or(auth_value.strip_prefix("bearer "))
+            {
+                Some(auth_value.to_string())
+            } else {
+                None
+            }
+        })
+    });
+    auth_value.ok_or_else(|| {
+        ft_sdk::SpecialError::Unauthorised("No Authorization header found.".to_string()).into()
+    })
+}
+
+
+pub fn datetime_to_date_string(datetime: &chrono::DateTime<chrono::Utc>) -> String {
+    // Format DateTime<Utc> to 'Y-m-d' format
+    let formatted_date = datetime.format("%Y-%m-%d").to_string();
+
+    formatted_date
+}

@@ -7,7 +7,7 @@ fn charge_subscription(
     ft_sdk::Query(redirect_status): ft_sdk::Query<"redirect_status">,
     host: ft_sdk::Host,
 ) -> ft_sdk::processor::Result {
-    let user_data = todayhasbeen::get_user_from_customer_id(&mut conn, customer_id.as_str())?;
+    let user_data = thb_stripe::get_user_from_customer_id(&mut conn, customer_id.as_str())?;
     let plan_info = get_subscription_plan(&mut conn, price_id.as_str())?;
 
     let subscription = get_subscription_status(
@@ -32,11 +32,11 @@ fn charge_subscription(
 }
 
 fn call_gupshup_callback_service(
-    user_data: &todayhasbeen::UserData,
-    plan_info: &todayhasbeen::SubscriptionPlan,
+    user_data: &common::UserData,
+    plan_info: &thb_stripe::SubscriptionPlan,
     subscription: &SubscriptionResult,
 ) -> Result<(), ft_sdk::Error> {
-    let url = todayhasbeen::GUPSHUP_CALLBACK_SERVICE_URL;
+    let url = common::GUPSHUP_CALLBACK_SERVICE_URL;
     let now = ft_sdk::env::now();
     let formatted_date = now.format("%Y-%m-%dT%H:%M:%S%.3fZ").to_string();
 
@@ -56,7 +56,7 @@ fn call_gupshup_callback_service(
     let request = http::Request::builder()
         .method("POST")
         .uri(url)
-        .header("Authorization", todayhasbeen::GUPSHUP_AUTHORIZATION)
+        .header("Authorization", common::GUPSHUP_AUTHORIZATION)
         .header("Content-Type", "application/json")
         .header("Accept", "application/json")
         .body(bytes::Bytes::from(body))?;
@@ -104,8 +104,8 @@ fn get_subscription_status(
     price_id: &str,
     setup_intent: Option<String>,
     redirect_status: &str,
-    user_data: &todayhasbeen::UserData,
-    plan_info: &todayhasbeen::SubscriptionPlan,
+    user_data: &common::UserData,
+    plan_info: &thb_stripe::SubscriptionPlan,
 ) -> Result<SubscriptionResult, ft_sdk::Error> {
     use std::str::FromStr;
 
@@ -116,7 +116,7 @@ fn get_subscription_status(
     };
 
     if redirect_status.eq("succeeded") && setup_intent.is_some() {
-        let client = ft_stripe::Client::new(todayhasbeen::STRIPE_SECRET_KEY);
+        let client = ft_stripe::Client::new(common::STRIPE_SECRET_KEY);
         let setup_intent_id =
             ft_stripe::SetupIntentId::from_str(setup_intent.unwrap().as_str()).unwrap();
         let setup_intent = ft_stripe::SetupIntent::retrieve(&client, &setup_intent_id, &[])?;
@@ -144,7 +144,7 @@ fn apply_customer_subscription(
     customer_id: &str,
     price_id: &str,
     card: &ft_stripe::PaymentMethodId,
-    user_data: &todayhasbeen::UserData,
+    user_data: &common::UserData,
     plan: &str,
 ) -> SubscriptionResult {
     let subscription_id =
@@ -168,13 +168,13 @@ fn apply_customer_subscription_(
     customer_id: &str,
     price_id: &str,
     card: &ft_stripe::PaymentMethodId,
-    user_data: &todayhasbeen::UserData,
+    user_data: &common::UserData,
     plan: &str,
 ) -> Result<ft_stripe::SubscriptionId, ft_sdk::Error> {
     use std::str::FromStr;
 
     let stripe_subscription = {
-        let client = ft_stripe::Client::new(todayhasbeen::STRIPE_SECRET_KEY);
+        let client = ft_stripe::Client::new(common::STRIPE_SECRET_KEY);
 
         let create_subscription = {
             let mut create_subscription_items = ft_stripe::CreateSubscriptionItems::new();
@@ -197,12 +197,12 @@ fn apply_customer_subscription_(
     };
 
     let start_date =
-        todayhasbeen::timestamp_to_date_string(stripe_subscription.current_period_start);
-    let end_date = todayhasbeen::timestamp_to_date_string(stripe_subscription.current_period_end);
+        timestamp_to_date_string(stripe_subscription.current_period_start);
+    let end_date = timestamp_to_date_string(stripe_subscription.current_period_end);
 
     let now = ft_sdk::env::now();
 
-    let subscription = todayhasbeen::NewSubscription {
+    let subscription = thb_stripe::NewSubscription {
         user_id: user_data.id,
         subscription_id: stripe_subscription.id.to_string(),
         start_date,
@@ -215,17 +215,17 @@ fn apply_customer_subscription_(
     };
 
     insert_into_subscriptions(conn, subscription)?;
-    todayhasbeen::update_user(conn, user_data.id, Some(plan.to_string()), Some(end_date))?;
+    update_user(conn, user_data.id, Some(plan.to_string()), Some(end_date))?;
 
     Ok(stripe_subscription.id)
 }
 
 fn insert_into_subscriptions(
     conn: &mut ft_sdk::Connection,
-    subscription: todayhasbeen::NewSubscription,
+    subscription: thb_stripe::NewSubscription,
 ) -> Result<(), ft_sdk::Error> {
     use diesel::prelude::*;
-    use todayhasbeen::schema::subscriptions;
+    use common::schema::subscriptions;
 
     diesel::insert_into(subscriptions::table)
         .values(subscription)
@@ -237,12 +237,12 @@ fn insert_into_subscriptions(
 fn get_subscription_plan(
     conn: &mut ft_sdk::Connection,
     price_id: &str,
-) -> Result<todayhasbeen::SubscriptionPlan, ft_sdk::Error> {
+) -> Result<thb_stripe::SubscriptionPlan, ft_sdk::Error> {
     use diesel::prelude::*;
-    use todayhasbeen::schema::subscription_plans;
+    use common::schema::subscription_plans;
 
     let subscription_plan = subscription_plans::table
-        .select(todayhasbeen::SubscriptionPlan::as_select())
+        .select(thb_stripe::SubscriptionPlan::as_select())
         .filter(subscription_plans::price_id.eq(price_id))
         .first(conn)?;
     Ok(subscription_plan)
@@ -254,4 +254,33 @@ pub enum Error {
     Diesel(#[from] diesel::result::Error),
     #[error("diesel error {0}")]
     Stripe(#[from] ft_stripe::StripeError),
+}
+
+
+pub(crate) fn timestamp_to_date_string(timestamp: i64) -> String {
+    use chrono::{TimeZone, Utc};
+    // Convert Unix timestamp to chrono DateTime<Utc>
+    let datetime_utc = Utc.timestamp_opt(timestamp, 0).unwrap();
+    common::datetime_to_date_string(&datetime_utc)
+}
+
+
+pub(crate) fn update_user(
+    conn: &mut ft_sdk::Connection,
+    user_id: i64,
+    subscription_type: Option<String>,
+    subscription_end_time: Option<String>,
+) -> Result<(), ft_sdk::Error> {
+    use diesel::prelude::*;
+    use common::schema::users;
+
+    diesel::update(users::table)
+        .filter(users::id.eq(user_id))
+        .set((
+            users::subscription_type.eq(subscription_type),
+            users::subscription_end_time.eq(subscription_end_time),
+        ))
+        .execute(conn)?;
+
+    Ok(())
 }

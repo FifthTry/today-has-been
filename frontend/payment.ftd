@@ -10,7 +10,7 @@ $processor$: pr.request-data
 
 -- payment-detail payment:
 $processor$: pr.http
-url: /api/v0.1/payment/link/
+url: /stripe/v0.1/payment/link/
 customer_id: $customer_id
 
 

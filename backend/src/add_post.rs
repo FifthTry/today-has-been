@@ -10,7 +10,7 @@ fn add_post(
         media_url,
     };
     ft_sdk::println!("payload: {:?}", payload);
-    let user = match todayhasbeen::get_user_from_header(&mut conn, &headers) {
+    let user = match common::get_user_from_header(&mut conn, &headers) {
         Ok(user) => user,
         Err(_) => {
             return ft_sdk::data::json(serde_json::json!({
@@ -40,7 +40,7 @@ fn insert_post(
     payload: Payload,
 ) -> Result<Output, ft_sdk::Error> {
     use diesel::prelude::*;
-    use todayhasbeen::schema::posts;
+    use common::schema::posts;
 
     // Create a new Post object
     let new_post = NewPost {
@@ -61,7 +61,7 @@ fn insert_post(
 
 #[derive(diesel::Insertable, Clone)]
 #[diesel(treat_none_as_default_value = false)]
-#[diesel(table_name = todayhasbeen::schema::posts)]
+#[diesel(table_name = common::schema::posts)]
 pub struct NewPost {
     user_id: i64,
     post_content: Option<String>,

@@ -46,7 +46,7 @@ fn get_user_data(
     access_token: &str,
     date: Option<String>,
 ) -> Result<UserData, ft_sdk::Error> {
-    let user = todayhasbeen::get_user_from_access_token(conn, access_token)?;
+    let user = common::get_user_from_access_token(conn, access_token)?;
 
     ft_sdk::println!("Get user:: {user:?}");
     let date = match date {
@@ -61,7 +61,7 @@ fn get_user_data(
         std::collections::HashMap::new();
 
     for post in posts {
-        let date = todayhasbeen::datetime_to_date_string(&post.created_on);
+        let date = common::datetime_to_date_string(&post.created_on);
         let post_by_date = PostDataByDate {
             time: post.created_on.time().to_string(),
             post: post.post_content,
@@ -93,11 +93,11 @@ fn get_user_data(
             })
             .collect(),
         older_date_url: older_date
-            .map(|dt| format!("/?date={}", todayhasbeen::datetime_to_date_string(&dt))),
+            .map(|dt| format!("/?date={}", common::datetime_to_date_string(&dt))),
         newer_date_url: newer_date
-            .map(|dt| format!("/?date={}", todayhasbeen::datetime_to_date_string(&dt))),
+            .map(|dt| format!("/?date={}", common::datetime_to_date_string(&dt))),
         random_date_url: random_date_data
-            .map(|(_, dt, _, _)| format!("/?date={}", todayhasbeen::datetime_to_date_string(&dt))),
+            .map(|(_, dt, _, _)| format!("/?date={}", common::datetime_to_date_string(&dt))),
     })
 }
 
@@ -142,7 +142,7 @@ fn get_latest_post_date(
 ) -> Result<Option<chrono::DateTime<chrono::Utc>>, ft_sdk::Error> {
     use diesel::dsl::max;
     use diesel::prelude::*;
-    use todayhasbeen::schema::posts;
+    use common::schema::posts;
 
     let latest_date = posts::table
         .select(max(posts::created_on))
@@ -161,7 +161,7 @@ fn get_posts_for_date(
     date: chrono::DateTime<chrono::Utc>,
 ) -> Result<Vec<todayhasbeen::Post>, ft_sdk::Error> {
     use diesel::prelude::*;
-    use todayhasbeen::schema::posts;
+    use common::schema::posts;
 
     let start_of_day = date.date_naive().and_hms_opt(0, 0, 0).unwrap().and_utc();
     let end_of_day = date.date_naive().and_hms_opt(23, 59, 59).unwrap().and_utc();
@@ -189,7 +189,7 @@ fn get_adjacent_dates(
     ft_sdk::Error,
 > {
     use diesel::prelude::*;
-    use todayhasbeen::schema::posts;
+    use common::schema::posts;
 
     let start_of_day = date.date_naive().and_hms_opt(0, 0, 0).unwrap().and_utc();
 

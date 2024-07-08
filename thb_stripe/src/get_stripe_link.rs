@@ -4,7 +4,7 @@ fn get_stripe_link(
     headers: http::HeaderMap,
     host: ft_sdk::Host,
 ) -> ft_sdk::data::Result {
-    let user = match todayhasbeen::get_user_from_header(&mut conn, &headers) {
+    let user = match common::get_user_from_header(&mut conn, &headers) {
         Ok(user) => user,
         Err(_) => {
             return ft_sdk::data::json(Output {
@@ -41,7 +41,7 @@ struct Output {
 fn get_customer_stripe_link(
     conn: &mut ft_sdk::Connection,
     ft_sdk::Host(host): ft_sdk::Host,
-    user: &todayhasbeen::UserData,
+    user: &common::UserData,
 ) -> Result<Output, ft_sdk::Error> {
     if let Some(ref customer_id) = user.customer_id {
         return Ok(Output {
@@ -61,7 +61,7 @@ fn get_customer_stripe_link(
         });
     }
 
-    let client = ft_stripe::Client::new(todayhasbeen::STRIPE_SECRET_KEY);
+    let client = ft_stripe::Client::new(common::STRIPE_SECRET_KEY);
     let customer = {
         let mut create_customer = ft_stripe::CreateCustomer::new();
         create_customer.name = Some(user.user_name.as_str());
@@ -86,7 +86,7 @@ fn update_user_customer_id(
     customer_id: &str,
 ) -> Result<(), ft_sdk::Error> {
     use diesel::prelude::*;
-    use todayhasbeen::schema::users;
+    use common::schema::users;
 
     diesel::update(users::table)
         .filter(users::id.eq(user_id))

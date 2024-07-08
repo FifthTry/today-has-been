@@ -27,6 +27,16 @@ function build-wasm() {
     wasm-opt -O3 -o ../frontend/backend.wasm ../target/wasm32-unknown-unknown/release/backend.wasm
 #    cp ../target/wasm32-unknown-unknown/release/backend.wasm ../frontend/ || return 1
     popd2
+
+    pushd2 "${PROJ_ROOT}/thb_stripe" || return 1
+        # cargo clean
+        WASMTIME_BACKTRACE_DETAILS=1 cargo build --target wasm32-unknown-unknown --release || return 1
+        if ! command -v wasm-pack &> /dev/null; then
+            cargo install wasm-opt --locked
+        fi
+        wasm-opt -O3 -o ../frontend/thb_stripe.wasm ../target/wasm32-unknown-unknown/release/thb_stripe.wasm
+    #    cp ../target/wasm32-unknown-unknown/release/thb_stripe.wasm ../frontend/ || return 1
+    popd2
 }
 
 

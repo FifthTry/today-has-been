@@ -39,22 +39,39 @@ struct Output {
     access_token: String,
 }
 
+
+impl Output {
+    fn from_user_data(user_data: common::UserData) -> Output {
+        Output {
+            user_id: user_data.id,
+            mobile_number: user_data.mobile_number.to_string(),
+            user_name: user_data.user_name,
+            timezone: user_data.time_zone,
+            language: user_data.language,
+            subscription_type: user_data.subscription_type,
+            subscription_end_time: user_data.subscription_end_time,
+            customer_id: user_data.customer_id,
+            access_token: user_data.access_token,
+        }
+    }
+}
+
 impl Payload {
     pub(crate) fn get_user(
         &self,
         conn: &mut ft_sdk::Connection,
     ) -> Result<Option<Output>, ft_sdk::Error> {
         use diesel::prelude::*;
-        use todayhasbeen::schema::users;
+        use common::schema::users;
 
         match users::table
             .filter(users::mobile_number.eq(self.mobile_number.parse::<i64>().unwrap()))
-            .select(todayhasbeen::UserData::as_select())
+            .select(common::UserData::as_select())
             .first(conn)
         {
             Ok(mut user_data) => {
                 update_token_if_expired(conn, &mut user_data)?;
-                Ok(Some(user_data.into_output()))
+                Ok(Some(Output::from_user_data(user_data)))
             }
             Err(diesel::result::Error::NotFound) => Ok(None),
             Err(e) => Err(e.into()),
@@ -66,7 +83,7 @@ impl Payload {
         conn: &mut ft_sdk::Connection,
     ) -> Result<Output, ft_sdk::Error> {
         use diesel::prelude::*;
-        use todayhasbeen::schema::users;
+        use common::schema::users;
 
         let now = ft_sdk::env::now();
         let access_token = generate_access_token();
@@ -93,7 +110,7 @@ impl Payload {
     }
 
     pub(crate) fn validate(&self) -> Result<(), ft_sdk::Error> {
-        let secret_key = todayhasbeen::SECRET_KEY;
+        let secret_key = common::SECRET_KEY;
         if secret_key.ne(&self.secret_key) {
             return Err(ft_sdk::SpecialError::Single(
                 "secret_key".to_string(),
@@ -153,7 +170,7 @@ impl Payload {
 
 #[derive(diesel::Insertable, Clone)]
 #[diesel(treat_none_as_default_value = false)]
-#[diesel(table_name = todayhasbeen::schema::users)]
+#[diesel(table_name = common::schema::users)]
 struct NewUserData {
     mobile_number: i64,
     user_name: String,
@@ -183,22 +200,6 @@ impl NewUserData {
     }
 }
 
-impl todayhasbeen::UserData {
-    fn into_output(self) -> Output {
-        Output {
-            user_id: self.id,
-            mobile_number: self.mobile_number.to_string(),
-            user_name: self.user_name,
-            timezone: self.time_zone,
-            language: self.language,
-            subscription_type: self.subscription_type,
-            subscription_end_time: self.subscription_end_time,
-            customer_id: self.customer_id,
-            access_token: self.access_token,
-        }
-    }
-}
-
 fn generate_access_token() -> String {
     use rand_core::RngCore;
 
@@ -209,10 +210,10 @@ fn generate_access_token() -> String {
 
 fn update_token_if_expired(
     conn: &mut ft_sdk::Connection,
-    user: &mut todayhasbeen::UserData,
+    user: &mut common::UserData,
 ) -> Result<(), ft_sdk::Error> {
     use diesel::prelude::*;
-    use todayhasbeen::schema::users;
+    use common::schema::users;
 
     if !user.is_access_token_expired() {
         return Ok(());

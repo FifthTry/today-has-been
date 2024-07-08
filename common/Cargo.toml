@@ -1,0 +1,17 @@
+[package]
+name = "common"
+version = "0.1.0"
+authors.workspace = true
+edition.workspace = true
+description.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+
+[dependencies]
+diesel.workspace = true
+http.workspace = true
+ft-sdk.workspace = true
+serde_json.workspace = true
+serde.workspace = true
+chrono.workspace = true

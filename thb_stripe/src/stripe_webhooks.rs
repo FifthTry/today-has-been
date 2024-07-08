@@ -97,7 +97,7 @@ pub(crate) fn update_user_subscription_end_time(
     subscription_end_time: String,
 ) -> Result<(), ft_sdk::Error> {
     use diesel::prelude::*;
-    use todayhasbeen::schema::users;
+    use common::schema::users;
 
     diesel::update(users::table)
         .filter(users::id.eq(user_id))
@@ -121,7 +121,7 @@ fn is_subscription_exists(
     subscription_id: &str,
 ) -> Result<Option<todayhasbeen::Subscription>, ft_sdk::Error> {
     use diesel::prelude::*;
-    use todayhasbeen::schema::subscriptions;
+    use common::schema::subscriptions;
 
     Ok(subscriptions::table
         .filter(subscriptions::subscription_id.eq(subscription_id))
@@ -136,7 +136,7 @@ fn update_subscription(
     new_subscription: todayhasbeen::NewSubscription,
 ) -> Result<(), ft_sdk::Error> {
     use diesel::prelude::*;
-    use todayhasbeen::schema::subscriptions;
+    use common::schema::subscriptions;
 
     diesel::update(subscriptions::table)
         .filter(subscriptions::id.eq(id))
@@ -162,7 +162,7 @@ fn date_string_to_timestamp(date_str: &str) -> Result<i64, chrono::ParseError> {
 
 #[derive(diesel::Insertable)]
 #[diesel(treat_none_as_default_value = false)]
-#[diesel(table_name = todayhasbeen::schema::stripe_logs)]
+#[diesel(table_name = common::schema::stripe_logs)]
 pub struct StripeLog {
     pub event: Option<String>,
     pub response: Option<String>,
@@ -174,7 +174,7 @@ fn insert_into_stripe_logs(
     stripe_log: StripeLog,
 ) -> Result<(), ft_sdk::Error> {
     use diesel::prelude::*;
-    use todayhasbeen::schema::stripe_logs;
+    use common::schema::stripe_logs;
 
     diesel::insert_into(stripe_logs::table)
         .values(stripe_log)

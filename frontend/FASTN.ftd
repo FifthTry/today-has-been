@@ -11,6 +11,7 @@
 
 -- fastn.url-mappings:
 
+/stripe/v0.1/* -> wasm+proxy://thb_stripe.wasm/*
 /api/v0.1/* -> wasm+proxy://backend.wasm/*
 /login/* -> wasm+proxy://backend.wasm/login/*
 

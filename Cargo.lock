@@ -46,10 +46,10 @@ version = "0.1.0"
 dependencies = [
  "bytes",
  "chrono",
+ "common",
  "cookie",
  "diesel",
  "ft-sdk",
- "ft-stripe",
  "http",
  "rand_core 0.6.4",
  "serde",
@@ -113,6 +113,18 @@ dependencies = [
  "num-traits",
  "serde",
  "windows-targets",
+]
+
+[[package]]
+name = "common"
+version = "0.1.0"
+dependencies = [
+ "chrono",
+ "diesel",
+ "ft-sdk",
+ "http",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]
@@ -699,6 +711,22 @@ dependencies = [
  "proc-macro2",
  "quote",
  "unicode-ident",
+]
+
+[[package]]
+name = "thb_stripe"
+version = "0.1.0"
+dependencies = [
+ "bytes",
+ "chrono",
+ "common",
+ "diesel",
+ "ft-sdk",
+ "ft-stripe",
+ "http",
+ "serde",
+ "serde_json",
+ "thiserror",
 ]
 
 [[package]]
