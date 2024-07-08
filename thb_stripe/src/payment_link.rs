@@ -44,8 +44,8 @@ struct Output {
 fn get_subscription_plans(
     conn: &mut ft_sdk::Connection,
 ) -> Result<Vec<thb_stripe::SubscriptionPlan>, ft_sdk::Error> {
-    use diesel::prelude::*;
     use common::schema::subscription_plans;
+    use diesel::prelude::*;
 
     let subscription_plans = subscription_plans::table
         .select(thb_stripe::SubscriptionPlan::as_select())

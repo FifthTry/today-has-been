@@ -1,7 +1,6 @@
 extern crate core;
 extern crate self as todayhasbeen;
 
-
 mod add_post;
 mod get_posts;
 mod login;
@@ -9,7 +8,6 @@ mod logout;
 mod register;
 mod user;
 mod user_timezone;
-
 
 pub(crate) fn set_session_cookie(
     sid: &str,
@@ -58,8 +56,6 @@ fn convert_now_to_offsetdatetime() -> cookie::time::OffsetDateTime {
     .unwrap()
 }
 
-
-
 pub(crate) fn date_string_to_datetime(
     date_str: &str,
 ) -> Result<chrono::DateTime<chrono::Utc>, chrono::ParseError> {
@@ -98,8 +94,8 @@ fn get_random_post_date_data(
     )>,
     ft_sdk::Error,
 > {
-    use diesel::prelude::*;
     use common::schema::posts;
+    use diesel::prelude::*;
 
     let dates: Vec<(
         i64,

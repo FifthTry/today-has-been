@@ -85,8 +85,8 @@ fn update_user_customer_id(
     user_id: i64,
     customer_id: &str,
 ) -> Result<(), ft_sdk::Error> {
-    use diesel::prelude::*;
     use common::schema::users;
+    use diesel::prelude::*;
 
     diesel::update(users::table)
         .filter(users::id.eq(user_id))
