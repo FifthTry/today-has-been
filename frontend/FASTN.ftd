@@ -35,7 +35,7 @@ CREATE TABLE new_subscription_plans (
     plan TEXT NOT NULL,
     price_id TEXT NOT NULL,
     amount REAL NOT NULL,
-    interval INTEGER NOT NULL,
+    interval TEXT NOT NULL,
     trial_period_days INTEGER,
     discount TEXT,
     created_on INTEGER NOT NULL
