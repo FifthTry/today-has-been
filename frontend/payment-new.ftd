@@ -30,6 +30,9 @@ created-on: 24/12/24
 id: 0
 plan: Basic
 price-id: 0
+interval: year
+trial-period-days: 14
+discount: 20%
 
 -- plan-detail:
 amount: 250
@@ -37,6 +40,9 @@ created-on: 24/12/24
 id: 1
 plan: Premium
 price-id: 1
+interval: year
+trial-period-days: 7
+discount: 80%
 
 -- plan-detail:
 amount: 540
@@ -44,6 +50,8 @@ created-on: 24/12/24
 id: 2
 plan: Enterprise
 price-id: 2
+interval: month
+trial-period-days: 2
 
 -- end: plan
 
@@ -82,7 +90,7 @@ align-content: center
 inset: $ds.spaces.inset-wide.large-zero
 radius: $ds.radius.zero
 
--- ds.heading-large: Gupshup
+-- ds.heading-large: Today has been
 color: #00aec4
 
 -- end: ds.column
@@ -178,13 +186,13 @@ background.solid: #ffffff
 inset: $ds.spaces.inset-square.medium
 radius: $ds.radius.large
 
--- ds.checkbox: $show-plan.plan.plan
+-- ds.checkbox: $plan-description(plan = $show-plan.plan)
 size: small
 $is-checked if {price-id == show-plan.plan.price-id}: true
 $is-checked if {price-id != show-plan.plan.price-id}: false
 $on-click$: $ftd.set-string($a = $price-id, v = $show-plan.plan.price-id)
 
--- ftd.decimal: $show-plan.plan.amount
+/-- ftd.decimal: $show-plan.plan.amount
 
 -- end: ds.row
 
@@ -218,6 +226,16 @@ price-id: $price-id
 
 
 
+
+-- string plan-description(plan):
+plan-detail plan:
+
+
+"**" + plan.trial-period-days + " days free** then $" + plan.amount + " per " + plan.interval
+
+
+
+
 -- web-component stripe-payment:
 js: $assets.files.web-components.payment.js
 caption payment-detail payment:
@@ -246,3 +264,6 @@ string created-on:
 integer id:
 string plan:
 string price-id:
+string interval:
+optional integer trial-period-days:
+optional string discount:

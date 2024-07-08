@@ -37,7 +37,7 @@ pub struct SubscriptionPlan {
     pub plan: String,
     pub price_id: String,
     pub amount: f64,
-    pub interval: i32,
+    pub interval: String,
     pub trial_period_days: Option<i32>,
     pub discount: Option<String>,
     pub created_on: chrono::DateTime<chrono::Utc>,
