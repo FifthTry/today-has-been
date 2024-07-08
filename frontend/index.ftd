@@ -1,6 +1,7 @@
 -- import: todayhasbeen-ui.fifthtry.site/page/homepage
 -- import: todayhasbeen-ui.fifthtry.site/page/dashboard
 -- import: todayhasbeen-ui.fifthtry.site/record/user-data as ud
+-- import: todayhasbeen-dotcom.fifthtry.site/assets
 -- import: fastn/processors as pr
 
 
@@ -19,6 +20,9 @@ access-token: $access_token
 order: $order
 
 
+-- integer response: $call-timezone-api()
+$always-include$: true
+
 
 -- homepage.page:
 user-data: $user
@@ -30,3 +34,16 @@ whatsapp-link: https://wa.me/919910807891?text=Hi
 user-data: $user
 ;; order: $order
 if: { user.is-logged-in }
+
+
+
+
+
+
+
+-- integer call-timezone-api():
+js: $assets.files.function.js
+
+
+callTimezone()
+
