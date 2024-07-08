@@ -140,9 +140,9 @@ fn get_latest_post_date(
     conn: &mut ft_sdk::Connection,
     user_id: i64,
 ) -> Result<Option<chrono::DateTime<chrono::Utc>>, ft_sdk::Error> {
+    use common::schema::posts;
     use diesel::dsl::max;
     use diesel::prelude::*;
-    use common::schema::posts;
 
     let latest_date = posts::table
         .select(max(posts::created_on))
@@ -160,8 +160,8 @@ fn get_posts_for_date(
     user_id: i64,
     date: chrono::DateTime<chrono::Utc>,
 ) -> Result<Vec<todayhasbeen::Post>, ft_sdk::Error> {
-    use diesel::prelude::*;
     use common::schema::posts;
+    use diesel::prelude::*;
 
     let start_of_day = date.date_naive().and_hms_opt(0, 0, 0).unwrap().and_utc();
     let end_of_day = date.date_naive().and_hms_opt(23, 59, 59).unwrap().and_utc();
@@ -188,8 +188,8 @@ fn get_adjacent_dates(
     ),
     ft_sdk::Error,
 > {
-    use diesel::prelude::*;
     use common::schema::posts;
+    use diesel::prelude::*;
 
     let start_of_day = date.date_naive().and_hms_opt(0, 0, 0).unwrap().and_utc();
 

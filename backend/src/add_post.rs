@@ -39,8 +39,8 @@ fn insert_post(
     user_id: i64,
     payload: Payload,
 ) -> Result<Output, ft_sdk::Error> {
-    use diesel::prelude::*;
     use common::schema::posts;
+    use diesel::prelude::*;
 
     // Create a new Post object
     let new_post = NewPost {

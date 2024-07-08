@@ -9,7 +9,6 @@ pub const GUPSHUP_AUTHORIZATION: &str = "GUPSHUP_AUTHORIZATION";
 pub const DURATION_TO_EXPIRE_ACCESS_TOKEN_IN_DAYS: i64 = 60;
 pub const GUPSHUP_CALLBACK_SERVICE_URL: &str = "https://notifications.gupshup.io/notifications/callback/service/ipass/project/730/integration/19770066040f26502c05494f2";
 
-
 #[derive(Debug, serde::Serialize, diesel::Selectable, diesel::Queryable)]
 #[diesel(table_name = common::schema::users)]
 pub struct UserData {
@@ -39,7 +38,6 @@ impl UserData {
     }
 }
 
-
 pub fn get_user_from_header(
     conn: &mut ft_sdk::Connection,
     headers: &http::HeaderMap,
@@ -50,13 +48,12 @@ pub fn get_user_from_header(
     get_user_from_access_token(conn, &access_token)
 }
 
-
 pub fn get_user_from_access_token(
     conn: &mut ft_sdk::Connection,
     access_token: &str,
 ) -> Result<UserData, ft_sdk::Error> {
-    use diesel::prelude::*;
     use crate::schema::users;
+    use diesel::prelude::*;
 
     // Query user based on access_token
     let user = users::table
@@ -73,7 +70,6 @@ pub fn get_user_from_access_token(
 
     Ok(user)
 }
-
 
 fn get_access_token(headers: &http::HeaderMap) -> Result<String, ft_sdk::Error> {
     let auth_value = headers.get("Authorization").and_then(|header_value| {
@@ -92,7 +88,6 @@ fn get_access_token(headers: &http::HeaderMap) -> Result<String, ft_sdk::Error> 
         ft_sdk::SpecialError::Unauthorised("No Authorization header found.".to_string()).into()
     })
 }
-
 
 pub fn datetime_to_date_string(datetime: &chrono::DateTime<chrono::Utc>) -> String {
     // Format DateTime<Utc> to 'Y-m-d' format

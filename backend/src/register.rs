@@ -39,7 +39,6 @@ struct Output {
     access_token: String,
 }
 
-
 impl Output {
     fn from_user_data(user_data: common::UserData) -> Output {
         Output {
@@ -61,8 +60,8 @@ impl Payload {
         &self,
         conn: &mut ft_sdk::Connection,
     ) -> Result<Option<Output>, ft_sdk::Error> {
-        use diesel::prelude::*;
         use common::schema::users;
+        use diesel::prelude::*;
 
         match users::table
             .filter(users::mobile_number.eq(self.mobile_number.parse::<i64>().unwrap()))
@@ -82,8 +81,8 @@ impl Payload {
         &self,
         conn: &mut ft_sdk::Connection,
     ) -> Result<Output, ft_sdk::Error> {
-        use diesel::prelude::*;
         use common::schema::users;
+        use diesel::prelude::*;
 
         let now = ft_sdk::env::now();
         let access_token = generate_access_token();
@@ -212,8 +211,8 @@ fn update_token_if_expired(
     conn: &mut ft_sdk::Connection,
     user: &mut common::UserData,
 ) -> Result<(), ft_sdk::Error> {
-    use diesel::prelude::*;
     use common::schema::users;
+    use diesel::prelude::*;
 
     if !user.is_access_token_expired() {
         return Ok(());

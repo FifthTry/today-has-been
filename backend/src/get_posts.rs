@@ -9,8 +9,8 @@ pub(crate) fn get_posts_by_user_id(
     conn: &mut ft_sdk::Connection,
     user_id: i64,
 ) -> Result<Vec<todayhasbeen::Post>, ft_sdk::Error> {
-    use diesel::prelude::*;
     use common::schema::posts;
+    use diesel::prelude::*;
 
     let all_posts = posts::table
         .select(todayhasbeen::Post::as_select())

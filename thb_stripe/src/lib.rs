@@ -1,18 +1,16 @@
 extern crate self as thb_stripe;
 
-
-mod get_stripe_link;
 mod charge_subscription;
+mod get_stripe_link;
 mod payment_link;
 mod stripe_webhooks;
-
 
 fn get_user_from_customer_id(
     conn: &mut ft_sdk::Connection,
     customer_id: &str,
 ) -> Result<common::UserData, ft_sdk::Error> {
-    use diesel::prelude::*;
     use common::schema::users;
+    use diesel::prelude::*;
 
     // Query user based on access_token
     let user = users::table
@@ -29,8 +27,6 @@ fn get_user_from_customer_id(
 
     Ok(user)
 }
-
-
 
 #[derive(Debug, serde::Serialize, diesel::Selectable, diesel::Queryable)]
 #[diesel(treat_none_as_default_value = false)]

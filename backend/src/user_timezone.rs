@@ -2,7 +2,7 @@
 fn user_timezone(
     mut conn: ft_sdk::Connection,
     cookie: ft_sdk::Cookie<{ ft_sdk::auth::SESSION_KEY }>,
-    ft_sdk::Required(timezone): ft_sdk::Required<"timezone">
+    ft_sdk::Required(timezone): ft_sdk::Required<"timezone">,
 ) -> ft_sdk::data::Result {
     let access_token = cookie.0;
 
@@ -13,11 +13,18 @@ fn user_timezone(
             update_user_timezone(&mut conn, user.id, timezone.as_str())?;
             ft_sdk::data::api_ok("Timezone updated successfully")
         }
-        None => ft_sdk::data::api_error(std::collections::HashMap::from([("error".to_string(), "User not logged in".to_string())])),
+        None => ft_sdk::data::api_error(std::collections::HashMap::from([(
+            "error".to_string(),
+            "User not logged in".to_string(),
+        )])),
     }
 }
 
-fn update_user_timezone(conn: &mut ft_sdk::Connection, user_id: i64, timezone: &str) -> Result<(), ft_sdk::Error> {
+fn update_user_timezone(
+    conn: &mut ft_sdk::Connection,
+    user_id: i64,
+    timezone: &str,
+) -> Result<(), ft_sdk::Error> {
     use common::schema::users;
     use diesel::prelude::*;
 
