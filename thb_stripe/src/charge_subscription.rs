@@ -131,7 +131,7 @@ fn get_subscription_status(
                     price_id,
                     &card_id,
                     user_data,
-                    &plan_info.plan,
+                    &plan_info,
                 );
             }
         }
@@ -145,10 +145,10 @@ fn apply_customer_subscription(
     price_id: &str,
     card: &ft_stripe::PaymentMethodId,
     user_data: &common::UserData,
-    plan: &str,
+    plan_info: &thb_stripe::SubscriptionPlan,
 ) -> SubscriptionResult {
     let subscription_id =
-        apply_customer_subscription_(conn, customer_id, price_id, card, user_data, plan);
+        apply_customer_subscription_(conn, customer_id, price_id, card, user_data, plan_info);
     match subscription_id {
         Ok(subscription_id) => SubscriptionResult {
             status: true,
@@ -169,7 +169,7 @@ fn apply_customer_subscription_(
     price_id: &str,
     card: &ft_stripe::PaymentMethodId,
     user_data: &common::UserData,
-    plan: &str,
+    plan_info: &thb_stripe::SubscriptionPlan,
 ) -> Result<ft_stripe::SubscriptionId, ft_sdk::Error> {
     use std::str::FromStr;
 
@@ -183,6 +183,12 @@ fn apply_customer_subscription_(
             let mut create_subscription = ft_stripe::CreateSubscription::new(
                 ft_stripe::CustomerId::from_str(customer_id).unwrap(),
             );
+
+            create_subscription.trial_period_days = plan_info.trial_period_days.map(|v| v as u32);
+            // The default for `missing_payment_method` is `cancel`.
+            let trial_setting = ft_stripe::CreateSubscriptionTrialSettings::default();
+            create_subscription.trial_settings = Some(trial_setting);
+
             create_subscription.items = Some(vec![create_subscription_items]);
             create_subscription.default_payment_method = Some(card.as_str());
             create_subscription.automatic_tax = Some(ft_stripe::CreateSubscriptionAutomaticTax {
@@ -209,13 +215,13 @@ fn apply_customer_subscription_(
         end_date: end_date.clone(),
         status: Some(stripe_subscription.status.to_string()),
         is_active: Some("Yes".to_string()),
-        plan_type: Some(plan.to_string()),
+        plan_type: Some(plan_info.plan.to_string()),
         created_on: now,
         updated_on: now,
     };
 
     insert_into_subscriptions(conn, subscription)?;
-    update_user(conn, user_data.id, Some(plan.to_string()), Some(end_date))?;
+    update_user(conn, user_data.id, Some(plan_info.plan.to_string()), Some(end_date))?;
 
     Ok(stripe_subscription.id)
 }
