@@ -28,7 +28,7 @@ document: payment-status.ftd
 
 
 
--- fastn.migration:
+-- fastn.migration: new_subscription_plans
 
 CREATE TABLE new_subscription_plans (
     id INTEGER PRIMARY KEY,
@@ -41,7 +41,7 @@ CREATE TABLE new_subscription_plans (
     created_on INTEGER NOT NULL
 ) STRICT;
 
-INSERT INTO new_subscription_plans (plan, price_id, amount, interval, trial_period_days, saver, created_on) VALUES
+INSERT INTO new_subscription_plans (plan, price_id, amount, interval, trial_period_days, discount, created_on) VALUES
 ('Annual', 'price_1OZVafE432GCeRPXuzc0DOnm', 48, 'year', 14, '20%', 1719389577725201000),
 ('Monthly', 'price_1OZVafE432GCeRPX6Ly6yzjJ', 5, 'month', 7, NULL, 1719389577725201000);
 

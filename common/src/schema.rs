@@ -30,7 +30,7 @@ diesel::table! {
         plan -> Text,
         price_id -> Text,
         amount -> Double,
-        interval -> Int4,
+        interval -> Text,
         trial_period_days -> Nullable<Int4>,
         discount -> Nullable<Text>,
         created_on -> Timestamptz,
