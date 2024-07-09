@@ -50,7 +50,7 @@ fn get_user_data(
 
     ft_sdk::println!("Get user:: {user:?}");
     let date = match date {
-        Some(date) => Some(todayhasbeen::date_string_to_datetime(date.as_str())?),
+        Some(date) => Some(common::date_string_to_datetime(date.as_str())?),
         None => None,
     };
 

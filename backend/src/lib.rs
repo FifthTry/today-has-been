@@ -56,17 +56,6 @@ fn convert_now_to_offsetdatetime() -> cookie::time::OffsetDateTime {
     .unwrap()
 }
 
-pub(crate) fn date_string_to_datetime(
-    date_str: &str,
-) -> Result<chrono::DateTime<chrono::Utc>, chrono::ParseError> {
-    use chrono::TimeZone;
-
-    let naive_date = chrono::NaiveDate::parse_from_str(date_str, "%Y-%m-%d")?;
-    let datetime_utc = chrono::Utc.from_utc_date(&naive_date).and_hms(0, 0, 0);
-
-    Ok(datetime_utc)
-}
-
 #[derive(Debug, diesel::Selectable, diesel::Queryable, serde::Serialize)]
 #[diesel(treat_none_as_default_value = false)]
 #[diesel(table_name = common::schema::posts)]

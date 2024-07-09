@@ -212,8 +212,8 @@ fn apply_customer_subscription_(
         ft_stripe::Subscription::create(&client, create_subscription)?
     };
 
-    let start_date = timestamp_to_date_string(stripe_subscription.current_period_start);
-    let end_date = timestamp_to_date_string(stripe_subscription.current_period_end);
+    let start_date = thb_stripe::timestamp_to_date_string(stripe_subscription.current_period_start);
+    let end_date = thb_stripe::timestamp_to_date_string(stripe_subscription.current_period_end);
 
     let now = ft_sdk::env::now();
 
@@ -230,7 +230,7 @@ fn apply_customer_subscription_(
     };
 
     insert_into_subscriptions(conn, subscription)?;
-    update_user(
+    thb_stripe::update_user(
         conn,
         user_data.id,
         Some(plan_info.plan.to_string()),
@@ -274,31 +274,4 @@ pub enum Error {
     Diesel(#[from] diesel::result::Error),
     #[error("diesel error {0}")]
     Stripe(#[from] ft_stripe::StripeError),
-}
-
-pub(crate) fn timestamp_to_date_string(timestamp: i64) -> String {
-    use chrono::{TimeZone, Utc};
-    // Convert Unix timestamp to chrono DateTime<Utc>
-    let datetime_utc = Utc.timestamp_opt(timestamp, 0).unwrap();
-    common::datetime_to_date_string(&datetime_utc)
-}
-
-pub(crate) fn update_user(
-    conn: &mut ft_sdk::Connection,
-    user_id: i64,
-    subscription_type: Option<String>,
-    subscription_end_time: Option<String>,
-) -> Result<(), ft_sdk::Error> {
-    use common::schema::users;
-    use diesel::prelude::*;
-
-    diesel::update(users::table)
-        .filter(users::id.eq(user_id))
-        .set((
-            users::subscription_type.eq(subscription_type),
-            users::subscription_end_time.eq(subscription_end_time),
-        ))
-        .execute(conn)?;
-
-    Ok(())
 }

@@ -23,7 +23,7 @@ homepage = "https://www.fifthtry.com"
 
 [workspace.dependencies]
 #ft-stripe = { path = "../../fifthtry/ft-sdk/ft-stripe", default-features = false, features = ["webhook-events", "connect", "billing", "checkout"] }
-ft-stripe = { path = "../../fifthtry/ft-sdk/ft-stripe", default-features = false, features = ["billing", "checkout"] }
+ft-stripe = { path = "../../fifthtry/ft-sdk/ft-stripe", default-features = false, features = ["webhook-events", "webhook-subscription-events", "billing", "checkout"] }
 ft-sdk = { path = "../../fifthtry/ft-sdk/ft-sdk", version = "0.1.11", features = ["field-extractors"] }
 common = { path = "common" }
 bytes = "1.0"
