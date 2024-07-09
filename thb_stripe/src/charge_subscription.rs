@@ -8,6 +8,14 @@ fn charge_subscription(
     host: ft_sdk::Host,
 ) -> ft_sdk::processor::Result {
     let user_data = thb_stripe::get_user_from_customer_id(&mut conn, customer_id.as_str())?;
+
+    let url = format!("https://{host}/subscription/payment/?status=",);
+
+    // User is already subscribed
+    if let Some(ref subscription_type) = user_data.subscription_type {
+        return ft_sdk::processor::temporary_redirect(format!("{url}already_subscribed&subscription_type={subscription_type}"));
+    }
+
     let plan_info = get_subscription_plan(&mut conn, price_id.as_str())?;
 
     let subscription = get_subscription_status(
@@ -22,7 +30,6 @@ fn charge_subscription(
 
     call_gupshup_callback_service(&user_data, &plan_info, &subscription)?;
 
-    let url = format!("https://{host}/subscription/payment/?status=",);
 
     if subscription.status {
         ft_sdk::processor::temporary_redirect(format!("{url}success"))
@@ -155,11 +162,14 @@ fn apply_customer_subscription(
             txid: Some(subscription_id.to_string()),
             msg: None,
         },
-        Err(e) => SubscriptionResult {
-            status: false,
-            txid: None,
-            msg: Some(format!("Error creating subscription: {e:?}")),
-        },
+        Err(e) => {
+            ft_sdk::println!("Error apply_customer_subscription e: {e:?}, customer_id: {customer_id}, price_id: {price_id}, card: {card}");
+            SubscriptionResult {
+                status: false,
+                txid: None,
+                msg: Some(format!("Error creating subscription: {e:?}")),
+            }
+        }
     }
 }
 

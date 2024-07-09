@@ -20,10 +20,6 @@ access-token: $access_token
 order: $order
 
 
--- integer response: $call-timezone-api()
-$always-include$: true
-
-
 -- homepage.page:
 user-data: $user
 if: { !user.is-logged-in }
@@ -36,14 +32,4 @@ user-data: $user
 if: { user.is-logged-in }
 
 
-
-
-
-
-
--- integer call-timezone-api():
-js: $assets.files.function.js
-
-
-callTimezone()
 

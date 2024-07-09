@@ -95,3 +95,15 @@ pub fn datetime_to_date_string(datetime: &chrono::DateTime<chrono::Utc>) -> Stri
 
     formatted_date
 }
+
+
+pub fn date_string_to_datetime(
+    date_str: &str,
+) -> Result<chrono::DateTime<chrono::Utc>, chrono::ParseError> {
+    use chrono::TimeZone;
+
+    let naive_date = chrono::NaiveDate::parse_from_str(date_str, "%Y-%m-%d")?;
+    let datetime_utc = chrono::Utc.from_utc_date(&naive_date).and_hms(0, 0, 0);
+
+    Ok(datetime_utc)
+}

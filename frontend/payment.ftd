@@ -1,5 +1,6 @@
 -- import: fastn/processors as pr
 -- import: todayhasbeen-dotcom.fifthtry.site/assets
+-- import: todayhasbeen-dotcom.fifthtry.site/payment-status
 
 -- string customer_id:
 $processor$: pr.request-data
@@ -17,55 +18,17 @@ url: /stripe/v0.1/payment/link/
 customer_id: $customer_id
 
 
+-- payment-status.already-subscribed-ui:
+status: already_subscribed
+subscription-type: $payment.subscription-type
+if: { payment.subscription-type != NULL }
 
 
 
 
-
-/-- payment-detail payment:
-client-secret: hduahdkf
-customer-id: dhdhsjksibfb
-return-url: /
-stripe-key: skhdihwdjwb
-url: /
-customer_id: cd_123hdgfysbb
-plans: $plan
-
-
-/-- plan-detail list plan:
-
--- plan-detail:
-amount: 0
-created-on: 24/12/24
-id: 0
-plan: Basic
-price-id: 0
-interval: year
-trial-period-days: 14
-discount: 20%
-
--- plan-detail:
-amount: 250
-created-on: 24/12/24
-id: 1
-plan: Premium
-price-id: 1
-interval: year
-trial-period-days: 7
-discount: 80%
-
--- plan-detail:
-amount: 540
-created-on: 24/12/24
-id: 2
-plan: Enterprise
-price-id: 2
-interval: month
-trial-period-days: 2
-
--- end: plan
 
 -- payment-page: $payment
+if: { payment.subscription-type == NULL }
 
 
 
