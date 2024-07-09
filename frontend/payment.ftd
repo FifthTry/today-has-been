@@ -7,6 +7,9 @@ $processor$: pr.request-data
 
 -- string $price-id: $get-first-plan-price(plans = *$payment.plans)
 
+-- integer set-timezone-offset-response: $set-timezone-offset()
+$always-include$: true
+
 
 -- payment-detail payment:
 $processor$: pr.http
@@ -282,3 +285,10 @@ plan-detail list plans:
 js: $assets.files.function.js
 
 first_plan_price(plans)
+
+
+
+-- integer set-timezone-offset():
+js: $assets.files.function.js
+
+setTimezoneOffset()
