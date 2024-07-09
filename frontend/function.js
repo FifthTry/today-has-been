@@ -9,6 +9,9 @@ function setTimezone() {
     return 1;
 }
 
+
+// Code taken from https://stackoverflow.com/questions/1091372/getting-the-clients-time-zone-and-offset-in-javascript
+
 function setTimezoneOffset() {
     var offset = new Date().getTimezoneOffset(), o = Math.abs(offset);
     const timeZone = (offset < 0 ? "+" : "-") + ("00" + Math.floor(o / 60)).slice(-2) + ":" + ("00" + (o % 60)).slice(-2);
