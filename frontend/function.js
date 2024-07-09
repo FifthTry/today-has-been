@@ -3,8 +3,15 @@ function first_plan_price(plans){
 }
 
 
-function callTimezone() {
+function setTimezone() {
     const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    ftd.http("/api/v0.1/user/timezone/", "POST", null, { timezone: timeZone });
+    return 1;
+}
+
+function setTimezoneOffset() {
+    var offset = new Date().getTimezoneOffset(), o = Math.abs(offset);
+    const timeZone = (offset < 0 ? "+" : "-") + ("00" + Math.floor(o / 60)).slice(-2) + ":" + ("00" + (o % 60)).slice(-2);
     ftd.http("/api/v0.1/user/timezone/", "POST", null, { timezone: timeZone });
     return 1;
 }
