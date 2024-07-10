@@ -1,6 +1,7 @@
 -- import: fastn
 
 -- fastn.package: todayhasbeen-dotcom.fifthtry.site
+favicon: /favicon.ico
 
 -- fastn.dependency: todayhasbeen-ui.fifthtry.site
 -- fastn.dependency: design-system.fifthtry.site
