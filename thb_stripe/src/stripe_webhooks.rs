@@ -1,15 +1,15 @@
-#[ft_sdk::processor]
+#[ft_sdk::raw_data]
 fn stripe_webhooks(
     mut conn: ft_sdk::Connection,
-    ft_sdk::Form(payload): ft_sdk::Form<serde_json::Value>,
+    ft_sdk::Text(payload): ft_sdk::Text,
     headers: http::HeaderMap,
-) -> ft_sdk::processor::Result {
+) -> ft_sdk::data::Result {
     let stripe_signature = get_stripe_signature(&headers)?;
 
-    ft_sdk::println!("stripe_webhooks:: stripe_signature: {stripe_signature:?} payload: {payload:?}");
+    ft_sdk::println!("stripe_webhooks:: stripe_signature: {stripe_signature:?} payload: {payload}");
 
     let event = ft_stripe::Webhook::construct_event(
-        payload.to_string().as_str(),
+        payload.as_str(),
         stripe_signature.as_str(),
         common::STRIPE_WEBHOOK_SECRET_KEY,
     )?;
@@ -90,7 +90,7 @@ fn stripe_webhooks(
         },
     )?;
 
-    ft_sdk::processor::json("")
+    ft_sdk::data::json("")
 }
 
 pub(crate) fn update_user_subscription_end_time(

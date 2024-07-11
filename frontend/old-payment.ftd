@@ -1,10 +1,6 @@
 -- import: fastn/processors as pr
 -- import: todayhasbeen-dotcom.fifthtry.site/assets
 -- import: todayhasbeen-dotcom.fifthtry.site/payment-status
--- import: todayhasbeen-ui.fifthtry.site/components/page as p
--- import: todayhasbeen-ui.fifthtry.site/record/user-data as ud
--- import: todayhasbeen-ui.fifthtry.site/storybook/john-doe
-
 
 -- string customer_id:
 $processor$: pr.request-data
@@ -30,8 +26,14 @@ if: { payment.subscription-type != NULL }
 
 
 
+
 -- payment-page: $payment
-;; if: { payment.subscription-type == NULL }
+;;if: { payment.subscription-type == NULL }
+
+
+
+
+
 
 
 
@@ -45,34 +47,49 @@ if: { payment.subscription-type != NULL }
 caption payment-detail payment:
 
 -- ds.page: Payment
+background.solid: #fdf4eb
 theme-switcher: true
-
--- p.page: Today Has Been
-user-data: $payment-status.anon
-
--- ds.section-column:
-flush: to-header
 
 -- ftd.column:
 js: //js.stripe.com/v3/
+
+-- ds.column:
+inset: $ds.spaces.inset-tall.small
+
+-- ds.column:
+border: $ds.borders.bottom.small
+align-content if { ftd.device != "mobile"}: left
 align-content: center
-width: fill-container
+inset: $ds.spaces.inset-wide.large-zero
+radius: $ds.radius.zero
 
--- ds.column:
-inset: $ds.spaces.inset-tall.medium
-align-content: left
+-- ds.heading-large: Today has been
+color: #00aec4
 
--- ds.heading-medium: Become a member
+-- end: ds.column
 
--- ds.copy-regular:
-color: $ds.colors.text-strong
+-- ds.heading-medium: Payment Setup
 
-and join 1000s others who are discovering the joys of effortless journaling.
+-- end: ds.column
 
--- ds.column:
+-- ftd.desktop:
+
+-- ds.row:
 spacing: $ds.spaces.vertical-gap.space-between
-inset: $ds.spaces.inset-tall.zero-small
-align-content: left
+inset: $ds.spaces.inset-square.large
+
+-- show-plans:
+plans: $payment-page.payment.plans
+
+-- show-payment: $payment-page.payment
+
+-- end: ds.row
+
+-- end: ftd.desktop
+
+-- ftd.mobile:
+
+-- ds.column:
 
 -- show-plans:
 plans: $payment-page.payment.plans
@@ -81,18 +98,7 @@ plans: $payment-page.payment.plans
 
 -- end: ds.column
 
--- ds.copy-regular:
-
-By making this payment, you’re allow Bakbak Inc to charge you regularly. You
-can cancel the subscription anytime. No questions asked.
-
--- end: ds.column
-
--- end: ftd.column
-
--- end: ds.section-column
-
--- end: p.page
+-- end: ftd.mobile
 
 -- end: ds.page
 
@@ -113,28 +119,24 @@ can cancel the subscription anytime. No questions asked.
 
 
 
-
-
 -- component show-plans:
 plan-detail list plans:
 
 -- ds.column:
-width.fixed.px if { ftd.device != "mobile" }: 340
-align-content: left
+width.fixed.percent if { ftd.device != "mobile" }: 30
+inset: $ds.spaces.inset-square.medium
+background.solid: #f9eee3
+radius: $ds.radius.large
 
--- ds.heading-small: Plans
-color: $ds.colors.text
+-- ds.heading-small: Select Plan
+style: bold
 
 -- ds.column:
-background.solid: $ds.colors.cta-secondary.border
-border: $ds.borders.uniform.small
-border-color: $ds.colors.border
-inset: $ds.spaces.inset-square.small
+inset: $ds.spaces.inset-tall.small
+spacing: $ds.spaces.vertical-gap.large
 
 -- show-plan: $plan
 for: $plan in $show-plans.plans
-length: $length(a = $show-plans.plans)
-index: $LOOP.COUNTER
 
 -- end: ds.column
 
@@ -151,16 +153,11 @@ index: $LOOP.COUNTER
 
 -- component show-plan:
 caption plan-detail plan:
-integer length: 1
-integer index: 1
 
 -- ds.row:
-align-content: left
-border if { show-plan.index + 1 != show-plan.length }: $ds.borders.bottom.small
-radius: $ds.radius.zero
-inset: $ds.spaces.inset-tall.zero-small
-border-color: $ds.colors.border
-spacing: $ds.spaces.horizontal-gap.small
+background.solid: #ffffff
+inset: $ds.spaces.inset-square.medium
+radius: $ds.radius.large
 
 -- ds.checkbox: $plan-description(plan = $show-plan.plan)
 size: small
@@ -168,8 +165,7 @@ $is-checked if {price-id == show-plan.plan.price-id}: true
 $is-checked if {price-id != show-plan.plan.price-id}: false
 $on-click$: $ftd.set-string($a = $price-id, v = $show-plan.plan.price-id)
 
--- tag: $plan-discount(plan = $show-plan.plan)
-if: { show-plan.plan.discount != NULL }
+/-- ftd.decimal: $show-plan.plan.amount
 
 -- end: ds.row
 
@@ -185,11 +181,9 @@ if: { show-plan.plan.discount != NULL }
 caption payment-detail payment:
 
 -- ftd.column:
-width: fill-container
 
 -- ftd.row:
 id: payment-form
-width: fill-container
 
 -- stripe-payment: $show-payment.payment
 price-id: $price-id
@@ -203,24 +197,6 @@ price-id: $price-id
 
 
 
--- component tag:
-caption title:
-
--- ds.column:
-background.solid: #61D946DE
-inset: $ds.spaces.inset-wide.small-zero
-width: hug-content
-
-	-- ds.fine-print: $tag.title
-	color: #000000
-	
--- end: ds.column
-
--- end: tag
-
-
-
-
 
 
 
@@ -229,15 +205,6 @@ plan-detail plan:
 
 
 "**" + plan.trial-period-days + " days free** then $" + plan.amount + " per " + plan.interval
-
-
-
-
--- string plan-discount(plan):
-plan-detail plan:
-
-
-"Save " + plan.discount
 
 
 
@@ -288,9 +255,3 @@ first_plan_price(plans)
 js: $assets.files.function.js
 
 setTimezoneOffset()
-
-
--- integer length(a):
-plan-detail list a:
-
-ftd.len(a)

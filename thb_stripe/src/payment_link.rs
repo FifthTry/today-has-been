@@ -6,6 +6,7 @@ fn payment_link(
     ft_sdk::Mountpoint(mountpoint): ft_sdk::Mountpoint,
 ) -> ft_sdk::processor::Result {
     use std::str::FromStr;
+
     let setup_intent = {
         let client = ft_stripe::Client::new(common::STRIPE_SECRET_KEY);
         let mut setup_intent = ft_stripe::CreateSetupIntent::new();
@@ -49,6 +50,7 @@ fn get_subscription_plans(
 
     let subscription_plans = subscription_plans::table
         .select(thb_stripe::SubscriptionPlan::as_select())
+        .order_by(subscription_plans::id.desc())
         .load(conn)?;
 
     let subscription_plans = subscription_plans
@@ -60,7 +62,7 @@ fn get_subscription_plans(
 }
 
 
-#[derive(serde::Serialize)]
+#[derive(Debug, serde::Serialize)]
 #[serde(rename_all = "kebab-case")]
 pub struct SubscriptionPlanUI {
     pub id: i64,
