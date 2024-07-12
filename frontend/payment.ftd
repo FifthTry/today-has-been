@@ -4,6 +4,7 @@
 -- import: todayhasbeen-ui.fifthtry.site/components/page as p
 -- import: todayhasbeen-ui.fifthtry.site/record/user-data as ud
 -- import: todayhasbeen-ui.fifthtry.site/storybook/john-doe
+-- import: svg-icons.fifthtry.site/phosphor
 
 
 -- string customer_id:
@@ -22,7 +23,7 @@ url: /stripe/v0.1/payment/link/
 customer_id: $customer_id
 
 
-/-- payment-status.already-subscribed-ui:
+-- payment-status.already-subscribed-ui:
 status: already_subscribed
 subscription-type: $payment.subscription-type
 if: { payment.subscription-type != NULL }
@@ -31,7 +32,7 @@ if: { payment.subscription-type != NULL }
 
 
 -- payment-page: $payment
-;; if: { payment.subscription-type == NULL }
+if: { payment.subscription-type == NULL }
 
 
 
@@ -70,7 +71,7 @@ color: $ds.colors.text-strong
 and join 1000s others who are discovering the joys of effortless journaling.
 
 -- ds.column:
-spacing: $ds.spaces.vertical-gap.space-between
+spacing: $ds.spaces.vertical-gap.large
 inset: $ds.spaces.inset-tall.zero-small
 align-content: left
 
@@ -129,6 +130,7 @@ color: $ds.colors.text
 background.solid: $ds.colors.cta-secondary.border
 border: $ds.borders.uniform.small
 border-color: $ds.colors.border
+spacing: $ds.spaces.horizontal-gap.extra-small
 inset: $ds.spaces.inset-square.small
 
 -- show-plan: $plan
@@ -146,34 +148,64 @@ index: $LOOP.COUNTER
 
 
 
-
-
-
 -- component show-plan:
 caption plan-detail plan:
 integer length: 1
 integer index: 1
 
+
 -- ds.row:
 align-content: left
-border if { show-plan.index + 1 != show-plan.length }: $ds.borders.bottom.small
 radius: $ds.radius.zero
 inset: $ds.spaces.inset-tall.zero-small
 border-color: $ds.colors.border
-spacing: $ds.spaces.horizontal-gap.small
-
--- ds.checkbox: $plan-description(plan = $show-plan.plan)
-size: small
-$is-checked if {price-id == show-plan.plan.price-id}: true
-$is-checked if {price-id != show-plan.plan.price-id}: false
+spacing: $ds.spaces.horizontal-gap.zero
 $on-click$: $ftd.set-string($a = $price-id, v = $show-plan.plan.price-id)
+
+-- ftd.column:
+classes: display_inline
+css: $assets.files.styles.css
+padding-right.px: 8
+
+    -- phosphor.light: circle
+    size: 18
+    if:{ price-id != show-plan.plan.price-id }
+
+    -- phosphor.fill: radio-button
+    size: 18
+    color: #61D946DE
+    if:{ price-id == show-plan.plan.price-id }
+
+-- end: ftd.column
+
+-- ftd.text: $plan-description-free(plan = $show-plan.plan)
+display: inline
+white-space: nowrap
+padding-right.px: 4
+align-self: end
+
+-- ftd.text: $plan-description-price(plan = $show-plan.plan)
+display: inline
+role: $copy-small
+white-space: nowrap
+align-self: end
+padding-right.px: 8
 
 -- tag: $plan-discount(plan = $show-plan.plan)
 if: { show-plan.plan.discount != NULL }
 
 -- end: ds.row
 
+
 -- end: show-plan
+
+
+
+
+-- ftd.type copy-small:
+size.px: 14
+line-height.px: 18
+weight: 400
 
 
 
@@ -206,20 +238,58 @@ price-id: $price-id
 -- component tag:
 caption title:
 
--- ds.column:
+-- ftd.column:
 background.solid: #61D946DE
-inset: $ds.spaces.inset-wide.small-zero
+padding-horizontal.px: 6
+border-radius.px: 8
 width: hug-content
+classes: display_inline
+css: $assets.files.styles.css
+white-space: nowrap
 
 	-- ds.fine-print: $tag.title
 	color: #000000
 	
--- end: ds.column
+-- end: ftd.column
 
 -- end: tag
 
 
 
+-- component fine-print:
+caption or body text:
+ftd.color color: $ds.colors.text
+optional string link:
+display-type align: inline
+optional ds.gap margin:
+
+-- ftd.text: $fine-print.text
+color: $fine-print.color
+role: $ds.types.fine-print
+text-align if { fine-print.align == left }: start
+text-align if { fine-print.align == right }: end
+text-align if { fine-print.align == center }: center
+text-align if { fine-print.align == justify }: justify
+display if { fine-print.align == inline }: inline
+display if { fine-print.align == inline-block }: inline-block
+margin-bottom.px if { fine-print.margin != NULL }: $fine-print.margin.gap
+link: $fine-print.link
+
+-- end: fine-print
+
+
+-- string plan-description-free(plan):
+plan-detail plan:
+
+
+"**" + plan.trial-period-days + " days free**
+
+
+-- string plan-description-price(plan):
+plan-detail plan:
+
+
+"then $" + plan.amount + " per " + plan.interval
 
 
 
