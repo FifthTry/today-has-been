@@ -7,7 +7,7 @@ fn charge_subscription(
     ft_sdk::Query(redirect_status): ft_sdk::Query<"redirect_status">,
     host: ft_sdk::Host,
 ) -> ft_sdk::processor::Result {
-    let user_data = thb_stripe::get_user_from_customer_id(&mut conn, customer_id.as_str())?;
+    let user_data = common::get_user_from_customer_id(&mut conn, customer_id.as_str())?;
 
     let url = format!("https://{host}/subscription/payment/?status=",);
 
@@ -43,7 +43,6 @@ fn call_gupshup_callback_service(
     plan_info: &thb_stripe::SubscriptionPlan,
     subscription: &SubscriptionResult,
 ) -> Result<(), ft_sdk::Error> {
-    let url = common::GUPSHUP_CALLBACK_SERVICE_URL;
     let now = ft_sdk::env::now();
     let formatted_date = now.format("%Y-%m-%dT%H:%M:%S%.3fZ").to_string();
 
@@ -54,6 +53,7 @@ fn call_gupshup_callback_service(
             phone: user_data.mobile_number.to_string(),
             name: user_data.user_name.to_string(),
         },
+        timezone: user_data.time_zone.clone(),
         payment_successful: subscription.status,
         subscription_type: plan_info.plan.to_string(),
     };
@@ -62,7 +62,7 @@ fn call_gupshup_callback_service(
 
     let request = http::Request::builder()
         .method("POST")
-        .uri(url)
+        .uri(common::GUPSHUP_CALLBACK_SERVICE_URL)
         .header("Authorization", common::GUPSHUP_AUTHORIZATION)
         .header("Content-Type", "application/json")
         .header("Accept", "application/json")
@@ -99,10 +99,11 @@ struct GupshupUserData {
 #[derive(Debug, serde::Serialize)]
 struct GupshupFields {
     event_name: String,
-    event_time: String, // Assuming dateTime is a String
+    event_time: String,
     user: GupshupUserData,
-    payment_successful: bool,  // Assuming status is a boolean
-    subscription_type: String, // Assuming planInfo['plan'] is a String
+    payment_successful: bool,
+    timezone: Option<String>,
+    subscription_type: String,
 }
 
 fn get_subscription_status(

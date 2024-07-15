@@ -1,23 +1,28 @@
 #[ft_sdk::data]
 fn user_timezone(
-    mut conn: ft_sdk::Connection,
-    cookie: ft_sdk::Cookie<{ ft_sdk::auth::SESSION_KEY }>,
-    ft_sdk::Required(timezone): ft_sdk::Required<"timezone">,
+    conn: ft_sdk::Connection,
+    customer_id: ft_sdk::Required<"customer_id">,
+    timezone: ft_sdk::Required<"timezone">,
 ) -> ft_sdk::data::Result {
-    let access_token = cookie.0;
-
-    match access_token {
-        Some(access_token) => {
-            let user = common::get_user_from_access_token(&mut conn, access_token.as_str())?;
-            // insert timezone in users table
-            update_user_timezone(&mut conn, user.id, timezone.as_str())?;
-            ft_sdk::data::api_ok("Timezone updated successfully")
-        }
-        None => ft_sdk::data::api_error(std::collections::HashMap::from([(
+    match user_timezone_(conn, customer_id, timezone) {
+        Ok(_) =>  ft_sdk::data::api_ok("Timezone updated successfully"),
+        Err(e) => ft_sdk::data::api_error(std::collections::HashMap::from([(
             "error".to_string(),
-            "User not logged in".to_string(),
+            e.to_string(),
         )])),
     }
+}
+
+
+fn user_timezone_(
+    mut conn: ft_sdk::Connection,
+    ft_sdk::Required(customer_id): ft_sdk::Required<"customer_id">,
+    ft_sdk::Required(timezone): ft_sdk::Required<"timezone">,
+) -> Result<(), ft_sdk::Error> {
+    let user = common::get_user_from_customer_id(&mut conn, customer_id.as_str())?;
+    // insert timezone in users table
+    update_user_timezone(&mut conn, user.id, timezone.as_str())?;
+    Ok(())
 }
 
 fn update_user_timezone(

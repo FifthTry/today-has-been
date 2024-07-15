@@ -71,6 +71,30 @@ pub fn get_user_from_access_token(
     Ok(user)
 }
 
+
+pub fn get_user_from_customer_id(
+    conn: &mut ft_sdk::Connection,
+    customer_id: &str,
+) -> Result<common::UserData, ft_sdk::Error> {
+    use common::schema::users;
+    use diesel::prelude::*;
+
+    // Query user based on access_token
+    let user = users::table
+        .filter(users::customer_id.eq(customer_id))
+        .select(common::UserData::as_select())
+        .first(conn)?;
+
+    // Check if token has expired
+    if user.is_access_token_expired() {
+        return Err(
+            ft_sdk::SpecialError::Unauthorised("Access token has expired!".to_string()).into(),
+        );
+    }
+
+    Ok(user)
+}
+
 fn get_access_token(headers: &http::HeaderMap) -> Result<String, ft_sdk::Error> {
     let auth_value = headers.get("Authorization").and_then(|header_value| {
         header_value.to_str().ok().and_then(|auth_value| {
@@ -107,3 +131,5 @@ pub fn date_string_to_datetime(
 
     Ok(datetime_utc)
 }
+
+

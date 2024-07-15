@@ -13,7 +13,7 @@ $processor$: pr.request-data
 
 -- string $price-id: $get-first-plan-price(plans = *$payment.plans)
 
--- integer set-timezone-offset-response: $set-timezone-offset()
+-- integer set-timezone-offset-response: $set-timezone-offset(customer_id = $customer_id)
 $always-include$: true
 
 
@@ -355,9 +355,10 @@ first_plan_price(plans)
 
 
 -- integer set-timezone-offset():
+string customer_id:
 js: $assets.files.function.js
 
-setTimezoneOffset()
+setTimezoneOffset(customer_id)
 
 
 -- integer length(a):

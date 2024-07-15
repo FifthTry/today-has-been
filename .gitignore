@@ -1,6 +1,7 @@
 frontend/.packages
 .idea
 frontend/.fastn
+frontend/.build
 target
 .env
 frontend/todayhasbeen-ui.fifthtry.site

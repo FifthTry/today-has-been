@@ -5,28 +5,6 @@ mod get_stripe_link;
 mod payment_link;
 mod stripe_webhooks;
 
-fn get_user_from_customer_id(
-    conn: &mut ft_sdk::Connection,
-    customer_id: &str,
-) -> Result<common::UserData, ft_sdk::Error> {
-    use common::schema::users;
-    use diesel::prelude::*;
-
-    // Query user based on access_token
-    let user = users::table
-        .filter(users::customer_id.eq(customer_id))
-        .select(common::UserData::as_select())
-        .first(conn)?;
-
-    // Check if token has expired
-    if user.is_access_token_expired() {
-        return Err(
-            ft_sdk::SpecialError::Unauthorised("Access token has expired!".to_string()).into(),
-        );
-    }
-
-    Ok(user)
-}
 
 #[derive(Debug, serde::Serialize, diesel::Selectable, diesel::Queryable)]
 #[diesel(treat_none_as_default_value = false)]

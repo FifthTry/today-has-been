@@ -17,9 +17,9 @@ fn payment_link(
     };
 
     let plans = get_subscription_plans(&mut conn)?;
-    let user_data = thb_stripe::get_user_from_customer_id(&mut conn, customer_id.as_str())?;
+    let user_data = common::get_user_from_customer_id(&mut conn, customer_id.as_str())?;
 
-    ft_sdk::processor::json(Output {
+    let output = Output {
         return_url: format!(
             "https://{host}{mountpoint}charge/subscription/?customer_id={customer_id}"
         ),
@@ -28,10 +28,13 @@ fn payment_link(
         stripe_public_key: common::STRIPE_PUBLIC_KEY.to_string(),
         plans,
         subscription_type: user_data.subscription_type,
-    })
+    };
+
+    ft_sdk::println!("output: {output:?}");
+    ft_sdk::processor::json(output)
 }
 
-#[derive(serde::Serialize)]
+#[derive(Debug, serde::Serialize)]
 #[serde(rename_all = "kebab-case")]
 struct Output {
     customer_id: String,
