@@ -1,3 +1,5 @@
+// Currently all users are Indians. So timezone is +5:30. However we can check based on mobile
+// number but this is not needed right now.
 const TIMEZONE: &str = "+05:30";
 
 #[ft_sdk::data]
