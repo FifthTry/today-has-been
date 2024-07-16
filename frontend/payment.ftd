@@ -11,8 +11,6 @@
 $processor$: pr.request-data
 
 
--- string $price-id: $get-first-plan-price(plans = *$payment.plans)
-
 -- integer set-timezone-offset-response: $set-timezone-offset(customer_id = $customer_id)
 $always-include$: true
 
@@ -32,6 +30,7 @@ if: { payment.subscription-type != NULL }
 
 
 -- payment-page: $payment
+$price-id: $get-first-plan-price(plans = *$payment.plans)
 if: { payment.subscription-type == NULL }
 
 
@@ -44,6 +43,7 @@ if: { payment.subscription-type == NULL }
 
 -- component payment-page:
 caption payment-detail payment:
+string $price-id:
 
 -- ds.page: Payment
 theme-switcher: true
@@ -70,17 +70,44 @@ color: $ds.colors.text-strong
 
 and join 1000s others who are discovering the joys of effortless journaling.
 
--- ds.column:
-spacing: $ds.spaces.vertical-gap.large
-inset: $ds.spaces.inset-tall.zero-small
-align-content: left
+-- ftd.desktop:
 
--- show-plans:
-plans: $payment-page.payment.plans
+    -- ds.row:
+    spacing: $ds.spaces.horizontal-gap.space-between
+    inset: $ds.spaces.inset-tall.zero-small
+    align-content: top-left
 
--- show-payment: $payment-page.payment
+        -- show-plans:
+        $price-id: $payment-page.price-id
+        plans: $payment-page.payment.plans
 
--- end: ds.column
+        -- show-payment: $payment-page.payment
+        $price-id: $payment-page.price-id
+
+    -- end: ds.row
+
+
+-- end: ftd.desktop
+
+
+
+-- ftd.mobile:
+
+    -- ds.column:
+    spacing: $ds.spaces.vertical-gap.large
+    inset: $ds.spaces.inset-tall.zero-small
+    align-content: left
+
+        -- show-plans:
+        $price-id: $payment-page.price-id
+        plans: $payment-page.payment.plans
+
+        -- show-payment: $payment-page.payment
+        $price-id: $payment-page.price-id
+
+    -- end: ds.column
+
+-- end: ftd.mobile
 
 -- ds.copy-regular:
 
@@ -118,6 +145,7 @@ can cancel the subscription anytime. No questions asked.
 
 -- component show-plans:
 plan-detail list plans:
+string $price-id:
 
 -- ds.column:
 width.fixed.px if { ftd.device != "mobile" }: 340
@@ -137,6 +165,7 @@ inset: $ds.spaces.inset-square.small
 for: $plan in $show-plans.plans
 length: $length(a = $show-plans.plans)
 index: $LOOP.COUNTER
+$price-id: $show-plans.price-id
 
 -- end: ds.column
 
@@ -150,6 +179,7 @@ index: $LOOP.COUNTER
 
 -- component show-plan:
 caption plan-detail plan:
+string $price-id:
 integer length: 1
 integer index: 1
 
@@ -160,7 +190,7 @@ radius: $ds.radius.zero
 inset: $ds.spaces.inset-tall.zero-small
 border-color: $ds.colors.border
 spacing: $ds.spaces.horizontal-gap.zero
-$on-click$: $ftd.set-string($a = $price-id, v = $show-plan.plan.price-id)
+$on-click$: $ftd.set-string($a = $show-plan.price-id, v = $show-plan.plan.price-id)
 
 -- ftd.column:
 classes: display_inline
@@ -169,12 +199,12 @@ padding-right.px: 8
 
     -- phosphor.light: circle
     size: 18
-    if:{ price-id != show-plan.plan.price-id }
+    if: { show-plan.price-id != show-plan.plan.price-id }
 
     -- phosphor.fill: radio-button
     size: 18
     color: #61D946DE
-    if:{ price-id == show-plan.plan.price-id }
+    if: { show-plan.price-id == show-plan.plan.price-id }
 
 -- end: ftd.column
 
@@ -215,16 +245,17 @@ weight: 400
 
 -- component show-payment:
 caption payment-detail payment:
+string $price-id:
 
 -- ftd.column:
-width: fill-container
+max-width: fill-container
 
 -- ftd.row:
 id: payment-form
 width: fill-container
 
 -- stripe-payment: $show-payment.payment
-price-id: $price-id
+price-id: $show-payment.price-id
 
 -- end: ftd.column
 
