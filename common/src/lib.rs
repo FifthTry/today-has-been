@@ -71,7 +71,6 @@ pub fn get_user_from_access_token(
     Ok(user)
 }
 
-
 pub fn get_user_from_customer_id(
     conn: &mut ft_sdk::Connection,
     customer_id: &str,
@@ -120,7 +119,6 @@ pub fn datetime_to_date_string(datetime: &chrono::DateTime<chrono::Utc>) -> Stri
     formatted_date
 }
 
-
 pub fn date_string_to_datetime(
     date_str: &str,
 ) -> Result<chrono::DateTime<chrono::Utc>, chrono::ParseError> {
@@ -131,5 +129,3 @@ pub fn date_string_to_datetime(
 
     Ok(datetime_utc)
 }
-
-

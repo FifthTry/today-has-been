@@ -98,8 +98,8 @@ pub(crate) fn update_user_subscription_end_time(
     user_id: i64,
     subscription_end_time: String,
 ) -> Result<(), ft_sdk::Error> {
-    use diesel::prelude::*;
     use common::schema::users;
+    use diesel::prelude::*;
 
     diesel::update(users::table)
         .filter(users::id.eq(user_id))
@@ -122,8 +122,8 @@ fn is_subscription_exists(
     conn: &mut ft_sdk::Connection,
     subscription_id: &str,
 ) -> Result<Option<thb_stripe::Subscription>, ft_sdk::Error> {
-    use diesel::prelude::*;
     use common::schema::subscriptions;
+    use diesel::prelude::*;
 
     Ok(subscriptions::table
         .filter(subscriptions::subscription_id.eq(subscription_id))
@@ -137,8 +137,8 @@ fn update_subscription(
     id: i64,
     new_subscription: thb_stripe::NewSubscription,
 ) -> Result<(), ft_sdk::Error> {
-    use diesel::prelude::*;
     use common::schema::subscriptions;
+    use diesel::prelude::*;
 
     diesel::update(subscriptions::table)
         .filter(subscriptions::id.eq(id))
@@ -175,8 +175,8 @@ fn insert_into_stripe_logs(
     conn: &mut ft_sdk::Connection,
     stripe_log: StripeLog,
 ) -> Result<(), ft_sdk::Error> {
-    use diesel::prelude::*;
     use common::schema::stripe_logs;
+    use diesel::prelude::*;
 
     diesel::insert_into(stripe_logs::table)
         .values(stripe_log)
@@ -184,4 +184,3 @@ fn insert_into_stripe_logs(
 
     Ok(())
 }
-

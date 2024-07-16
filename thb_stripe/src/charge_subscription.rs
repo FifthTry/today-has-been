@@ -13,7 +13,9 @@ fn charge_subscription(
 
     // User is already subscribed
     if let Some(ref subscription_type) = user_data.subscription_type {
-        return ft_sdk::processor::temporary_redirect(format!("{url}already_subscribed&subscription_type={subscription_type}"));
+        return ft_sdk::processor::temporary_redirect(format!(
+            "{url}already_subscribed&subscription_type={subscription_type}"
+        ));
     }
 
     let plan_info = get_subscription_plan(&mut conn, price_id.as_str())?;
@@ -28,8 +30,7 @@ fn charge_subscription(
         &plan_info,
     )?;
 
-    call_gupshup_callback_service(&user_data, &plan_info, &subscription)?;
-
+    call_gupshup_callback_service(&user_data, &plan_info.plan, subscription.status)?;
 
     if subscription.status {
         ft_sdk::processor::temporary_redirect(format!("{url}success"))
@@ -38,10 +39,10 @@ fn charge_subscription(
     }
 }
 
-fn call_gupshup_callback_service(
+pub(crate) fn call_gupshup_callback_service(
     user_data: &common::UserData,
-    plan_info: &thb_stripe::SubscriptionPlan,
-    subscription: &SubscriptionResult,
+    plan: &str,
+    subscription_status: bool,
 ) -> Result<(), ft_sdk::Error> {
     let now = ft_sdk::env::now();
     let formatted_date = now.format("%Y-%m-%dT%H:%M:%S%.3fZ").to_string();
@@ -54,8 +55,8 @@ fn call_gupshup_callback_service(
             name: user_data.user_name.to_string(),
         },
         timezone: user_data.time_zone.clone(),
-        payment_successful: subscription.status,
-        subscription_type: plan_info.plan.to_string(),
+        payment_successful: subscription_status,
+        subscription_type: plan.to_string(),
     };
 
     let body = serde_json::to_string(&fields)?;

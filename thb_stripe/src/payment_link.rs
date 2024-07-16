@@ -64,7 +64,6 @@ fn get_subscription_plans(
     Ok(subscription_plans)
 }
 
-
 #[derive(Debug, serde::Serialize)]
 #[serde(rename_all = "kebab-case")]
 pub struct SubscriptionPlanUI {

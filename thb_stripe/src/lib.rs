@@ -3,8 +3,8 @@ extern crate self as thb_stripe;
 mod charge_subscription;
 mod get_stripe_link;
 mod payment_link;
+mod scripts;
 mod stripe_webhooks;
-
 
 #[derive(Debug, serde::Serialize, diesel::Selectable, diesel::Queryable)]
 #[diesel(treat_none_as_default_value = false)]

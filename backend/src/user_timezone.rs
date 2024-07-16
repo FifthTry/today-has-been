@@ -5,14 +5,13 @@ fn user_timezone(
     timezone: ft_sdk::Required<"timezone">,
 ) -> ft_sdk::data::Result {
     match user_timezone_(conn, customer_id, timezone) {
-        Ok(_) =>  ft_sdk::data::api_ok("Timezone updated successfully"),
+        Ok(_) => ft_sdk::data::api_ok("Timezone updated successfully"),
         Err(e) => ft_sdk::data::api_error(std::collections::HashMap::from([(
             "error".to_string(),
             e.to_string(),
         )])),
     }
 }
-
 
 fn user_timezone_(
     mut conn: ft_sdk::Connection,
