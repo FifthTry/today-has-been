@@ -15,22 +15,30 @@ fn add_post(
         Err(_) => {
             return ft_sdk::data::json(serde_json::json!({
                 "success": false,
-                "message": "Token expired"
+                "message": "Token expired."
             }))
         }
     };
 
+    // Check if user is subscribed
+    if user.subscription_type.is_none() {
+        return ft_sdk::data::json(serde_json::json!({
+            "success": false,
+            "message": "Please upgrade your subscription."
+        }));
+    }
+
     if !payload.is_valid() {
         return ft_sdk::data::json(serde_json::json!({
             "success": false,
-            "message": "Please send mandatory fields"
+            "message": "Please send mandatory fields."
         }));
     }
     let output = insert_post(&mut conn, user.id, payload)?;
     ft_sdk::data::json(serde_json::json!({
         "data": serde_json::to_value(output)?,
         "success": true,
-        "message": "Post added successfully"
+        "message": "Post added successfully."
     }))
 }
 
