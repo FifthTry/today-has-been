@@ -72,6 +72,8 @@ function upload-frontend() {
       return 1
     fi
 
+    build-wasm || return 1
+
     rm .gitignore
 
     FIFTHTRY_SITE_WRITE_TOKEN=$(cat ../token.txt) \
