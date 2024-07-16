@@ -60,16 +60,25 @@ function create-schema() {
 function upload-frontend() {
     pushd2 "${PROJ_ROOT}/frontend" || return 1
 
-    if [ -z "$(git status --porcelain)" ]; then
-      echo "working directory clean"
+    if [ -z "$(git status --porcelain | grep -v 'common/src/lib.rs')" ]; then
+      if [ -n "$(git status --porcelain | grep 'common/src/lib.rs')" ]; then
+        echo "working directory dirty with changes in common/src/lib.rs only"
+      else
+        echo "Unexpected: working directory clean. Update common/src/lib.rs with token changes."
+        return 1
+      fi
     else
       echo "working directory dirty"
       return 1
     fi
 
+    rm .gitignore
+
     FIFTHTRY_SITE_WRITE_TOKEN=$(cat ../token.txt) \
       DEBUG_API_FIFTHTRY_COM=https://www.fifthtry.com \
       fastn upload todayhasbeen-dotcom
+
+    git checkout .gitignore
 
     popd2
 }

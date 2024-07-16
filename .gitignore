@@ -7,5 +7,4 @@ target
 frontend/todayhasbeen-ui.fifthtry.site
 token.txt
 frontend/fastn.sqlite
-frontend/*.wasm
 frontend/*.db
