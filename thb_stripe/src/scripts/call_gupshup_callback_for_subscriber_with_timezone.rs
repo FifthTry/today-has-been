@@ -50,18 +50,18 @@ fn call_gupshup_callback_service_and_update_table(
                 subscription_type,
                 true,
             )?;
+
+            if previous_timezone.is_none() {
+                ft_sdk::println!("Updating table now");
+
+                diesel::update(users::table)
+                    .filter(users::id.eq(user.id))
+                    .set(users::time_zone.eq(TIMEZONE))
+                    .execute(conn)?;
+            }
+
+            ft_sdk::println!("Updated user successfully");
         }
-
-        if previous_timezone.is_none() {
-            ft_sdk::println!("Updating table now");
-
-            diesel::update(users::table)
-                .filter(users::id.eq(user.id))
-                .set(users::time_zone.eq(TIMEZONE))
-                .execute(conn)?;
-        }
-
-        ft_sdk::println!("Updated user successfully");
     }
     Ok(())
 }
