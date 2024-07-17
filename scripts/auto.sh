@@ -65,10 +65,12 @@ function upload-frontend() {
         echo "working directory dirty with changes in common/src/lib.rs only"
       else
         echo "Unexpected: working directory clean. Update common/src/lib.rs with token changes."
+        popd2
         return 1
       fi
     else
       echo "working directory dirty"
+      popd2
       return 1
     fi
 
