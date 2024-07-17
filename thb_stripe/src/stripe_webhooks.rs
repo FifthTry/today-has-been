@@ -14,6 +14,8 @@ fn stripe_webhooks(
         common::STRIPE_WEBHOOK_SECRET_KEY,
     )?;
 
+    ft_sdk::println!("stripe_webhooks:: event constructed: {event:?}");
+
     let subscription = match event.type_ {
         ft_stripe::EventType::CustomerSubscriptionCreated
         | ft_stripe::EventType::CustomerSubscriptionPaused
@@ -24,10 +26,14 @@ fn stripe_webhooks(
             get_subscription_from_event_obj(event.data.object)
         }
         ft_stripe::EventType::CustomerSubscriptionDeleted => {
+            ft_sdk::println!("stripe_webhooks:: subscription deleted");
             let subscription = get_subscription_from_event_obj(event.data.object);
+
+            ft_sdk::println!("stripe_webhooks:: subscription deleted: {subscription:?}");
 
             if let Some(subscription) = is_subscription_exists(&mut conn, subscription.id.as_str())?
             {
+                ft_sdk::println!("stripe_webhooks:: is_subscription_exists: {subscription:?}");
                 let subscription_id = subscription.id;
                 let mut new_subscription = subscription.to_new_subscription();
 
@@ -36,23 +42,38 @@ fn stripe_webhooks(
                 new_subscription.is_active = Some("No".to_string());
                 new_subscription.updated_on = ft_sdk::env::now();
 
+                ft_sdk::println!("stripe_webhooks:: new_subscription: {new_subscription:?}");
+
                 thb_stripe::update_user(&mut conn, new_subscription.user_id, None, None)?;
+                ft_sdk::println!("stripe_webhooks:: update_user");
                 update_subscription(&mut conn, subscription_id, new_subscription)?;
+                ft_sdk::println!("stripe_webhooks:: update_subscription");
             }
             subscription
         }
         ft_stripe::EventType::CustomerSubscriptionUpdated => {
+            ft_sdk::println!("stripe_webhooks:: subscription updated");
             let subscription = get_subscription_from_event_obj(event.data.object);
+
+            ft_sdk::println!("stripe_webhooks:: subscription updated: {subscription:?}");
 
             if let Some(subscription_from_table) =
                 is_subscription_exists(&mut conn, subscription.id.as_str())?
             {
+                ft_sdk::println!(
+                    "stripe_webhooks:: is_subscription_exists: {subscription_from_table:?}"
+                );
                 let subscription_id = subscription_from_table.id;
 
                 // todo: check the database to know whether we have start_timestamp field
                 let start_timestamp =
                     date_string_to_timestamp(subscription_from_table.start_date.as_str())?;
                 if start_timestamp < subscription.current_period_start {
+                    ft_sdk::println!(
+                        "stripe_webhooks:: start_timestamp < current_period_start: {} < {}",
+                        start_timestamp,
+                        subscription.current_period_start
+                    );
                     let start_date =
                         thb_stripe::timestamp_to_date_string(subscription.current_period_start);
                     let end_date =
@@ -63,23 +84,32 @@ fn stripe_webhooks(
                     new_subscription.status = Some(subscription.status.to_string());
                     new_subscription.updated_on = ft_sdk::env::now();
 
+                    ft_sdk::println!("stripe_webhooks:: new_subscription: {new_subscription:?}");
+
                     update_user_subscription_end_time(
                         &mut conn,
                         new_subscription.user_id,
                         end_date,
                     )?;
+
+                    ft_sdk::println!("stripe_webhooks:: update_user_subscription_end_time");
                     update_subscription(&mut conn, subscription_id, new_subscription)?;
+                    ft_sdk::println!("stripe_webhooks:: update_subscription");
                 }
             }
 
             subscription
         }
         t => {
-            return Err(
-                ft_sdk::SpecialError::NotFound(format!("Received unknown event type: {t}")).into(),
-            )
+            ft_sdk::println!("stripe_webhooks:: Received unknown event type: {t:?}");
+            return Err(ft_sdk::SpecialError::NotFound(format!(
+                "Received unknown event type: {t}"
+            ))
+            .into());
         }
     };
+
+    ft_sdk::println!("stripe_webhooks:: subscription: {subscription:?}");
 
     insert_into_stripe_logs(
         &mut conn,
@@ -89,6 +119,8 @@ fn stripe_webhooks(
             created_on: ft_sdk::env::now(),
         },
     )?;
+
+    ft_sdk::println!("stripe_webhooks:: insert_into_stripe_logs");
 
     ft_sdk::data::json("")
 }
