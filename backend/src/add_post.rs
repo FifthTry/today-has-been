@@ -86,12 +86,16 @@ impl NewPost {
     ) -> Result<Output, ft_sdk::Error> {
         let random_post =
             match todayhasbeen::get_random_post_date_data(conn, user_id, Some(post_id), 6)? {
-                Some((_, created_on, media_url, content)) => Some(PostWithTime {
-                    content,
-                    media_url,
+                Some((_, created_on, media_url, content)) => PostWithTime {
+                    content: content.unwrap_or_default(),
+                    media_url: media_url.unwrap_or_default(),
                     time_ago: time_ago(created_on),
-                }),
-                None => None,
+                },
+                None => PostWithTime {
+                    content: "".to_string(),
+                    media_url: "".to_string(),
+                    time_ago: "".to_string()
+                },
             };
 
         Ok(Output {
@@ -116,18 +120,15 @@ pub struct Output {
     media_url: Option<String>,
     #[serde(rename = "createdon")]
     created_on: String,
-    #[serde(skip_serializing_if = "Option::is_none")]
     #[serde(rename = "randompost")]
-    random_post: Option<PostWithTime>,
+    random_post: PostWithTime,
 }
 
 #[derive(serde::Serialize)]
 struct PostWithTime {
-    #[serde(skip_serializing_if = "Option::is_none")]
-    content: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    content: String,
     #[serde(rename = "mediaurl")]
-    media_url: Option<String>,
+    media_url: String,
     time_ago: String,
 }
 
