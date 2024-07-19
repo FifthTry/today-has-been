@@ -41,6 +41,10 @@ if: { payment.subscription-type == NULL }
 
 
 
+
+
+
+
 -- component payment-page:
 caption payment-detail payment:
 string $price-id:
@@ -50,6 +54,7 @@ theme-switcher: true
 
 -- p.page: Today Has Been
 user-data: $payment-status.anon
+header-with-logo: true
 
 -- ds.section-column:
 flush: to-header
@@ -109,7 +114,7 @@ and join 1000s others who are discovering the joys of effortless journaling.
 
 -- end: ftd.mobile
 
--- ds.copy-regular:
+/-- ds.copy-regular:
 
 By making this payment, you’re allow Bakbak Inc to charge you regularly. You
 can cancel the subscription anytime. No questions asked.
@@ -159,7 +164,7 @@ background.solid: $ds.colors.cta-secondary.border
 border: $ds.borders.uniform.small
 border-color: $ds.colors.border
 spacing: $ds.spaces.horizontal-gap.extra-small
-inset: $ds.spaces.inset-square.small
+inset: $ds.spaces.inset-tall.zero-small
 
 -- show-plan: $plan
 for: $plan in $show-plans.plans
@@ -183,12 +188,11 @@ string $price-id:
 integer length: 1
 integer index: 1
 
-
 -- ds.row:
 align-content: left
 radius: $ds.radius.zero
-inset: $ds.spaces.inset-tall.zero-small
-border-color: $ds.colors.border
+inset: $ds.spaces.inset-tall.small
+border if { show-plan.index % 2 == 0 }: $ds.borders.bottom.small
 spacing: $ds.spaces.horizontal-gap.zero
 $on-click$: $ftd.set-string($a = $show-plan.price-id, v = $show-plan.plan.price-id)
 

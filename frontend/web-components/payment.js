@@ -93,13 +93,15 @@ class PaymentForm extends HTMLElement {
         const submitButton = document.createElement('button');
         submitButton.type = 'submit';
         submitButton.id = 'submit';
-        submitButton.textContent = 'Subscribe';
-        submitButton.style.backgroundColor = "#00AEC4";
-        submitButton.style.color = "white"
+        submitButton.textContent = 'Try Free and Subscribe';
+        submitButton.style.backgroundColor = "#65CF72";
+        submitButton.style.borderWidth = "2px";
+        submitButton.style.borderColor = "black";
+        submitButton.style.color = "black"
         submitButton.style.marginTop = "1rem";
-        submitButton.style.width = "50%";
-        submitButton.style.padding = ".375rem .75rem";
-        submitButton.style.borderRadius = ".25rem";
+        submitButton.style.width = "337px";
+        submitButton.style.padding = "14px";
+        submitButton.style.borderRadius = "33px";
         submitButton.style.cursor = "pointer";
 
         const errorMessageDiv = document.createElement('div');
