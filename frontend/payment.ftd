@@ -64,15 +64,16 @@ align-content: center
 width: fill-container
 
 -- ds.column:
-inset: $ds.spaces.inset-tall.zero-medium
+inset: $ds.spaces.inset-tall.zero-small
 align-content: left
+spacing: $ds.spaces.vertical-gap.small
 
--- ds.heading-medium: Become a member
+-- ds.heading-medium: Start your Free Trial
 
 -- ds.copy-regular:
 color: $ds.colors.text-strong
 
-and join 1000s others who are discovering the joys of effortless journaling.
+Join thousands who’ve discovered the joy of effortless journalling.
 
 -- ftd.desktop:
 
@@ -155,14 +156,14 @@ string $price-id:
 width.fixed.px if { ftd.device != "mobile" }: 340
 align-content: left
 
--- ds.heading-small: Plans
-color: $ds.colors.text
+-- ds.copy-small: Select Plan
+color: $ds.colors.text-strong
 
 -- ds.column:
 background.solid: $ds.colors.cta-secondary.border
 border: $ds.borders.uniform.small
 border-color: $ds.colors.border
-spacing: $ds.spaces.horizontal-gap.zero
+spacing: $ds.spaces.vertical-gap.zero
 
 -- show-plan: $plan
 for: $plan in $show-plans.plans

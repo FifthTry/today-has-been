@@ -98,6 +98,7 @@ class PaymentForm extends HTMLElement {
         submitButton.style.borderWidth = "2px";
         submitButton.style.borderColor = "black";
         submitButton.style.color = "black"
+        submitButton.style.fontWeight = "bold"
         submitButton.style.marginTop = "1rem";
         submitButton.style.width = "337px";
         submitButton.style.padding = "14px";
