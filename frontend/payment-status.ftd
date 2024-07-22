@@ -1,6 +1,11 @@
 -- import: todayhasbeen-ui.fifthtry.site/components/status-page
 -- import: todayhasbeen-ui.fifthtry.site/record/user-data as ud
 -- import: fastn/processors as pr
+-- import: todayhasbeen-ui.fifthtry.site/page/already-subscribed
+-- import: todayhasbeen-ui.fifthtry.site/page/payment-status-failed
+-- import: todayhasbeen-ui.fifthtry.site/page/payment-status-success
+
+
 
 
 -- string status:
@@ -10,84 +15,22 @@ $processor$: pr.request-data
 $processor$: pr.request-data
 
 
--- status-page.status: Congratulations!
-user-data: $anon
-whatsapp-link: https://wa.me/919910807891?text=Hi
+
+
+
+
+
+-- payment-status-success.page:
 if: { status == "success" }
 
-You’re now a subscriber of Today has been. We’ll notify you on WhatsApp in just a moment.
-
-For any questions or feedback, please email me at rahulg@bakbak.me.
 
 
-
--- status-page.status: Sorry!
-user-data: $anon
-whatsapp-link: https://wa.me/919910807891?text=Hi
+-- payment-status-failed.page:
 if: { status == "failed" }
 
 
-We were not able to subscribe you. There should not be any payment made on your card.
 
-For any questions or feedback, please email me at rahulg@bakbak.me.
-
-To retry, send Hi again and select Pricing.
-
-
-
-
-
-
-
-
--- already-subscribed-ui:
-status: $status
+-- already-subscribed.page:
 subscription-type: $subscription_type
-if: { subscription_type != NULL }
+if: { status == "already_subscribed" && subscription_type != NULL }
 
-
-
-
-
-
-
-
-
-
-
-
--- component already-subscribed-ui:
-string status:
-optional string subscription-type:
-
--- status-page.status: Already Subscribed!
-user-data: $anon
-whatsapp-link: https://wa.me/919910807891?text=Hi
-if: { already-subscribed-ui.status == "already_subscribed" }
-
-
-$already-subscribed-message(sub_type=$already-subscribed-ui.subscription-type)
-
-
--- end: already-subscribed-ui
-
-
-
-
--- string already-subscribed-message(sub_type):
-string sub_type:
-
-"You are already subscribed with the **" + sub_type + "** plan.\\n\\n" +
-"For any questions or feedback, please email me at rahulg@bakbak.me.\\n\\n" +
-"To retry, send Hi again and select Pricing."
-
-
-
-
-
-
-
-
--- ud.user-data anon:
-is-logged-in: false
-auth-url: /

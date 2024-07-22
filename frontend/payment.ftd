@@ -1,11 +1,10 @@
 -- import: fastn/processors as pr
 -- import: todayhasbeen-dotcom.fifthtry.site/assets
--- import: todayhasbeen-dotcom.fifthtry.site/payment-status
 -- import: todayhasbeen-ui.fifthtry.site/components/page as p
 -- import: todayhasbeen-ui.fifthtry.site/record/user-data as ud
--- import: todayhasbeen-ui.fifthtry.site/storybook/john-doe
 -- import: svg-icons.fifthtry.site/phosphor
 -- import: roboto-typography.fifthtry.site as rtypes
+-- import: todayhasbeen-ui.fifthtry.site/page/already-subscribed
 
 
 -- string customer_id:
@@ -22,8 +21,7 @@ url: /stripe/v0.1/payment/link/
 customer_id: $customer_id
 
 
--- payment-status.already-subscribed-ui:
-status: already_subscribed
+-- already-subscribed.page:
 subscription-type: $payment.subscription-type
 if: { payment.subscription-type != NULL }
 
@@ -54,7 +52,7 @@ string $price-id:
 theme-switcher: true
 
 -- p.page: Today Has Been
-user-data: $payment-status.anon
+user-data: $anon
 header-with-logo: true
 
 -- ds.section-column:
@@ -401,3 +399,11 @@ setTimezoneOffset(customer_id)
 plan-detail list a:
 
 ftd.len(a)
+
+
+
+
+
+-- ud.user-data anon:
+is-logged-in: false
+auth-url: /
