@@ -6,8 +6,10 @@ favicon: /favicon.ico
 -- fastn.dependency: todayhasbeen-ui.fifthtry.site
 -- fastn.dependency: design-system.fifthtry.site
 -- fastn.dependency: svg-icons.fifthtry.site
+-- fastn.dependency: fastn-community.github.io/roboto-typography
 
 -- fastn.auto-import: todayhasbeen-ui.fifthtry.site/ds
+
 
 
 

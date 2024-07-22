@@ -5,6 +5,7 @@
 -- import: todayhasbeen-ui.fifthtry.site/record/user-data as ud
 -- import: todayhasbeen-ui.fifthtry.site/storybook/john-doe
 -- import: svg-icons.fifthtry.site/phosphor
+-- import: fastn-community.github.io/roboto-typography as rtypes
 
 
 -- string customer_id:
@@ -65,7 +66,7 @@ align-content: center
 width: fill-container
 
 -- ds.column:
-inset: $ds.spaces.inset-tall.medium
+inset: $ds.spaces.inset-tall.zero-medium
 align-content: left
 
 -- ds.heading-medium: Become a member
@@ -163,8 +164,7 @@ color: $ds.colors.text
 background.solid: $ds.colors.cta-secondary.border
 border: $ds.borders.uniform.small
 border-color: $ds.colors.border
-spacing: $ds.spaces.horizontal-gap.extra-small
-inset: $ds.spaces.inset-tall.zero-small
+spacing: $ds.spaces.horizontal-gap.zero
 
 -- show-plan: $plan
 for: $plan in $show-plans.plans
@@ -216,13 +216,14 @@ padding-right.px: 8
 display: inline
 white-space: nowrap
 padding-right.px: 4
-align-self: end
+align-self: center
+role: $rtypes.types.copy-regular
 
 -- ftd.text: $plan-description-price(plan = $show-plan.plan)
 display: inline
-role: $copy-small
+role: $rtypes.types.copy-small
 white-space: nowrap
-align-self: end
+align-self: center
 padding-right.px: 8
 
 -- tag: $plan-discount(plan = $show-plan.plan)
