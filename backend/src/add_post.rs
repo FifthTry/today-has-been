@@ -177,16 +177,26 @@ fn time_ago(past: chrono::DateTime<chrono::Utc>) -> String {
     let now = ft_sdk::env::now();
     let duration = now - past;
 
-    if duration.num_days() >= 365 {
+    if duration.num_days() / 365 == 1 {
+        format!("{} year ago", duration.num_days() / 365)
+    } else if duration.num_days() >= 365 {
         format!("{} years ago", duration.num_days() / 365)
+    } else if duration.num_days() == 1 {
+        format!("{} day ago", duration.num_days())
     } else if duration.num_days() > 0 {
         format!("{} days ago", duration.num_days())
+    } else if duration.num_hours() == 1 {
+        format!("{} hour ago", duration.num_hours())
     } else if duration.num_hours() > 0 {
         format!("{} hours ago", duration.num_hours())
+    } else if duration.num_minutes() == 1 {
+        format!("{} minute ago", duration.num_minutes())
     } else if duration.num_minutes() > 0 {
         format!("{} minutes ago", duration.num_minutes())
     } else if duration.num_seconds() == 0 {
         "Just now".to_string()
+    } else if duration.num_seconds() == 1 {
+        format!("{} second ago", duration.num_seconds())
     } else {
         format!("{} seconds ago", duration.num_seconds())
     }
