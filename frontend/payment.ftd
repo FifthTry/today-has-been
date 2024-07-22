@@ -5,7 +5,7 @@
 -- import: todayhasbeen-ui.fifthtry.site/record/user-data as ud
 -- import: todayhasbeen-ui.fifthtry.site/storybook/john-doe
 -- import: svg-icons.fifthtry.site/phosphor
--- import: fastn-community.github.io/roboto-typography as rtypes
+-- import: roboto-typography.fifthtry.site as rtypes
 
 
 -- string customer_id:
