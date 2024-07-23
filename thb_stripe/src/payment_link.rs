@@ -16,7 +16,7 @@ fn payment_link(
         ft_stripe::SetupIntent::create(&client, setup_intent)?
     };
 
-    let plans = get_subscription_plans(&mut conn)?;
+    let plans = get_subscription_plans()?;
     let user_data = common::get_user_from_customer_id(&mut conn, customer_id.as_str())?;
 
     let output = Output {
@@ -46,20 +46,29 @@ struct Output {
 }
 
 fn get_subscription_plans(
-    conn: &mut ft_sdk::Connection,
 ) -> Result<Vec<SubscriptionPlanUI>, ft_sdk::Error> {
-    use common::schema::subscription_plans;
-    use diesel::prelude::*;
-
-    let subscription_plans = subscription_plans::table
-        .select(thb_stripe::SubscriptionPlan::as_select())
-        .order_by(subscription_plans::id.desc())
-        .load(conn)?;
-
-    let subscription_plans = subscription_plans
-        .into_iter()
-        .map(thb_stripe::SubscriptionPlan::into_ui)
-        .collect();
+    let subscription_plans = vec![
+        SubscriptionPlanUI {
+            id: 2,
+            plan: "Annual".to_string(),
+            price_id: common::STRIPE_ANNUAL_PRICE_ID.to_string(),
+            amount: "48".to_string(),
+            interval: "year".to_string(),
+            trial_period_days: Some("14".to_string()),
+            discount: Some("20%".to_string()),
+            created_on: ft_sdk::env::now(),
+        },
+        SubscriptionPlanUI {
+            id: 1,
+            plan: "Monthly".to_string(),
+            price_id: common::STRIPE_MONTHLY_PRICE_ID.to_string(),
+            amount: "5".to_string(),
+            interval: "month".to_string(),
+            trial_period_days: Some("7".to_string()),
+            discount: None,
+            created_on: ft_sdk::env::now(),
+        },
+    ];
 
     Ok(subscription_plans)
 }
