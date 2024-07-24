@@ -29,7 +29,11 @@ document: payment-status.ftd
 
 
 
+-- fastn.migration: remove_customer_id_for_unsubscribed_user
 
+UPDATE users
+SET customer_id = NULL
+WHERE subscription_type IS NULL;
 
 
 -- fastn.migration: new_subscription_plans
