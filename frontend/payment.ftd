@@ -52,8 +52,6 @@ string $price-id:
 theme-switcher: true
 
 -- p.page: Today Has Been
-user-data: $anon
-header-with-logo: true
 
 -- ds.section-column:
 flush: to-header
@@ -282,9 +280,9 @@ classes: display_inline
 css: $assets.files.styles.css
 white-space: nowrap
 
-	-- ds.fine-print: $tag.title
-	color: #000000
-	
+    -- ds.fine-print: $tag.title
+    color: #000000
+    
 -- end: ftd.column
 
 -- end: tag
