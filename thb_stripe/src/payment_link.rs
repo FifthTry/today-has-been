@@ -16,7 +16,7 @@ fn payment_link(
         ft_stripe::SetupIntent::create(&client, setup_intent)?
     };
 
-    let plans = get_subscription_plans()?;
+    let plans = common::get_subscription_plans()?;
     let user_data = common::get_user_from_customer_id(&mut conn, customer_id.as_str())?;
 
     let output = Output {
@@ -40,63 +40,7 @@ struct Output {
     customer_id: String,
     client_secret: Option<String>,
     stripe_public_key: String,
-    plans: Vec<SubscriptionPlanUI>,
+    plans: Vec<common::SubscriptionPlanUI>,
     return_url: String,
     subscription_type: Option<String>,
-}
-
-fn get_subscription_plans(
-) -> Result<Vec<SubscriptionPlanUI>, ft_sdk::Error> {
-    let subscription_plans = vec![
-        SubscriptionPlanUI {
-            id: 2,
-            plan: "Annual".to_string(),
-            price_id: common::STRIPE_ANNUAL_PRICE_ID.to_string(),
-            amount: "48".to_string(),
-            interval: "year".to_string(),
-            trial_period_days: Some("14".to_string()),
-            discount: Some("20%".to_string()),
-            created_on: ft_sdk::env::now(),
-        },
-        SubscriptionPlanUI {
-            id: 1,
-            plan: "Monthly".to_string(),
-            price_id: common::STRIPE_MONTHLY_PRICE_ID.to_string(),
-            amount: "5".to_string(),
-            interval: "month".to_string(),
-            trial_period_days: Some("7".to_string()),
-            discount: None,
-            created_on: ft_sdk::env::now(),
-        },
-    ];
-
-    Ok(subscription_plans)
-}
-
-#[derive(Debug, serde::Serialize)]
-#[serde(rename_all = "kebab-case")]
-pub struct SubscriptionPlanUI {
-    pub id: i64,
-    pub plan: String,
-    pub price_id: String,
-    pub amount: String,
-    pub interval: String,
-    pub trial_period_days: Option<String>,
-    pub discount: Option<String>,
-    pub created_on: chrono::DateTime<chrono::Utc>,
-}
-
-impl thb_stripe::SubscriptionPlan {
-    pub fn into_ui(self) -> SubscriptionPlanUI {
-        SubscriptionPlanUI {
-            id: self.id,
-            plan: self.plan,
-            price_id: self.price_id,
-            amount: self.amount.to_string(),
-            interval: self.interval,
-            trial_period_days: self.trial_period_days.map(|d| d.to_string()),
-            discount: self.discount,
-            created_on: self.created_on,
-        }
-    }
 }

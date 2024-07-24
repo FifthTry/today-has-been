@@ -18,7 +18,7 @@ fn charge_subscription(
         ));
     }
 
-    let plan_info = get_subscription_plan(&mut conn, price_id.as_str())?;
+    let plan_info = get_subscription_plan(price_id.as_str())?;
 
     let subscription = get_subscription_status(
         &mut conn,
@@ -257,16 +257,22 @@ fn insert_into_subscriptions(
 }
 
 fn get_subscription_plan(
-    conn: &mut ft_sdk::Connection,
     price_id: &str,
 ) -> Result<thb_stripe::SubscriptionPlan, ft_sdk::Error> {
-    use common::schema::subscription_plans;
-    use diesel::prelude::*;
 
-    let subscription_plan = subscription_plans::table
-        .select(thb_stripe::SubscriptionPlan::as_select())
-        .filter(subscription_plans::price_id.eq(price_id))
-        .first(conn)?;
+    let subscription_plans = common::get_subscription_plans()?;
+
+    let subscription_plan = match subscription_plans
+        .into_iter()
+        .find(|plan| plan.price_id == price_id)
+        .map(|v| thb_stripe::SubscriptionPlan::from_subscription_plan_ui(v)) {
+        Some(v) => v,
+        None => {
+            ft_sdk::println!("Error get_subscription_plan price_id: {price_id}");
+            return Err(ft_sdk::SpecialError::NotFound(format!("Error get_subscription_plan price_id: {price_id}")).into());
+        }
+    };
+
     Ok(subscription_plan)
 }
 
