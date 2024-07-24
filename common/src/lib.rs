@@ -6,6 +6,8 @@ pub const STRIPE_SECRET_KEY: &str = "STRIPE_SECRET_KEY";
 pub const STRIPE_PUBLIC_KEY: &str = "STRIPE_PUBLIC_KEY";
 pub const STRIPE_WEBHOOK_SECRET_KEY: &str = "STRIPE_WEBHOOK_SECRET_KEY";
 pub const GUPSHUP_AUTHORIZATION: &str = "GUPSHUP_AUTHORIZATION";
+pub const STRIPE_ANNUAL_PRICE_ID: &str = "STRIPE_ANNUAL_PRICE_ID";
+pub const STRIPE_MONTHLY_PRICE_ID: &str = "STRIPE_MONTHLY_PRICE_ID";
 pub const DURATION_TO_EXPIRE_ACCESS_TOKEN_IN_DAYS: i64 = 60;
 pub const GUPSHUP_CALLBACK_SERVICE_URL: &str = "https://notifications.gupshup.io/notifications/callback/service/ipass/project/730/integration/19770066040f26502c05494f2";
 
