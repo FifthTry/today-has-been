@@ -4,9 +4,11 @@
 favicon: /favicon.ico
 
 -- fastn.dependency: todayhasbeen-ui.fifthtry.site
--- fastn.dependency: design-system.fifthtry.site
+/-- fastn.dependency: design-system.fifthtry.site
 -- fastn.dependency: svg-icons.fifthtry.site
 -- fastn.dependency: roboto-typography.fifthtry.site
+-- fastn.dependency: design-system.fifthtry.site
+provided-via: todayhasbeen-ui.fifthtry.site/ds
 
 -- fastn.auto-import: todayhasbeen-ui.fifthtry.site/ds
 
@@ -176,4 +178,3 @@ CREATE TABLE IF NOT EXISTS users (
   created_on INTEGER NOT NULL,
   updated_on INTEGER NOT NULL
 ) STRICT;
-
