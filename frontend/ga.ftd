@@ -1,0 +1,9 @@
+-- import: todayhasbeen-dotcom.fifthtry.site/assets
+
+;; added dummy component
+-- component add-ga:
+
+-- ftd.column:
+js: $assets.files.ga.js
+
+-- end: add-ga
