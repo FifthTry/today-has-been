@@ -2,13 +2,13 @@ extern crate core;
 extern crate self as todayhasbeen;
 
 mod add_post;
+mod free_trial;
 mod get_posts;
 mod login;
 mod logout;
 mod register;
 mod user;
 mod user_timezone;
-mod free_trial;
 
 pub(crate) fn set_session_cookie(
     sid: &str,

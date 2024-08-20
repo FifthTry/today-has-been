@@ -257,20 +257,21 @@ fn insert_into_subscriptions(
     Ok(())
 }
 
-fn get_subscription_plan(
-    price_id: &str,
-) -> Result<thb_stripe::SubscriptionPlan, ft_sdk::Error> {
-
+fn get_subscription_plan(price_id: &str) -> Result<thb_stripe::SubscriptionPlan, ft_sdk::Error> {
     let subscription_plans = common::get_subscription_plans()?;
 
     let subscription_plan = match subscription_plans
         .into_iter()
         .find(|plan| plan.price_id == price_id)
-        .map(|v| thb_stripe::SubscriptionPlan::from_subscription_plan_ui(v)) {
+        .map(|v| thb_stripe::SubscriptionPlan::from_subscription_plan_ui(v))
+    {
         Some(v) => v,
         None => {
             ft_sdk::println!("Error get_subscription_plan price_id: {price_id}");
-            return Err(ft_sdk::SpecialError::NotFound(format!("Error get_subscription_plan price_id: {price_id}")).into());
+            return Err(ft_sdk::SpecialError::NotFound(format!(
+                "Error get_subscription_plan price_id: {price_id}"
+            ))
+            .into());
         }
     };
 

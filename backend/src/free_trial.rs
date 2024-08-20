@@ -1,5 +1,8 @@
 #[ft_sdk::data]
-fn subscribe_free_trial(mut conn: ft_sdk::Connection, headers: http::HeaderMap) -> ft_sdk::data::Result {
+fn subscribe_free_trial(
+    mut conn: ft_sdk::Connection,
+    headers: http::HeaderMap,
+) -> ft_sdk::data::Result {
     let user = common::get_user_from_header(&mut conn, &headers)?;
 
     if does_subscription_exists_for_user(&mut conn, user.id)? {
@@ -23,7 +26,6 @@ fn does_subscription_exists_for_user(
         .select(subscriptions::id)
         .first::<i64>(conn)
         .optional()?;
-
 
     Ok(subscription.is_some())
 }

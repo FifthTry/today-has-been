@@ -94,7 +94,7 @@ impl NewPost {
                 None => PostWithTime {
                     content: "".to_string(),
                     media_url: "".to_string(),
-                    time_ago: "".to_string()
+                    time_ago: "".to_string(),
                 },
             };
 

@@ -146,8 +146,7 @@ pub struct SubscriptionPlanUI {
     pub discount: Option<String>,
     pub created_on: chrono::DateTime<chrono::Utc>,
 }
-pub fn get_subscription_plans(
-) -> Result<Vec<SubscriptionPlanUI>, ft_sdk::Error> {
+pub fn get_subscription_plans() -> Result<Vec<SubscriptionPlanUI>, ft_sdk::Error> {
     let subscription_plans = vec![
         SubscriptionPlanUI {
             id: 2,
@@ -188,7 +187,6 @@ pub struct NewSubscription {
     pub created_on: chrono::DateTime<chrono::Utc>,
     pub updated_on: chrono::DateTime<chrono::Utc>,
 }
-
 
 impl NewSubscription {
     pub fn insert_into_subscriptions(
