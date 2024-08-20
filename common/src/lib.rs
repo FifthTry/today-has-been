@@ -9,6 +9,8 @@ pub const GUPSHUP_AUTHORIZATION: &str = "GUPSHUP_AUTHORIZATION";
 pub const STRIPE_ANNUAL_PRICE_ID: &str = "STRIPE_ANNUAL_PRICE_ID";
 pub const STRIPE_MONTHLY_PRICE_ID: &str = "STRIPE_MONTHLY_PRICE_ID";
 pub const DURATION_TO_EXPIRE_ACCESS_TOKEN_IN_HOURS: i64 = 2;
+pub const DURATION_TO_EXPIRE_FREE_TRIAL_IN_DAYS: i64 = 14;
+pub const FREE_TRIAL_PLAN_NAME: &str = "Free";
 pub const GUPSHUP_CALLBACK_SERVICE_URL: &str = "https://notifications.gupshup.io/notifications/callback/service/ipass/project/730/integration/19770066040f26502c05494f2";
 
 #[derive(Debug, serde::Serialize, diesel::Selectable, diesel::Queryable)]
@@ -170,4 +172,36 @@ pub fn get_subscription_plans(
     ];
 
     Ok(subscription_plans)
+}
+
+#[derive(Debug, serde::Serialize, diesel::Insertable, diesel::AsChangeset)]
+#[diesel(treat_none_as_default_value = false)]
+#[diesel(table_name = common::schema::subscriptions)]
+pub struct NewSubscription {
+    pub user_id: i64,
+    pub subscription_id: String,
+    pub start_date: String,
+    pub end_date: String,
+    pub status: Option<String>,
+    pub is_active: Option<String>,
+    pub plan_type: Option<String>,
+    pub created_on: chrono::DateTime<chrono::Utc>,
+    pub updated_on: chrono::DateTime<chrono::Utc>,
+}
+
+
+impl NewSubscription {
+    pub fn insert_into_subscriptions(
+        self,
+        conn: &mut ft_sdk::Connection,
+    ) -> Result<(), ft_sdk::Error> {
+        use common::schema::subscriptions;
+        use diesel::prelude::*;
+
+        diesel::insert_into(subscriptions::table)
+            .values(self)
+            .execute(conn)?;
+
+        Ok(())
+    }
 }

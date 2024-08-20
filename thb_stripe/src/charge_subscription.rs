@@ -219,7 +219,7 @@ fn apply_customer_subscription_(
 
     let now = ft_sdk::env::now();
 
-    let subscription = thb_stripe::NewSubscription {
+    let subscription = common::NewSubscription {
         user_id: user_data.id,
         subscription_id: stripe_subscription.id.to_string(),
         start_date,
@@ -231,7 +231,8 @@ fn apply_customer_subscription_(
         updated_on: now,
     };
 
-    insert_into_subscriptions(conn, subscription)?;
+    subscription.insert_into_subscriptions(conn)?;
+
     thb_stripe::update_user(
         conn,
         user_data.id,
@@ -244,7 +245,7 @@ fn apply_customer_subscription_(
 
 fn insert_into_subscriptions(
     conn: &mut ft_sdk::Connection,
-    subscription: thb_stripe::NewSubscription,
+    subscription: common::NewSubscription,
 ) -> Result<(), ft_sdk::Error> {
     use common::schema::subscriptions;
     use diesel::prelude::*;

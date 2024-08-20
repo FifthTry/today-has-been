@@ -36,21 +36,6 @@ impl SubscriptionPlan {
     }
 }
 
-#[derive(Debug, serde::Serialize, diesel::Insertable, diesel::AsChangeset)]
-#[diesel(treat_none_as_default_value = false)]
-#[diesel(table_name = common::schema::subscriptions)]
-pub struct NewSubscription {
-    pub user_id: i64,
-    pub subscription_id: String,
-    pub start_date: String,
-    pub end_date: String,
-    pub status: Option<String>,
-    pub is_active: Option<String>,
-    pub plan_type: Option<String>,
-    pub created_on: chrono::DateTime<chrono::Utc>,
-    pub updated_on: chrono::DateTime<chrono::Utc>,
-}
-
 #[derive(Debug, serde::Serialize, diesel::Selectable, diesel::Queryable)]
 #[diesel(treat_none_as_default_value = false)]
 #[diesel(table_name = common::schema::subscriptions)]
@@ -68,8 +53,8 @@ pub struct Subscription {
 }
 
 impl Subscription {
-    pub(crate) fn to_new_subscription(self) -> NewSubscription {
-        NewSubscription {
+    pub(crate) fn to_new_subscription(self) -> common::NewSubscription {
+        common::NewSubscription {
             user_id: self.user_id,
             subscription_id: self.subscription_id,
             start_date: self.start_date,

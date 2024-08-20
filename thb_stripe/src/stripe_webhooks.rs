@@ -167,7 +167,7 @@ fn is_subscription_exists(
 fn update_subscription(
     conn: &mut ft_sdk::Connection,
     id: i64,
-    new_subscription: thb_stripe::NewSubscription,
+    new_subscription: common::NewSubscription,
 ) -> Result<(), ft_sdk::Error> {
     use common::schema::subscriptions;
     use diesel::prelude::*;

@@ -8,6 +8,7 @@ mod logout;
 mod register;
 mod user;
 mod user_timezone;
+mod free_trial;
 
 pub(crate) fn set_session_cookie(
     sid: &str,
