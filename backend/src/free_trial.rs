@@ -47,7 +47,7 @@ fn subscribe_free_trial_for_user(
         user_id,
         subscription_id: "".to_string(),
         start_date,
-        end_date,
+        end_date: end_date.to_string(),
         status: Some("active".to_string()),
         is_active: Some("Yes".to_string()),
         plan_type: Some(common::FREE_TRIAL_PLAN_NAME.to_string()),
@@ -56,6 +56,13 @@ fn subscribe_free_trial_for_user(
     };
 
     new_subscription.insert_into_subscriptions(conn)?;
+
+    common::update_user(
+        conn,
+        user_id,
+        Some(common::FREE_TRIAL_PLAN_NAME.to_string()),
+        Some(end_date),
+    )?;
 
     Ok(())
 }

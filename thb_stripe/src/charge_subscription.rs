@@ -233,7 +233,7 @@ fn apply_customer_subscription_(
 
     subscription.insert_into_subscriptions(conn)?;
 
-    thb_stripe::update_user(
+    common::update_user(
         conn,
         user_data.id,
         Some(plan_info.plan.to_string()),

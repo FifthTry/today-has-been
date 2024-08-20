@@ -44,7 +44,7 @@ fn stripe_webhooks(
 
                 ft_sdk::println!("stripe_webhooks:: new_subscription: {new_subscription:?}");
 
-                thb_stripe::update_user(&mut conn, new_subscription.user_id, None, None)?;
+                common::update_user(&mut conn, new_subscription.user_id, None, None)?;
                 ft_sdk::println!("stripe_webhooks:: update_user");
                 update_subscription(&mut conn, subscription_id, new_subscription)?;
                 ft_sdk::println!("stripe_webhooks:: update_subscription");
@@ -153,13 +153,13 @@ fn get_subscription_from_event_obj(
 fn is_subscription_exists(
     conn: &mut ft_sdk::Connection,
     subscription_id: &str,
-) -> Result<Option<thb_stripe::Subscription>, ft_sdk::Error> {
+) -> Result<Option<common::Subscription>, ft_sdk::Error> {
     use common::schema::subscriptions;
     use diesel::prelude::*;
 
     Ok(subscriptions::table
         .filter(subscriptions::subscription_id.eq(subscription_id))
-        .select(thb_stripe::Subscription::as_select())
+        .select(common::Subscription::as_select())
         .first(conn)
         .optional()?)
 }
