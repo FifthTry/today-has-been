@@ -8,7 +8,7 @@ pub const STRIPE_WEBHOOK_SECRET_KEY: &str = "STRIPE_WEBHOOK_SECRET_KEY";
 pub const GUPSHUP_AUTHORIZATION: &str = "GUPSHUP_AUTHORIZATION";
 pub const STRIPE_ANNUAL_PRICE_ID: &str = "STRIPE_ANNUAL_PRICE_ID";
 pub const STRIPE_MONTHLY_PRICE_ID: &str = "STRIPE_MONTHLY_PRICE_ID";
-pub const DURATION_TO_EXPIRE_ACCESS_TOKEN_IN_DAYS: i64 = 60;
+pub const DURATION_TO_EXPIRE_ACCESS_TOKEN_IN_HOURS: i64 = 2;
 pub const GUPSHUP_CALLBACK_SERVICE_URL: &str = "https://notifications.gupshup.io/notifications/callback/service/ipass/project/730/integration/19770066040f26502c05494f2";
 
 #[derive(Debug, serde::Serialize, diesel::Selectable, diesel::Queryable)]
@@ -33,8 +33,8 @@ impl UserData {
 
         let now = ft_sdk::env::now();
         self.updated_on
-            .add(chrono::Duration::days(
-                DURATION_TO_EXPIRE_ACCESS_TOKEN_IN_DAYS,
+            .add(chrono::Duration::hours(
+                DURATION_TO_EXPIRE_ACCESS_TOKEN_IN_HOURS,
             ))
             .lt(&now)
     }
