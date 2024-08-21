@@ -243,20 +243,6 @@ fn apply_customer_subscription_(
     Ok(stripe_subscription.id)
 }
 
-fn insert_into_subscriptions(
-    conn: &mut ft_sdk::Connection,
-    subscription: common::NewSubscription,
-) -> Result<(), ft_sdk::Error> {
-    use common::schema::subscriptions;
-    use diesel::prelude::*;
-
-    diesel::insert_into(subscriptions::table)
-        .values(subscription)
-        .execute(conn)?;
-
-    Ok(())
-}
-
 fn get_subscription_plan(price_id: &str) -> Result<thb_stripe::SubscriptionPlan, ft_sdk::Error> {
     let subscription_plans = common::get_subscription_plans()?;
 

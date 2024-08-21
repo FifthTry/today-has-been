@@ -63,3 +63,11 @@ diesel::table! {
 
 diesel::joinable!(posts -> users (user_id));
 diesel::joinable!(subscriptions -> users (user_id));
+
+diesel::allow_tables_to_appear_in_same_query!(
+    users,
+    posts,
+    subscription_plans,
+    subscriptions,
+    stripe_logs,
+);

@@ -6,10 +6,10 @@ mod free_trial;
 mod get_posts;
 mod login;
 mod logout;
+mod notify_free_trial_expired;
 mod register;
 mod user;
 mod user_timezone;
-mod notify_free_trial_expired;
 
 pub(crate) fn set_session_cookie(
     sid: &str,
