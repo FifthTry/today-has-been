@@ -6,6 +6,7 @@ on:
     # - cron: "0 */12 * * *"
     # Runs every minute
     - cron: "*/1 * * * *"
+  workflow_call:
 
 jobs:
   call-api:
