@@ -39,7 +39,7 @@ fn subscribe_free_trial_for_user(
     let now = ft_sdk::env::now();
 
     let start_date = common::datetime_to_date_string(&now);
-    let end_date = common::datetime_to_date_string(&now.add(chrono::Duration::hours(
+    let end_date = common::datetime_to_date_string(&now.add(chrono::Duration::days(
         common::DURATION_TO_EXPIRE_FREE_TRIAL_IN_DAYS,
     )));
 
