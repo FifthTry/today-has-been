@@ -14,4 +14,4 @@ jobs:
     steps:
       - name: Call the Notify Free Trial Expired API
         run: |
-          curl -X GET "https://5f29-101-0-63-251.ngrok-free.app/notify/free-trial/expired?secret_key=SECRET_KEY"
+          curl -X GET "https://5f29-101-0-63-251.ngrok-free.app/api/v0.1/notify/free-trial/expired?secret_key=SECRET_KEY"
