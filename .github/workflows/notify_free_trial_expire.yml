@@ -10,9 +10,7 @@ on:
 jobs:
   call-api:
     runs-on: ubuntu-latest
-
     steps:
       - name: Call the Notify Free Trial Expired API
         run: |
-        # Replace SECRET_KEY with the actual value
           curl -X GET "https://5f29-101-0-63-251.ngrok-free.app/notify/free-trial/expired?secret_key=SECRET_KEY"
