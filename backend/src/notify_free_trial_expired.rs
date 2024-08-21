@@ -90,6 +90,57 @@ fn update_subscription_mark_inactive(
     Ok(())
 }
 
+
+#[derive(Debug, serde::Serialize)]
+struct GupshupUserData {
+    phone: String,
+    name: String,
+}
+
+#[derive(Debug, serde::Serialize)]
+struct GupshupFields {
+    event_name: String,
+    event_time: String,
+    user: GupshupUserData,
+}
+
 fn gupshup_notify_free_trial_expired(data: &[FreeTrialData]) -> Result<(), ft_sdk::Error> {
-    todo!()
+    let now = ft_sdk::env::now();
+    let formatted_date = now.format("%Y-%m-%dT%H:%M:%S%.3fZ").to_string();
+
+    for d in data {
+        let fields = GupshupFields {
+            event_name: "free_trial_expired".to_string(),
+            event_time: formatted_date.clone(),
+            user: GupshupUserData {
+                phone: d.mobile_number.to_string(),
+                name: d.user_name.to_string(),
+            },
+        };
+
+        let body = serde_json::to_string(&fields)?;
+
+        let request = http::Request::builder()
+            .method("POST")
+            .uri(common::GUPSHUP_CALLBACK_SERVICE_URL)
+            .header("Authorization", common::GUPSHUP_AUTHORIZATION)
+            .header("Content-Type", "application/json")
+            .header("Accept", "application/json")
+            .body(bytes::Bytes::from(body))?;
+
+        match ft_sdk::http::send(request) {
+            Ok(response) => {
+                ft_sdk::println!(
+                    "call_gupshup_callback_service response: {} {}",
+                    response.status(),
+                    String::from_utf8_lossy(response.body())
+                );
+            }
+            Err(e) => {
+                ft_sdk::println!("call_gupshup_callback_service error: {e:?}");
+            }
+        };
+    }
+
+    Ok(())
 }
