@@ -3,6 +3,7 @@ fn notify_free_trial_expired(
     mut conn: ft_sdk::Connection,
     ft_sdk::Query(secret_key): ft_sdk::Query<"secret_key">,
 ) -> ft_sdk::data::Result {
+    // Check secret key
     if common::SECRET_KEY.ne(&secret_key) {
         return Err(ft_sdk::SpecialError::Single(
             "secret_key".to_string(),
@@ -11,12 +12,23 @@ fn notify_free_trial_expired(
         .into());
     }
 
+    // Find free trial expired
     let data = find_free_trial_expired(&mut conn)?;
+
+    if data.is_empty() {
+        return ft_sdk::data::api_ok(data);
+    }
+
+    // Notify via gupshup
     gupshup_notify_free_trial_expired(&data)?;
+
+    // Mark as inactive
     update_subscription_mark_inactive(&mut conn, &data)?;
-    todo!()
+
+    ft_sdk::data::api_ok(data)
 }
 
+#[derive(Debug, serde::Serialize)]
 struct FreeTrialData {
     subscription_pk_id: i64,
     user_name: String,
