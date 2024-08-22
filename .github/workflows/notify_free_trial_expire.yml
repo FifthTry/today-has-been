@@ -4,7 +4,7 @@ on:
   schedule:
     # Runs at 12-hour intervals
     # - cron: "0 */12 * * *"
-    # Runs every minute
+    # Runs twice a day at 00:00 and 12:00 UTC
     - cron: "0 0,12 * * *"
   workflow_dispatch:
 
