@@ -20,15 +20,24 @@ fn notify_free_trial_expired(
     }
 
     // Notify via gupshup
-    gupshup_notify_free_trial_expired(&data)?;
+    let notified_data = gupshup_notify_free_trial_expired(&data)?;
 
     // Mark as inactive
-    update_subscription_mark_inactive(&mut conn, &data)?;
+    update_subscription_mark_inactive(&mut conn, &notified_data)?;
 
-    ft_sdk::data::api_ok(data)
+    ft_sdk::data::api_ok(Output {
+        all_data: data,
+        notified_data,
+    })
 }
 
-#[derive(Debug, serde::Serialize)]
+#[derive(Debug, Clone, serde::Serialize)]
+struct Output {
+    all_data: Vec<FreeTrialData>,
+    notified_data: Vec<FreeTrialData>,
+}
+
+#[derive(Debug, Clone, serde::Serialize)]
 struct FreeTrialData {
     subscription_pk_id: i64,
     user_name: String,
@@ -90,7 +99,6 @@ fn update_subscription_mark_inactive(
     Ok(())
 }
 
-
 #[derive(Debug, serde::Serialize)]
 struct GupshupUserData {
     phone: String,
@@ -104,9 +112,12 @@ struct GupshupFields {
     user: GupshupUserData,
 }
 
-fn gupshup_notify_free_trial_expired(data: &[FreeTrialData]) -> Result<(), ft_sdk::Error> {
+fn gupshup_notify_free_trial_expired(
+    data: &[FreeTrialData],
+) -> Result<Vec<FreeTrialData>, ft_sdk::Error> {
     let now = ft_sdk::env::now();
     let formatted_date = now.format("%Y-%m-%dT%H:%M:%S%.3fZ").to_string();
+    let mut notified_free_trial_expired = vec![];
 
     for d in data {
         let fields = GupshupFields {
@@ -135,6 +146,7 @@ fn gupshup_notify_free_trial_expired(data: &[FreeTrialData]) -> Result<(), ft_sd
                     response.status(),
                     String::from_utf8_lossy(response.body())
                 );
+                notified_free_trial_expired.push(d.clone())
             }
             Err(e) => {
                 ft_sdk::println!("call_gupshup_callback_service error: {e:?}");
@@ -142,5 +154,5 @@ fn gupshup_notify_free_trial_expired(data: &[FreeTrialData]) -> Result<(), ft_sd
         };
     }
 
-    Ok(())
+    Ok(notified_free_trial_expired)
 }
