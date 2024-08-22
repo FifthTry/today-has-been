@@ -16,7 +16,10 @@ fn notify_free_trial_expired(
     let data = find_free_trial_expired(&mut conn)?;
 
     if data.is_empty() {
-        return ft_sdk::data::api_ok(data);
+        return ft_sdk::data::api_ok(Output {
+            all_data: data,
+            notified_data: vec![],
+        });
     }
 
     // Notify via gupshup
@@ -58,7 +61,12 @@ fn find_free_trial_expired(
         .filter(subscriptions::plan_type.eq(common::FREE_TRIAL_PLAN_NAME))
         .filter(subscriptions::is_active.eq("Yes"))
         .filter(subscriptions::end_date.lt(now))
-        .select((subscriptions::id, users::id, users::user_name, users::mobile_number))
+        .select((
+            subscriptions::id,
+            users::id,
+            users::user_name,
+            users::mobile_number,
+        ))
         .load::<(i64, i64, String, i64)>(conn)?;
 
     let result = result

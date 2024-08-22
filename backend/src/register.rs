@@ -40,17 +40,51 @@ struct Output {
 }
 
 impl Output {
-    fn from_user_data(user_data: common::UserData) -> Output {
+    fn from_user_data(
+        user_data: common::UserData,
+        subscription: Option<common::Subscription>,
+    ) -> Output {
+        let subscription_type = get_subscription_type(&subscription);
+
         Output {
             user_id: user_data.id,
             mobile_number: user_data.mobile_number.to_string(),
             user_name: user_data.user_name,
             timezone: user_data.time_zone,
             language: user_data.language,
-            subscription_type: user_data.subscription_type,
+            subscription_type,
             subscription_end_time: user_data.subscription_end_time,
             customer_id: user_data.customer_id,
             access_token: user_data.access_token,
+        }
+    }
+}
+
+fn get_subscription_type(subscription: &Option<common::Subscription>) -> Option<String> {
+    let subscription = if let Some(subscription) = subscription {
+        subscription
+    } else {
+        return None;
+    };
+
+    let subscription_type = if let Some(ref subscription_type) = subscription.plan_type {
+        subscription_type
+    } else {
+        return None;
+    };
+
+    let is_active = if let Some(ref is_active) = subscription.is_active {
+        is_active == "Yes"
+    } else {
+        return None;
+    };
+
+    if is_active {
+        Some(subscription_type.to_string())
+    } else {
+        match subscription_type.as_str() {
+            common::FREE_TRIAL_PLAN_NAME => Some("free_trial_expired".to_string()),
+            _ => Some("sub_expired".to_string()),
         }
     }
 }
@@ -60,7 +94,7 @@ impl Payload {
         &self,
         conn: &mut ft_sdk::Connection,
     ) -> Result<Option<Output>, ft_sdk::Error> {
-        use common::schema::users;
+        use common::schema::{subscriptions, users};
         use diesel::prelude::*;
 
         match users::table
@@ -70,7 +104,15 @@ impl Payload {
         {
             Ok(mut user_data) => {
                 update_token_if_expired(conn, &mut user_data)?;
-                Ok(Some(Output::from_user_data(user_data)))
+
+                let subscription = subscriptions::table
+                    .filter(subscriptions::user_id.eq(user_data.id))
+                    .order(subscriptions::created_on.desc())
+                    .select(common::Subscription::as_select())
+                    .first(conn)
+                    .optional()?;
+
+                Ok(Some(Output::from_user_data(user_data, subscription)))
             }
             Err(diesel::result::Error::NotFound) => Ok(None),
             Err(e) => Err(e.into()),
