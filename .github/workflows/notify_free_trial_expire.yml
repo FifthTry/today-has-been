@@ -5,7 +5,7 @@ on:
     # Runs at 12-hour intervals
     # - cron: "0 */12 * * *"
     # Runs every minute
-    - cron: "*/1 * * * *"
+    - cron: "0 0,12 * * *"
   workflow_dispatch:
 
 jobs:
