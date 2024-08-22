@@ -40,6 +40,7 @@ struct Output {
 #[derive(Debug, Clone, serde::Serialize)]
 struct FreeTrialData {
     subscription_pk_id: i64,
+    user_id: i64,
     user_name: String,
     mobile_number: i64,
 }
@@ -57,14 +58,15 @@ fn find_free_trial_expired(
         .filter(subscriptions::plan_type.eq(common::FREE_TRIAL_PLAN_NAME))
         .filter(subscriptions::is_active.eq("Yes"))
         .filter(subscriptions::end_date.lt(now))
-        .select((subscriptions::id, users::user_name, users::mobile_number))
-        .load::<(i64, String, i64)>(conn)?;
+        .select((subscriptions::id, users::id, users::user_name, users::mobile_number))
+        .load::<(i64, i64, String, i64)>(conn)?;
 
     let result = result
         .into_iter()
         .map(
-            |(subscription_pk_id, user_name, mobile_number)| FreeTrialData {
+            |(subscription_pk_id, user_id, user_name, mobile_number)| FreeTrialData {
                 subscription_pk_id,
+                user_id,
                 user_name,
                 mobile_number,
             },
@@ -91,6 +93,8 @@ fn update_subscription_mark_inactive(
                     subscriptions::status.eq("inactive"),
                 ))
                 .execute(conn)?;
+
+            common::update_user(conn, d.user_id, None, None)?;
         }
 
         Ok::<(), ft_sdk::Error>(())
