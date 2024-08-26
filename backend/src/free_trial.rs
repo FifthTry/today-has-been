@@ -6,7 +6,10 @@ fn subscribe_free_trial(
     let user = common::get_user_from_header(&mut conn, &headers)?;
 
     if does_subscription_exists_for_user(&mut conn, user.id)? {
-        return Err(ft_sdk::SpecialError::Unauthorised("Already subscribed".to_string()).into());
+        return ft_sdk::data::api_error(std::collections::HashMap::from([(
+            "message".to_string(),
+            "Already subscribed".to_string(),
+        )]));
     }
 
     subscribe_free_trial_for_user(&mut conn, user.id)?;
