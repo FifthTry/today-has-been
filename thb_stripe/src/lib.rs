@@ -16,7 +16,6 @@ pub struct SubscriptionPlan {
     pub price_id: String,
     pub amount: f64,
     pub interval: String,
-    pub trial_period_days: Option<i32>,
     pub discount: Option<String>,
     pub created_on: chrono::DateTime<chrono::Utc>,
 }
@@ -31,9 +30,6 @@ impl SubscriptionPlan {
             price_id: subscription_plan.price_id,
             amount: subscription_plan.amount.parse::<f64>().unwrap(),
             interval: subscription_plan.interval,
-            trial_period_days: subscription_plan
-                .trial_period_days
-                .map(|x| x.parse::<i32>().unwrap()),
             discount: subscription_plan.discount,
             created_on: subscription_plan.created_on,
         }

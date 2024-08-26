@@ -142,7 +142,6 @@ pub struct SubscriptionPlanUI {
     pub price_id: String,
     pub amount: String,
     pub interval: String,
-    pub trial_period_days: Option<String>,
     pub discount: Option<String>,
     pub created_on: chrono::DateTime<chrono::Utc>,
 }
@@ -154,7 +153,6 @@ pub fn get_subscription_plans() -> Result<Vec<SubscriptionPlanUI>, ft_sdk::Error
             price_id: common::STRIPE_ANNUAL_PRICE_ID.to_string(),
             amount: "48".to_string(),
             interval: "year".to_string(),
-            trial_period_days: Some("14".to_string()),
             discount: Some("20%".to_string()),
             created_on: ft_sdk::env::now(),
         },
@@ -164,7 +162,6 @@ pub fn get_subscription_plans() -> Result<Vec<SubscriptionPlanUI>, ft_sdk::Error
             price_id: common::STRIPE_MONTHLY_PRICE_ID.to_string(),
             amount: "5".to_string(),
             interval: "month".to_string(),
-            trial_period_days: Some("7".to_string()),
             discount: None,
             created_on: ft_sdk::env::now(),
         },

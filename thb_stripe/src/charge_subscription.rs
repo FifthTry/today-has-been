@@ -196,11 +196,6 @@ fn apply_customer_subscription_(
                 ft_stripe::CustomerId::from_str(customer_id).unwrap(),
             );
 
-            create_subscription.trial_period_days = plan_info.trial_period_days.map(|v| v as u32);
-            // The default for `missing_payment_method` is `cancel`.
-            let trial_setting = ft_stripe::CreateSubscriptionTrialSettings::default();
-            create_subscription.trial_settings = Some(trial_setting);
-
             create_subscription.items = Some(vec![create_subscription_items]);
             create_subscription.default_payment_method = Some(card.as_str());
             create_subscription.automatic_tax = Some(ft_stripe::CreateSubscriptionAutomaticTax {
