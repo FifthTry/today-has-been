@@ -1,10 +1,10 @@
 #[ft_sdk::data]
 fn user_timezone(
     conn: ft_sdk::Connection,
-    customer_id: ft_sdk::Required<"customer_id">,
+    sid: ft_sdk::Required<"sid">,
     timezone: ft_sdk::Required<"timezone">,
 ) -> ft_sdk::data::Result {
-    match user_timezone_(conn, customer_id, timezone) {
+    match user_timezone_(conn, sid, timezone) {
         Ok(_) => ft_sdk::data::api_ok("Timezone updated successfully"),
         Err(e) => ft_sdk::data::api_error(std::collections::HashMap::from([(
             "error".to_string(),
@@ -15,10 +15,10 @@ fn user_timezone(
 
 fn user_timezone_(
     mut conn: ft_sdk::Connection,
-    ft_sdk::Required(customer_id): ft_sdk::Required<"customer_id">,
+    ft_sdk::Required(sid): ft_sdk::Required<"sid">,
     ft_sdk::Required(timezone): ft_sdk::Required<"timezone">,
 ) -> Result<(), ft_sdk::Error> {
-    let user = common::get_user_from_customer_id(&mut conn, customer_id.as_str())?;
+    let user = common::get_user_from_access_token(&mut conn, sid.as_str())?;
     // insert timezone in users table
     update_user_timezone(&mut conn, user.id, timezone.as_str())?;
     Ok(())

@@ -34,3 +34,33 @@ if: { user.is-logged-in }
 
 
 
+-- call-set-timezone-offset:
+if: { user.is-logged-in }
+
+
+
+
+
+
+
+-- component call-set-timezone-offset:
+integer response: $set-timezone-offset()
+
+-- ftd.column:
+
+-- end: call-set-timezone-offset
+
+
+
+
+
+
+
+
+-- integer set-timezone-offset():
+js: $assets.files.function.js
+
+setTimezoneOffset()
+
+
+

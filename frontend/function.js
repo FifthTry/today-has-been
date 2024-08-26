@@ -11,10 +11,25 @@ function setTimezone() {
 
 
 // Code taken from https://stackoverflow.com/questions/1091372/getting-the-clients-time-zone-and-offset-in-javascript
-function setTimezoneOffset(customer_id) {
+function setTimezoneOffset() {
     var offset = new Date().getTimezoneOffset(), o = Math.abs(offset);
+    // Fetch fastn-sid from browser cookie
+    let sid = getCookieValue("fastn-sid")
     const timeZone = (offset < 0 ? "+" : "-") + ("00" + Math.floor(o / 60)).slice(-2) + ":" + ("00" + (o % 60)).slice(-2);
-    ftd.http("/api/v0.1/user/timezone/", "POST", null, { timezone: timeZone, customer_id: customer_id });
+    ftd.http("/api/v0.1/user/timezone/", "POST", null, { timezone: timeZone, sid: sid });
     return 1;
 }
+
+
+function getCookieValue(name) {
+    const cookies = document.cookie.split(';');
+    for (let cookie of cookies) {
+        cookie = cookie.trim();
+        if (cookie.startsWith(name + '=')) {
+            return cookie.substring(name.length + 1);
+        }
+    }
+    return null;
+}
+
 

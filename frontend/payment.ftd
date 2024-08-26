@@ -13,7 +13,7 @@
 $processor$: pr.request-data
 
 
--- integer set-timezone-offset-response: $set-timezone-offset(customer_id = $customer_id)
+/-- integer set-timezone-offset-response: $set-timezone-offset(customer_id = $customer_id)
 $always-include$: true
 
 
