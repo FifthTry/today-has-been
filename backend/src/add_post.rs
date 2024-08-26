@@ -90,11 +90,13 @@ impl NewPost {
                     content: content.unwrap_or_default(),
                     media_url: media_url.unwrap_or_default(),
                     time_ago: time_ago(created_on),
+                    date: common::datetime_to_date_string(&created_on)
                 },
                 None => PostWithTime {
                     content: "".to_string(),
                     media_url: "".to_string(),
                     time_ago: "".to_string(),
+                    date: "".to_string()
                 },
             };
 
@@ -130,6 +132,7 @@ struct PostWithTime {
     #[serde(rename = "mediaurl")]
     media_url: String,
     time_ago: String,
+    date: String
 }
 
 #[derive(Debug, serde::Deserialize)]
