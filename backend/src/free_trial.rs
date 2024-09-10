@@ -1,9 +1,9 @@
 #[ft_sdk::data]
 fn subscribe_free_trial(
     mut conn: ft_sdk::Connection,
-    headers: http::HeaderMap,
+    ft_sdk::Query(access_token): ft_sdk::Query<"access_token">,
 ) -> ft_sdk::data::Result {
-    let user = common::get_user_from_header(&mut conn, &headers)?;
+    let user = common::get_user_from_access_token(&mut conn, &access_token)?;
 
     if does_subscription_exists_for_user(&mut conn, user.id)? {
         return ft_sdk::data::api_error(std::collections::HashMap::from([(
