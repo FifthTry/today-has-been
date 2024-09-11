@@ -1,20 +1,17 @@
-#[ft_sdk::data]
+#[ft_sdk::processor]
 fn subscribe_free_trial(
     mut conn: ft_sdk::Connection,
     ft_sdk::Query(access_token): ft_sdk::Query<"access_token">,
-) -> ft_sdk::data::Result {
+) -> ft_sdk::processor::Result {
     let user = common::get_user_from_access_token(&mut conn, &access_token)?;
 
     if does_subscription_exists_for_user(&mut conn, user.id)? {
-        return ft_sdk::data::api_error(std::collections::HashMap::from([(
-            "message".to_string(),
-            "Already subscribed".to_string(),
-        )]));
+        return ft_sdk::processor::temporary_redirect("/free-trial-failure/");
     }
 
     subscribe_free_trial_for_user(&mut conn, user.id)?;
 
-    ft_sdk::data::api_ok("Free trial subscribed!")
+    ft_sdk::processor::temporary_redirect("/free-trial-success/")
 }
 
 fn does_subscription_exists_for_user(
