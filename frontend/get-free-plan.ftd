@@ -1,0 +1,53 @@
+-- import: todayhasbeen-ui.fifthtry.site/page/free-trial
+-- import: todayhasbeen-dotcom.fifthtry.site/assets
+-- import: fastn/processors as pr
+
+
+-- ga.add-ga:
+
+-- string access_token:
+$processor$: pr.request-data
+
+
+-- call-set-timezone-offset-with-access-token:
+
+-- free-trial.page:
+link: $subscribe-free-trial-link(access_token = $access_token)
+
+
+
+
+
+
+
+
+
+
+
+-- component call-set-timezone-offset-with-access-token:
+integer response: $set-timezone-offset-with-access-token(access_token = $access_token)
+
+-- ftd.column:
+
+-- end: call-set-timezone-offset-with-access-token
+
+
+
+
+
+
+
+
+-- integer set-timezone-offset-with-access-token(access_token):
+string access_token:
+js: $assets.files.function.js
+
+setTimezoneOffsetWithAccessToken(access_token)
+
+
+
+-- string subscribe-free-trial-link(access_token):
+string access_token:
+
+"/api/v0.1/subscribe/free-trial/?access_token=" + access_token
+
