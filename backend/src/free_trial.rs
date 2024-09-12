@@ -6,10 +6,13 @@ fn subscribe_free_trial(
     let user = common::get_user_from_access_token(&mut conn, &access_token)?;
 
     if does_subscription_exists_for_user(&mut conn, user.id)? {
+        call_gupshup_callback_service(&user, false)?;
         return ft_sdk::processor::temporary_redirect("/free-trial-failure/");
     }
 
     subscribe_free_trial_for_user(&mut conn, user.id)?;
+
+    call_gupshup_callback_service(&user, true)?;
 
     ft_sdk::processor::temporary_redirect("/free-trial-success/")
 }
@@ -63,6 +66,66 @@ fn subscribe_free_trial_for_user(
         Some(common::FREE_TRIAL_PLAN_NAME.to_string()),
         Some(end_date),
     )?;
+
+    Ok(())
+}
+
+
+#[derive(Debug, serde::Serialize)]
+struct GupshupUserData {
+    phone: String,
+    name: String,
+}
+
+#[derive(Debug, serde::Serialize)]
+struct GupshupFields {
+    event_name: String,
+    event_time: String,
+    user: GupshupUserData,
+    free_trial_successful: bool,
+    timezone: Option<String>,
+}
+
+pub(crate) fn call_gupshup_callback_service(
+    user_data: &common::UserData,
+    subscription_status: bool,
+) -> Result<(), ft_sdk::Error> {
+    let now = ft_sdk::env::now();
+    let formatted_date = now.format("%Y-%m-%dT%H:%M:%S%.3fZ").to_string();
+
+    let fields = GupshupFields {
+        event_name: "free_trial_started".to_string(),
+        event_time: formatted_date,
+        user: GupshupUserData {
+            phone: user_data.mobile_number.to_string(),
+            name: user_data.user_name.to_string(),
+        },
+        timezone: user_data.time_zone.clone(),
+        free_trial_successful: subscription_status,
+    };
+
+    let body = serde_json::to_string(&fields)?;
+
+    let request = http::Request::builder()
+        .method("POST")
+        .uri(common::GUPSHUP_CALLBACK_SERVICE_URL)
+        .header("Authorization", common::GUPSHUP_AUTHORIZATION)
+        .header("Content-Type", "application/json")
+        .header("Accept", "application/json")
+        .body(bytes::Bytes::from(body))?;
+
+    match ft_sdk::http::send(request) {
+        Ok(response) => {
+            ft_sdk::println!(
+                "call_gupshup_callback_service response: {} {}",
+                response.status(),
+                String::from_utf8_lossy(response.body())
+            );
+        }
+        Err(e) => {
+            ft_sdk::println!("call_gupshup_callback_service error: {e:?}");
+        }
+    };
 
     Ok(())
 }
