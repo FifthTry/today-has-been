@@ -70,7 +70,6 @@ fn subscribe_free_trial_for_user(
     Ok(())
 }
 
-
 #[derive(Debug, serde::Serialize)]
 struct GupshupUserData {
     phone: String,

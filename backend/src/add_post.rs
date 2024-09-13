@@ -1,3 +1,5 @@
+use diesel::ExpressionMethods;
+
 #[ft_sdk::data]
 fn add_post(
     mut conn: ft_sdk::Connection,
@@ -90,15 +92,17 @@ impl NewPost {
                     content: content.unwrap_or_default(),
                     media_url: media_url.unwrap_or_default(),
                     time_ago: time_ago(created_on),
-                    date: common::datetime_to_date_string(&created_on)
+                    date: common::datetime_to_date_string(&created_on),
                 },
                 None => PostWithTime {
                     content: "".to_string(),
                     media_url: "".to_string(),
                     time_ago: "".to_string(),
-                    date: "".to_string()
+                    date: "".to_string(),
                 },
             };
+
+        let post_count = post_count_by_user_id(conn, user_id)?;
 
         Ok(Output {
             post_id,
@@ -106,8 +110,36 @@ impl NewPost {
             media_url: self.media_url,
             created_on: self.created_on.format("%Y-%m-%d %H:%M:%S").to_string(),
             random_post,
+            post_count,
         })
     }
+}
+
+fn post_count_by_user_id(conn: &mut ft_sdk::Connection, user_id: i64) -> Option<i64> {
+    // Check if the user has free plan subscription
+    // If yes, return number of posts by user
+    // If no, return None
+    // todo: Rutuja: Fix logic for free plan
+    use common::schema::{posts, users};
+    use diesel::prelude::*;
+
+    let subscription_type = users::table
+        .select(users::subscription_type.eq(common::FREE_TRIAL_PLAN_NAME))
+        .find(user_id)
+        .get_result::<Option<String>>(conn)
+        .ok()?;
+
+    if subscription_type.is_none() {
+        return None;
+    }
+
+    Some(
+        posts::table
+            .filter(posts::user_id.eq(user_id))
+            .count()
+            .get_result(conn)
+            .ok()?,
+    )
 }
 
 #[derive(serde::Serialize)]
@@ -124,6 +156,7 @@ pub struct Output {
     created_on: String,
     #[serde(rename = "randompost")]
     random_post: PostWithTime,
+    post_count: i64,
 }
 
 #[derive(serde::Serialize)]
@@ -132,7 +165,7 @@ struct PostWithTime {
     #[serde(rename = "mediaurl")]
     media_url: String,
     time_ago: String,
-    date: String
+    date: String,
 }
 
 #[derive(Debug, serde::Deserialize)]
