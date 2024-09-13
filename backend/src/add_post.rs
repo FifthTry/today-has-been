@@ -116,30 +116,28 @@ impl NewPost {
 }
 
 fn post_count_by_user_id(conn: &mut ft_sdk::Connection, user_id: i64) -> Option<i64> {
-    // Check if the user has free plan subscription
-    // If yes, return number of posts by user
-    // If no, return None
-    // todo: Rutuja: Fix logic for free plan
     use common::schema::{posts, users};
     use diesel::prelude::*;
 
-    let subscription_type = users::table
-        .select(users::subscription_type.eq(common::FREE_TRIAL_PLAN_NAME))
-        .find(user_id)
-        .get_result::<Option<String>>(conn)
+    let subscription_type: Option<String> = users::table
+        .filter(users::id.eq(user_id))
+        .select(users::subscription_type)
+        .get_result(conn)
         .ok()?;
 
-    if subscription_type.is_none() {
-        return None;
-    }
-
-    Some(
-        posts::table
+    // Check if the user has the free plan subscription
+    if subscription_type.as_deref() == Some(common::FREE_TRIAL_PLAN_NAME) {
+        // If yes, return number of posts by user
+        let count = posts::table
             .filter(posts::user_id.eq(user_id))
             .count()
             .get_result(conn)
-            .ok()?,
-    )
+            .ok()?;
+        Some(count)
+    } else {
+        // If no, return None
+        None
+    }
 }
 
 #[derive(serde::Serialize)]
