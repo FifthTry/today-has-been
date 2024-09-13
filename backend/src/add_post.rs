@@ -1,5 +1,3 @@
-use diesel::ExpressionMethods;
-
 #[ft_sdk::data]
 fn add_post(
     mut conn: ft_sdk::Connection,
