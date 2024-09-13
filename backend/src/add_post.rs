@@ -113,10 +113,12 @@ impl NewPost {
     }
 }
 
+/// Returns the number of posts by the user_id whose subscription is free trial
 fn post_count_by_user_id(conn: &mut ft_sdk::Connection, user_id: i64) -> Option<i64> {
     use common::schema::{posts, users};
     use diesel::prelude::*;
 
+    // Get the subscription type of the user
     let subscription_type: Option<String> = users::table
         .filter(users::id.eq(user_id))
         .select(users::subscription_type)
