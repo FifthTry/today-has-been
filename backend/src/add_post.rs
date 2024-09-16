@@ -114,7 +114,10 @@ impl NewPost {
 }
 
 /// Returns the number of posts by the user_id whose subscription is free trial
-fn post_count_by_user_id(conn: &mut ft_sdk::Connection, user_id: i64) -> Result<Option<i64>, ft_sdk::Error> {
+fn post_count_by_user_id(
+    conn: &mut ft_sdk::Connection,
+    user_id: i64,
+) -> Result<Option<i64>, ft_sdk::Error> {
     use common::schema::{posts, users};
     use diesel::prelude::*;
 
@@ -124,7 +127,11 @@ fn post_count_by_user_id(conn: &mut ft_sdk::Connection, user_id: i64) -> Result<
         .select(users::subscription_type)
         .get_result::<Option<String>>(conn)
         .map_err(|e| {
-            ft_sdk::println!("Error fetching subscription type for user {}: {:?}", user_id, e);
+            ft_sdk::println!(
+                "Error fetching subscription type for user {}: {:?}",
+                user_id,
+                e
+            );
             ft_sdk::Error::from(e)
         })?;
 
@@ -146,7 +153,6 @@ fn post_count_by_user_id(conn: &mut ft_sdk::Connection, user_id: i64) -> Result<
     }
 }
 
-
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
     #[error("diesel error {0}")]
@@ -154,9 +160,6 @@ pub enum Error {
     #[error("{0}")]
     Custom(String),
 }
-
-
-
 
 #[derive(serde::Serialize)]
 pub struct Output {
