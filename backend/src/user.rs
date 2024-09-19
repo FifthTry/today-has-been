@@ -23,6 +23,7 @@ fn user(
                     older_date_url: None,
                     newer_date_url: None,
                     random_date_url: None,
+                    today_date_url: None,
                 })?
                 .with_cookie(todayhasbeen::expire_session_cookie(&host)?)
                 .with_cookie(todayhasbeen::set_light_mode(&host)?)),
@@ -35,6 +36,7 @@ fn user(
             older_date_url: None,
             newer_date_url: None,
             random_date_url: None,
+            today_date_url: None,
         })?
         .with_cookie(todayhasbeen::set_light_mode(&host)?)),
     }
@@ -54,11 +56,27 @@ fn get_user_data(
         None => None,
     };
 
-    let (posts, older_date, newer_date) = get_posts_for_latest_or_given_date(conn, user.id, date)?;
+    let (posts, older_date, newer_date, today_date) = get_posts_for_latest_or_given_date(conn, user.id, date)?;
 
     ft_sdk::println!("Get posts:: {posts:?}");
     let mut post_data_hash: std::collections::HashMap<String, Vec<PostDataByDate>> =
         std::collections::HashMap::new();
+
+    let today_posts = get_posts_for_date(conn, user.id, chrono::Utc::now())?;
+
+    if !today_posts.is_empty() {
+        let today_date_string = common::datetime_to_date_string(&today_date);
+        let today_post_data: Vec<PostDataByDate> = today_posts
+            .into_iter()
+            .map(|post| PostDataByDate {
+                time: post.created_on.time().to_string(),
+                post: post.post_content,
+                media_url: post.media_url,
+            })
+            .collect();
+
+        post_data_hash.insert(today_date_string, today_post_data);
+    }
 
     for post in posts {
         let date = common::datetime_to_date_string(&post.created_on);
@@ -98,6 +116,7 @@ fn get_user_data(
             .map(|dt| format!("/?date={}", common::datetime_to_date_string(&dt))),
         random_date_url: random_date_data
             .map(|(_, dt, _, _)| format!("/?date={}", common::datetime_to_date_string(&dt))),
+        today_date_url: Some(format!("/?date={}", common::datetime_to_date_string(&today_date))),
     })
 }
 
@@ -110,6 +129,7 @@ pub fn get_posts_for_latest_or_given_date(
         Vec<todayhasbeen::Post>,
         Option<chrono::DateTime<chrono::Utc>>,
         Option<chrono::DateTime<chrono::Utc>>,
+        chrono::DateTime<chrono::Utc>,
     ),
     ft_sdk::Error,
 > {
@@ -118,7 +138,8 @@ pub fn get_posts_for_latest_or_given_date(
         Some(d) => d,
         None => match get_latest_post_date(conn, user_id)? {
             Some(d) => d,
-            None => return Ok((vec![], None, None)), // No posts found
+            None => return Ok((vec![], None, None, chrono::Utc::now())), // No posts found
+
         },
     };
 
@@ -128,11 +149,11 @@ pub fn get_posts_for_latest_or_given_date(
     ft_sdk::println!("Get posts_for_date:: {posts_for_date:?}");
 
     // Get the adjacent dates
-    let (older_date, newer_date) = get_adjacent_dates(conn, user_id, date_to_use)?;
+    let (older_date, newer_date, today_date) = get_adjacent_dates(conn, user_id, date_to_use)?;
 
-    ft_sdk::println!("Get adjacent_dates:: {older_date:?} {newer_date:?}");
+    ft_sdk::println!("Get adjacent_dates:: {older_date:?} {newer_date:?} {today_date:?}");
 
-    Ok((posts_for_date, older_date, newer_date))
+    Ok((posts_for_date, older_date, newer_date, today_date))
 }
 
 // Helper function to get the latest post date
@@ -185,6 +206,7 @@ fn get_adjacent_dates(
     (
         Option<chrono::DateTime<chrono::Utc>>,
         Option<chrono::DateTime<chrono::Utc>>,
+        chrono::DateTime<chrono::Utc>,
     ),
     ft_sdk::Error,
 > {
@@ -211,7 +233,9 @@ fn get_adjacent_dates(
         .first::<chrono::DateTime<chrono::Utc>>(conn)
         .optional()?;
 
-    Ok((older_date, newer_date))
+    let today_date = chrono::Utc::now();
+
+    Ok((older_date, newer_date, today_date))
 }
 
 #[derive(serde::Serialize, Debug)]
@@ -223,6 +247,7 @@ struct UserData {
     older_date_url: Option<String>,
     newer_date_url: Option<String>,
     random_date_url: Option<String>,
+    today_date_url: Option<String>,
 }
 
 #[derive(serde::Serialize, Debug)]
