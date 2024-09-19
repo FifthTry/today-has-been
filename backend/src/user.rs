@@ -25,8 +25,8 @@ fn user(
                     random_date_url: None,
                     today_date_url: None,
                 })?
-                .with_cookie(todayhasbeen::expire_session_cookie(&host)?)
-                .with_cookie(todayhasbeen::set_light_mode(&host)?)),
+                    .with_cookie(todayhasbeen::expire_session_cookie(&host)?)
+                    .with_cookie(todayhasbeen::set_light_mode(&host)?)),
             }
         }
         None => Ok(ft_sdk::processor::json(UserData {
@@ -38,7 +38,7 @@ fn user(
             random_date_url: None,
             today_date_url: None,
         })?
-        .with_cookie(todayhasbeen::set_light_mode(&host)?)),
+            .with_cookie(todayhasbeen::set_light_mode(&host)?)),
     }
 }
 
