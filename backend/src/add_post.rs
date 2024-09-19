@@ -113,6 +113,7 @@ impl NewPost {
     }
 }
 
+
 /// Returns the number of posts by the user_id whose subscription is free trial
 fn post_count_by_user_id(
     conn: &mut ft_sdk::Connection,
