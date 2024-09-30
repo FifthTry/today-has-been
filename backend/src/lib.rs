@@ -10,6 +10,7 @@ mod notify_free_trial_expired;
 mod register;
 mod user;
 mod user_timezone;
+mod get_user_details;
 
 pub(crate) fn set_session_cookie(
     sid: &str,

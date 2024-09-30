@@ -12,6 +12,11 @@ pub const DURATION_TO_EXPIRE_ACCESS_TOKEN_IN_HOURS: i64 = 2;
 pub const DURATION_TO_EXPIRE_FREE_TRIAL_IN_DAYS: i64 = 14;
 pub const FREE_TRIAL_PLAN_NAME: &str = "free_trial";
 pub const GUPSHUP_CALLBACK_SERVICE_URL: &str = "https://notifications.gupshup.io/notifications/callback/service/ipass/project/730/integration/19770066040f26502c05494f2";
+pub const ALLOWED_USERS: [i64; 3] = [
+    919901353494,  // Rahul Gupta
+    918574512919,  // Arpita Jaiswal
+    919820715512   // Amit Upadhyay
+];
 
 #[derive(Debug, serde::Serialize, diesel::Selectable, diesel::Queryable)]
 #[diesel(table_name = common::schema::users)]
