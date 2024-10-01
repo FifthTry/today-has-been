@@ -40,7 +40,7 @@ fn get_all_users(conn: &mut ft_sdk::Connection) -> Result<Vec<common::UserData>,
 
 
 fn has_access(user: &common::UserData) -> bool {
-    common::ALLOWED_USERS.contains(&user.mobile_number)
+    common::ADMINS.contains(&user.mobile_number)
 }
 
 #[derive(serde::Serialize, Debug)]
