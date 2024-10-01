@@ -1,0 +1,11 @@
+-- import: todayhasbeen-ui.fifthtry.site/page/user-details
+-- import: todayhasbeen-ui.fifthtry.site/record/user-data as ud
+-- import: fastn/processors as pr
+
+
+-- ud.user-detail-response response:
+$processor$: pr.http
+url: /api/v0.1/get-user-details/
+
+
+-- user-details.page: $response
