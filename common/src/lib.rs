@@ -20,6 +20,7 @@ pub const ALLOWED_USERS: [i64; 3] = [
 
 #[derive(Debug, serde::Serialize, diesel::Selectable, diesel::Queryable)]
 #[diesel(table_name = common::schema::users)]
+#[serde(rename_all = "kebab-case")]
 pub struct UserData {
     pub id: i64,
     pub mobile_number: i64,
