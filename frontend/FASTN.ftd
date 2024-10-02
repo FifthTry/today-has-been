@@ -30,6 +30,24 @@ provided-via: todayhasbeen-ui.fifthtry.site/ds
 document: payment-status.ftd
 
 
+-- fastn.migration: added_is_staff_in_user
+
+ALTER TABLE users
+ADD COLUMN is_staff integer default 0;
+
+
+UPDATE users
+SET is_staff = 1
+WHERE mobile_number = 919901353494;
+
+UPDATE users
+SET is_staff = 1
+WHERE mobile_number = 918574512919;
+
+UPDATE users
+SET is_staff = 1
+WHERE mobile_number = 919820715512;
+
 
 -- fastn.migration: remove_customer_id_for_unsubscribed_user
 

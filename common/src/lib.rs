@@ -31,6 +31,7 @@ pub struct UserData {
     pub subscription_end_time: Option<String>,
     pub customer_id: Option<String>,
     pub access_token: String,
+    pub is_staff: bool,
     pub created_on: chrono::DateTime<chrono::Utc>,
     pub updated_on: chrono::DateTime<chrono::Utc>,
 }

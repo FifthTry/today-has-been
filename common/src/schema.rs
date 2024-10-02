@@ -7,6 +7,7 @@ diesel::table! {
         language -> Nullable<Text>,
         subscription_type -> Nullable<Text>,
         subscription_end_time -> Nullable<Text>,
+        is_staff -> Bool,
         customer_id -> Nullable<Text>,
         access_token -> Text,
         created_on -> Timestamptz,
