@@ -5,7 +5,7 @@
 -- import: todayhasbeen-ui.fifthtry.site/page/payment-status-failed
 -- import: todayhasbeen-ui.fifthtry.site/page/payment-status-success
 
-
+;; This calls `add-ga` component
 -- ga.add-ga:
 
 

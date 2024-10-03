@@ -1,0 +1,36 @@
+-- import: fastn/processors as pr
+-- import: todayhasbeen-ui.fifthtry.site/record/user-data as ud
+-- import: todayhasbeen-ui.fifthtry.site/page/all-users
+
+
+-- ud.user-data current-user:
+$processor$: pr.http
+url: /api/v0.1/user/
+
+
+-- ud.user-detail list users:
+$processor$: pr.sql-query
+
+SELECT
+    access_token,
+    created_on,
+    customer_id,
+    id,
+    mobile_number,
+    subscription_end_time,
+    subscription_type,
+    time_zone,
+    updated_on,
+    user_name
+FROM
+    users;
+
+
+-- all-users.page:
+data: $users
+if: { current-user.is-staff }
+
+
+-- ftd.temporary-redirect: /
+if: { !current-user.is-staff }
+
