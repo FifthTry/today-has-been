@@ -12,6 +12,7 @@ mod user;
 mod user_timezone;
 mod get_user_details;
 mod get_gupshup_medias;
+mod change_media_urls;
 
 pub(crate) fn set_session_cookie(
     sid: &str,

@@ -38,7 +38,7 @@ fn get_gupshup_medias_from_db(
             .order_by(posts::created_on.desc())
             .load::<(i64, Option<String>)>(conn)?
             .into_iter()
-            .filter_map(|( id, media_url )| media_url.map(|media_url| GupshupMedia { id, media_url }))
+            .filter_map(|( id, media_url )| media_url.map(|media_url| GupshupMedia { post_id: id, media_url }))
             .collect();
 
         Ok(gupshup_media_urls)
@@ -53,7 +53,7 @@ fn get_gupshup_medias_from_db(
             .order_by(posts::created_on.desc())
             .load::<(i64, Option<String>)>(conn)?
             .into_iter()
-            .filter_map(|( id, media_url )| media_url.map(|media_url| GupshupMedia { id, media_url }))
+            .filter_map(|( id, media_url )| media_url.map(|media_url| GupshupMedia { post_id: id, media_url }))
             .collect();
 
         Ok(gupshup_media_urls)
@@ -62,7 +62,7 @@ fn get_gupshup_medias_from_db(
 
 #[derive(Debug, serde::Serialize)]
 struct GupshupMedia {
-    id: i64,
+    post_id: i64,
     media_url: String,
 }
 
