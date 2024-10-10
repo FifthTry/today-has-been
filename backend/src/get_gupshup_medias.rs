@@ -32,13 +32,13 @@ fn get_gupshup_medias_from_db(
 
     if all {
         let gupshup_media_urls = posts::table
-            .select((posts::id, posts::media_url))
+            .select((posts::id, posts::user_id, posts::media_url))
             .filter(posts::media_url.is_not_null())
             .filter(posts::media_url.like("%filemanager.gupshup.io%"))
             .order_by(posts::created_on.desc())
-            .load::<(i64, Option<String>)>(conn)?
+            .load::<(i64, i64, Option<String>)>(conn)?
             .into_iter()
-            .filter_map(|( id, media_url )| media_url.map(|media_url| GupshupMedia { post_id: id, media_url }))
+            .filter_map(|( post_id, user_id, media_url )| media_url.map(|media_url| GupshupMedia { post_id, user_id, media_url }))
             .collect();
 
         Ok(gupshup_media_urls)
@@ -46,14 +46,14 @@ fn get_gupshup_medias_from_db(
         // Get last two days
         let date = ft_sdk::env::now() - chrono::Duration::days(2);
         let gupshup_media_urls = posts::table
-            .select((posts::id, posts::media_url))
+            .select((posts::id, posts::user_id, posts::media_url))
             .filter(posts::media_url.is_not_null())
             .filter(posts::media_url.like("%filemanager.gupshup.io%"))
             .filter(posts::created_on.gt(date))
             .order_by(posts::created_on.desc())
-            .load::<(i64, Option<String>)>(conn)?
+            .load::<(i64, i64, Option<String>)>(conn)?
             .into_iter()
-            .filter_map(|( id, media_url )| media_url.map(|media_url| GupshupMedia { post_id: id, media_url }))
+            .filter_map(|( post_id, user_id, media_url )| media_url.map(|media_url| GupshupMedia { post_id, user_id, media_url }))
             .collect();
 
         Ok(gupshup_media_urls)
@@ -63,6 +63,7 @@ fn get_gupshup_medias_from_db(
 #[derive(Debug, serde::Serialize)]
 struct GupshupMedia {
     post_id: i64,
+    user_id: i64,
     media_url: String,
 }
 
