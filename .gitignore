@@ -10,3 +10,4 @@ frontend/fastn.sqlite
 frontend/*.db
 */.DS_Store
 .DS_Store
+.venv
