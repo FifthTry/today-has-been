@@ -85,7 +85,7 @@ impl NewPost {
         post_id: i64,
     ) -> Result<Output, ft_sdk::Error> {
         let random_post =
-            match todayhasbeen::get_random_post_date_data(conn, user_id, Some(post_id), 6)? {
+            match todayhasbeen::get_random_post_date_data(conn, user_id, Some(post_id), common::MIN_NO_OF_POST_TO_SEND_RANDOM_POST)? {
                 Some((_, created_on, media_url, content)) => PostWithTime {
                     content: content.unwrap_or_default(),
                     media_url: media_url.unwrap_or_default(),
