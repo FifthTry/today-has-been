@@ -37,13 +37,13 @@ def download_media(media_url, post_id):
         print(f"Failed to download media for post_id: {post_id}")
         return None
 
-def upload_to_s3(file_path, post_id):
+def upload_to_s3(file_path, post_id, user_id):
     """Upload the downloaded media to S3"""
-    s3_key = f"uploads/{os.path.basename(file_path)}"
+    s3_key = f"medias/{user_id}/{get_guid()}_{post_id}"
     try:
         s3.upload_file(file_path, S3_BUCKET_NAME, s3_key)
         s3_url = f"https://{S3_BUCKET_NAME}.s3.amazonaws.com/{s3_key}"
-        print(f"Uploaded file to S3 for post_id: {post_id}")
+        print(f"Uploaded file to S3 for post_id: {post_id}, s3_url: {s3_url}")
         return s3_url
     except Exception as e:
         print(f"Failed to upload to S3 for post_id: {post_id}. Error: {e}")
@@ -65,13 +65,14 @@ def process_media():
     if media_data and media_data.get("success"):
         for item in media_data.get("data", []):
             post_id = item.get("post_id")
+            user_id = item.get("user_id")
             media_url = item.get("media_url")
 
             # Step 1: Download media
             downloaded_file = download_media(media_url, post_id)
             if downloaded_file:
                 # Step 2: Upload to S3
-                s3_url = upload_to_s3(downloaded_file, post_id)
+                s3_url = upload_to_s3(downloaded_file, post_id, user_id)
 
                 if s3_url:
                     # Step 3: Update media URL via API
@@ -81,6 +82,11 @@ def process_media():
                 os.remove(downloaded_file)
     else:
         print("No media to process or failed to fetch media data.")
+
+
+def get_guid():
+    import uuid
+    return str(uuid.uuid4())
 
 if __name__ == "__main__":
     process_media()
