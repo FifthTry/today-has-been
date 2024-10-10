@@ -25,7 +25,10 @@ def fetch_media_data():
 
 def download_media(media_url, post_id):
     """Download the media file from the given URL"""
-    local_filename = f"media_{post_id}.jpg"  # Customize file name if needed
+    # create thb dir if not exists
+    if not os.path.exists("thb"):
+        os.makedirs("thb")
+    local_filename = f"thb/media_{post_id}.jpg"  # Customize file name if needed
     response = requests.get(media_url, stream=True)
     if response.status_code == 200:
         with open(local_filename, 'wb') as file:
@@ -34,16 +37,16 @@ def download_media(media_url, post_id):
         print(f"Downloaded media for post_id: {post_id}")
         return local_filename
     else:
-        print(f"Failed to download media for post_id: {post_id}")
+        print(f"Failed to download media for post_id: {post_id} {media_url}")
         return None
 
-def upload_to_s3(file_path, post_id, user_id):
+def upload_to_s3(file_path, post_id, user_id, media_url):
     """Upload the downloaded media to S3"""
     s3_key = f"medias/{user_id}/{get_guid()}_{post_id}"
     try:
         s3.upload_file(file_path, S3_BUCKET_NAME, s3_key)
         s3_url = f"https://{S3_BUCKET_NAME}.s3.amazonaws.com/{s3_key}"
-        print(f"Uploaded file to S3 for post_id: {post_id}, s3_url: {s3_url}")
+        print(f"Uploaded file to S3 for post_id: {post_id}, old_url: {media_url}, s3_url: {s3_url}")
         return s3_url
     except Exception as e:
         print(f"Failed to upload to S3 for post_id: {post_id}. Error: {e}")
@@ -74,19 +77,21 @@ def process_media():
                 # Step 2: Upload to S3
                 s3_url = upload_to_s3(downloaded_file, post_id, user_id)
 
-                if s3_url:
-                    # Step 3: Update media URL via API
-                    update_media_url(post_id, s3_url)
-
-                # Cleanup downloaded file
-                os.remove(downloaded_file)
+                # if s3_url:
+                #     # Step 3: Update media URL via API
+                #     update_media_url(post_id, s3_url)
+                #
+                #     # Cleanup downloaded file
+                #     os.remove(downloaded_file)
     else:
-        print("No media to process or failed to fetch media data.")
+        print(f"No media to process or failed to fetch media data. {media_data}")
 
 
 def get_guid():
     import uuid
     return str(uuid.uuid4())
+
+
 
 if __name__ == "__main__":
     process_media()
